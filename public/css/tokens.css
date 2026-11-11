@@ -1,0 +1,7 @@
+@font-face{font-family:Vazirmatn;src:url(../fonts/Vazirmatn.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{
+  color-scheme:dark;
+  --bg:#0F1311;--ink:#E9ECE8;--mute:#8D978F;--line:#2A312D;--accent:#8FB39E;--on-accent:#0F1311;--danger:#E4907F;
+  --r:3px;--pad:16px;--max:1100px;
+  --font:Vazirmatn,Tahoma,system-ui,sans-serif;
+}

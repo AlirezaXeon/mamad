@@ -1,0 +1,15 @@
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;text-align:center;padding:24px;transition:transform .85s cubic-bezier(.7,0,.2,1);cursor:pointer}
+.no-splash #splash{display:none}
+#splash.out{transform:translateY(-100%)}
+html:not(.no-splash) body:has(#splash){overflow:hidden}
+.sp-logo{display:block;margin:0 auto;width:84px;height:84px;object-fit:contain;opacity:0;animation:spIn .8s .1s forwards}
+.sp-photo{width:112px;height:112px;border-radius:50%;object-fit:cover}
+.sp-rule{display:block;height:1px;width:min(220px,60vw);margin:22px auto 18px;background:var(--accent);transform:scaleX(0);animation:spLine .9s .5s cubic-bezier(.6,0,.2,1) forwards}
+.sp-name{margin:0;font-size:1.3rem;font-weight:700;opacity:0;animation:spIn .7s .9s forwards}
+.sp-text{margin:6px 0 0;color:var(--mute);opacity:0;animation:spIn .7s forwards;animation-delay:calc(1.2s + var(--i) * .4s)}
+@keyframes spIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spLine{to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){
+  #splash *{animation-duration:.01s!important;animation-delay:0s!important}
+  #splash{transition:opacity .3s}#splash.out{transform:none;opacity:0}
+}

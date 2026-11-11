@@ -1,0 +1,58 @@
+[
+  {
+    "slug": "villa-narenjestan",
+    "title": "ویلای نارنجستان",
+    "category": "مسکونی",
+    "summary": "ویلا، شمال، ۲۵۰ متر",
+    "description": "بازطراحی فضای نشیمن و آشپزخانه با تکیه بر نور طبیعی و مصالح گرم. متن توضیح پروژه را اینجا بنویسید.",
+    "info": { "موقعیت": "نوشهر", "متراژ": "۲۵۰ متر", "سال": "۱۴۰۴", "وضعیت": "رندر" },
+    "images": [
+      "images/projects/villa-narenjestan/1.jpg",
+      "images/projects/villa-narenjestan/2.jpg",
+      "images/projects/villa-narenjestan/3.jpg",
+      "images/projects/villa-narenjestan/4.jpg"
+    ]
+  },
+  {
+    "slug": "penthouse-saadat",
+    "title": "پنت‌هاوس سعادت‌آباد",
+    "category": "مسکونی",
+    "summary": "پنت‌هاوس، تهران، ۱۸۰ متر",
+    "description": "طراحی داخلی یک پنت‌هاوس با پلان باز و پالت رنگی خنثی.",
+    "info": { "موقعیت": "تهران", "متراژ": "۱۸۰ متر", "سال": "۱۴۰۴", "کارفرما": "خصوصی" },
+    "images": [
+      "images/projects/penthouse-saadat/1.jpg",
+      "images/projects/penthouse-saadat/2.jpg",
+      "images/projects/penthouse-saadat/3.jpg",
+      "images/projects/penthouse-saadat/4.jpg"
+    ]
+  },
+  {
+    "slug": "cafe-roshan",
+    "title": "کافه روشن",
+    "category": "تجاری",
+    "summary": "کافه، اردبیل، ۹۰ متر",
+    "description": "طراحی فضای کافه با نورپردازی گرم و چیدمان انعطاف‌پذیر.",
+    "info": { "موقعیت": "اردبیل", "متراژ": "۹۰ متر", "سال": "۱۴۰۳", "وضعیت": "اجرا شده" },
+    "images": [
+      "images/projects/cafe-roshan/1.jpg",
+      "images/projects/cafe-roshan/2.jpg",
+      "images/projects/cafe-roshan/3.jpg",
+      "images/projects/cafe-roshan/4.jpg"
+    ]
+  },
+  {
+    "slug": "office-arman",
+    "title": "دفتر آرمان",
+    "category": "اداری",
+    "summary": "دفتر کار، تبریز، ۱۴۰ متر",
+    "description": "فضای کار باز با اتاق جلسه شیشه‌ای و مصالح روشن.",
+    "info": { "موقعیت": "تبریز", "متراژ": "۱۴۰ متر", "سال": "۱۴۰۴", "وضعیت": "رندر" },
+    "images": [
+      "images/projects/office-arman/1.jpg",
+      "images/projects/office-arman/2.jpg",
+      "images/projects/office-arman/3.jpg",
+      "images/projects/office-arman/4.jpg"
+    ]
+  }
+]

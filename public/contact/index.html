@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>XEON | Digital Universe — Alireza Fahimi</title>
+<meta name="description" content="Alireza (XEON) — توسعه‌دهنده و علاقه‌مند به امنیت سایبری. نمونه‌کارها، لینک‌های اجتماعی و کارت دیجیتال." />
+<meta name="author" content="Alireza Fahimi" />
+<meta name="theme-color" content="#000000" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="fa_IR" />
+<meta property="og:title" content="XEON | Digital Universe — Alireza Fahimi" />
+<meta property="og:description" content="Alireza (XEON) — توسعه‌دهنده و علاقه‌مند به امنیت سایبری." />
+<link rel="icon" href="avatar.jpg" />
+<link rel="apple-touch-icon" href="avatar.jpg" />
+<link rel="preload" href="avatar.jpg" as="image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Russo+One&family=Vazirmatn:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="contact.css" />
+</head>
+<body>
+  <div id="loader" aria-hidden="true">
+    <div class="dec">
+      <div class="dec-word" id="decWord">ALIREZA</div>
+      <div class="dec-sub" id="decSub">DECRYPTING SIGNAL</div>
+      <div class="dec-bar"><i id="decBar"></i></div>
+      <div class="dec-pct" id="decPct">0%</div>
+    </div>
+  </div>
+
+  <canvas id="canvas-bg" aria-hidden="true"></canvas>
+  <div class="cyber-grid" aria-hidden="true"></div>
+  <div class="scan-line" aria-hidden="true"></div>
+
+  <a class="back-link" href="/">بازگشت به نمونه‌کارها</a>
+
+  <main class="main-container">
+    <div class="wrap">
+      <h1 class="glitch reveal" data-text="ALIREZA" style="--i:0">ALIREZA</h1>
+
+      <div class="badge-row reveal" style="--i:1">
+        <button class="cyber-badge" id="cyberBadge" type="button" title="کپی آیدی">alirezaxeon</button>
+      </div>
+
+      <section class="profile reveal" style="--i:2">
+        <div class="avatar-ring">
+          <img class="avatar" id="avatar" src="avatar.jpg" width="110" height="110" alt="عکس پروفایل Alireza" fetchpriority="high" decoding="async" />
+          <div class="avatar-fallback" id="avatarFallback" aria-hidden="true">AX</div>
+        </div>
+        <h2 class="profile-name">Alireza Fahimi</h2>
+        <p class="profile-bio">Dreams compile into reality. 💭💻🌟</p>
+      </section>
+
+      <nav class="cards" aria-label="Links">
+        <a class="holo-card reveal" style="--i:3;--c:var(--pink)" href="https://instagram.com/alirezaxeon" target="_blank" rel="noopener me">
+          <div class="icon-face" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div><h3 class="card-title">Instagram</h3>
+        </a>
+        <a class="holo-card reveal" style="--i:4;--c:var(--cyan)" href="https://t.me/alirezaxeon" target="_blank" rel="noopener me">
+          <div class="icon-face" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><h3 class="card-title">Telegram</h3>
+        </a>
+        <a class="holo-card reveal" style="--i:5;--c:var(--purple)" href="https://github.com/alirezaxeon" target="_blank" rel="noopener me">
+          <div class="icon-face" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div><h3 class="card-title">GitHub</h3>
+        </a>
+        <a class="holo-card reveal" style="--i:6;--c:var(--yellow)" href="mailto:alirezaxeon@gmail.com">
+          <div class="icon-face" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><h3 class="card-title">Email</h3>
+        </a>
+      </nav>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="contact.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+/* پس‌زمینه: ۱) شبکه نقشه  ۲) نور ملایم  ۳) بافت گچ/بتن — همه ثابت و بدون انیمیشن.
+   رنگ زمینه روی html است و body شفاف می‌ماند تا لایه‌ها دیده شوند. */
+
+/* ۱) شبکه نقشه: خطوط ریز هر ۲۴px و خطوط اصلی هر ۱۲۰px، محو به سمت پایین */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(143,179,158,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(143,179,158,.07) 1px,transparent 1px),
+    linear-gradient(rgba(143,179,158,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(143,179,158,.035) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,transparent 75%);
+  mask-image:linear-gradient(to bottom,#000 0,transparent 75%);
+}
+
+/* ۲) نور ملایم بالای صفحه، پشت بخش معرفی */
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(70% 42% at 50% 0%,rgba(143,179,158,.14),transparent 72%);
+}
+
+/* ۳) بافت نویز بسیار ریز (SVG داخلی، بدون درخواست شبکه) */
+html::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
