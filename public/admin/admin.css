@@ -1,4 +1,5 @@
 @font-face{font-family:Vazirmatn;src:url(../fonts/Vazirmatn.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{color-scheme:dark;--bg:#0F1311;--ink:#E9ECE8;--mute:#8D978F;--line:#2A312D;--accent:#8FB39E;--on-accent:#0F1311;--danger:#E4907F}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 .95rem/1.8 var(--font)}
 [hidden]{display:none!important}

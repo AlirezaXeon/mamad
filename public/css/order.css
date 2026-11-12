@@ -21,17 +21,17 @@ body.in-order{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 .pill .opt{padding:9px 16px;border:1px solid var(--line);border-radius:99px;background:transparent;color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s}
 .pill .opt.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
 .choices.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.cards .opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:116px;padding:14px;text-align:start;border:1px solid var(--line);border-radius:4px;background:rgba(255,255,255,.025);color:var(--ink);cursor:pointer;transition:border-color .2s,background .2s}
+.cards .opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:116px;padding:14px;text-align:start;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);cursor:pointer;transition:border-color .2s,background .2s}
 .cards .opt b{font-size:.98rem;font-weight:600;padding-inline-end:22px}
 .cards .opt small{color:var(--mute);font-size:.78rem;line-height:1.7}
 .cards .ico{width:28px;height:28px;color:var(--accent)}
 .cards .opt::after{content:"";position:absolute;top:12px;inset-inline-end:12px;width:18px;height:18px;border:1px solid var(--line);border-radius:50%;transition:background .2s,border-color .2s}
-.cards .opt.on{border-color:var(--accent);background:rgba(143,179,158,.1)}
-.cards .opt.on::after{border-color:var(--accent);background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%230F1311' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.cards .opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.cards .opt.on::after{border-color:var(--accent);background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%23F8F8F4' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
 .pal{display:flex;margin-top:auto;padding-top:4px}
-.pal i{width:16px;height:16px;border:2px solid #151A18;border-radius:50%;margin-inline-end:-5px}
-.in{display:block;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:rgba(255,255,255,.03);color:var(--ink);font:inherit;transition:border-color .2s,background .2s}
-.in:focus{outline:none;border-color:var(--accent);background:rgba(143,179,158,.06)}
+.pal i{width:16px;height:16px;border:2px solid var(--paper);border-radius:50%;margin-inline-end:-5px}
+.in{display:block;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:var(--field);color:var(--ink);font:inherit;transition:border-color .2s,background .2s}
+.in:focus{outline:none;border-color:var(--accent);background:#fff}
 textarea.in{min-height:120px;resize:vertical}
 .in.ltr{direction:ltr;text-align:right}
 .with-unit{position:relative}
@@ -62,7 +62,7 @@ textarea.in{min-height:120px;resize:vertical}
 .ok circle{stroke-dasharray:151;stroke-dashoffset:151;animation:draw .8s ease forwards}
 .ok path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .6s ease forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.code{display:block;margin:6px auto 26px;padding:12px 26px;border:1px dashed var(--accent);border-radius:4px;background:rgba(143,179,158,.08);color:var(--ink);font:700 1.9rem ui-monospace,Menlo,Consolas,monospace;letter-spacing:.3em;text-indent:.3em;cursor:pointer}
+.code{display:block;margin:6px auto 26px;padding:12px 26px;border:1px dashed var(--accent);border-radius:4px;background:var(--accent-soft);color:var(--ink);font:700 1.9rem ui-monospace,Menlo,Consolas,monospace;letter-spacing:.3em;text-indent:.3em;cursor:pointer}
 .code[data-ok]::after{content:"کپی شد";display:block;margin-top:2px;color:var(--accent);font:400 .75rem var(--font);letter-spacing:0;text-indent:0}
 .next-steps{text-align:start;margin:0 0 24px}
 .done-btns{display:grid;gap:10px}
