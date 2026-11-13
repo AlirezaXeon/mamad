@@ -1,11 +1,11 @@
 @font-face{font-family:Vazirmatn;src:url(../fonts/Vazirmatn.woff2) format("woff2");font-weight:100 900;font-display:swap}
 :root{
   color-scheme:light;
-  /* کالک: زمینه‌ی خنثی و کمی سرد، خط مشکی، تأکید آبی CAD */
-  --bg:#EDEFEA;--paper:#F8F8F4;--ink:#14181C;--mute:#5F6561;--line:#C9CDC5;
-  --accent:#1D4F91;--on-accent:#F8F8F4;--danger:#B3402F;
-  --accent-soft:rgba(29,79,145,.08);--field:rgba(255,255,255,.65);
-  --r:2px;--pad:16px;--max:1100px;
+  --bg:#F4F1EB;--paper:#FBF9F5;--ink:#24251F;--mute:#77766D;--line:#DDD8CE;
+  --accent:#78664F;--on-accent:#FBF9F5;--danger:#B3402F;
+  --accent-soft:rgba(120,102,79,.10);--field:rgba(255,255,255,.72);
+  --r:3px;--pad:clamp(18px,4vw,48px);--max:1240px;
   --font:Vazirmatn,Tahoma,system-ui,sans-serif;
   --mono:ui-monospace,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,.68,0,1);
 }

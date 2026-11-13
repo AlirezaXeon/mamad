@@ -1,0 +1,57 @@
+/* Mobile-first editorial layout */
+#top>a{display:inline-flex;align-items:center;gap:12px;font-size:1rem;letter-spacing:-.02em}
+#top>a::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent)}
+#top::after{content:"معماری و طراحی داخلی";margin-inline-start:auto;color:var(--mute);font-size:.75rem;font-weight:400}
+.hero{display:grid;gap:28px;padding:30px var(--pad) 42px}
+.hero-copy{padding:8px 0 0}
+.eyebrow{margin:0 0 14px;color:var(--accent);font:500 .68rem/1.8 var(--mono);letter-spacing:.12em}
+.hero h1{max-width:12ch;margin:0;font-size:clamp(2.3rem,9vw,5.8rem);line-height:1.38;font-weight:500;letter-spacing:-.055em}
+.hero-desc{max-width:40ch;margin:16px 0 22px;color:var(--mute);font-size:.92rem;line-height:2}
+.hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px}
+.action{display:inline-flex;align-items:center;justify-content:center;min-height:46px;font-size:.84rem;font-weight:600}
+.action-primary{padding:0 20px;background:var(--ink);color:var(--paper)}
+.action-text{color:var(--accent)}
+.hero-visual{position:relative;display:block;overflow:hidden;background:#ddd6cb;aspect-ratio:4/5;isolation:isolate}
+.hero-visual::after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(20,20,16,.56));z-index:0}
+.hero-visual img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.hero-index{position:absolute;top:14px;inset-inline-start:14px;color:#fff;font:500 .7rem var(--mono);z-index:1;direction:ltr}
+.hero-caption{position:absolute;inset:auto 18px 16px;display:flex;justify-content:space-between;align-items:end;gap:10px;color:#fff;z-index:1}
+.hero-caption span{font-size:.72rem;opacity:.85}
+.hero-caption b{font-size:1rem;font-weight:500}
+.principles{display:flex;justify-content:space-between;gap:12px;padding:17px var(--pad);border-block:1px solid var(--line);color:var(--mute);font-size:.72rem}
+.projects-section{padding:64px 0 20px}
+.section-heading{display:flex;flex-direction:column;gap:10px;padding:0 var(--pad) 22px}
+.section-heading .eyebrow{margin-bottom:5px}
+.section-heading h2{margin:0;font-size:clamp(1.8rem,6vw,3rem);font-weight:500;letter-spacing:-.04em;line-height:1.45}
+.section-note{max-width:30ch;margin:0;color:var(--mute);font-size:.82rem}
+.projects-section .chips{padding-top:0;padding-bottom:24px}
+.projects-section .chip{padding:7px 17px;font-size:.78rem;border-radius:2px}
+.studio-statement{margin:60px var(--pad) 24px;padding:28px 0 8px;border-top:1px solid var(--line)}
+.studio-statement .eyebrow{margin-bottom:18px}
+.statement-text{max-width:19ch;margin:0 0 22px;font-size:clamp(1.6rem,6vw,3.3rem);font-weight:400;line-height:1.65;letter-spacing:-.04em}
+.statement-link{display:inline-block;color:var(--accent);font-size:.82rem;font-weight:600}
+[data-reveal]{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .85s var(--ease)}
+[data-reveal].in{opacity:1;transform:none}
+#splash{background:var(--bg)}
+@media(hover:hover){.hero-visual:hover img{transform:scale(1.035)}}
+@media(min-width:700px){
+ .hero{grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);align-items:center;gap:clamp(32px,6vw,90px);padding-top:54px;padding-bottom:68px}
+ .hero-copy{padding:20px 0}
+ .hero-desc{margin-top:22px;max-width:34ch}
+ .hero-visual{aspect-ratio:5/4}
+ .principles{justify-content:flex-start;gap:clamp(40px,8vw,120px);padding-block:20px}
+ .projects-section{padding-top:90px}
+ .section-heading{flex-direction:row;justify-content:space-between;align-items:end;padding-bottom:32px}
+ .section-note{text-align:left}
+ .studio-statement{margin-top:110px;padding-top:40px}
+}
+@media(max-width:380px){
+ .hero h1{font-size:2.15rem}
+ .hero-actions{gap:12px}
+ .action{font-size:.78rem}
+ .principles{font-size:.65rem}
+}
+@media(prefers-reduced-motion:reduce){
+ [data-reveal]{opacity:1;transform:none;transition:none}
+ .hero-visual img{transition:none}
+}

@@ -1,14 +1,16 @@
-.view{padding:0 var(--pad)}
-.back{display:inline-block;color:var(--mute);padding:6px 0}
-.view h1{font-size:1.6rem;line-height:1.5;margin:4px 0 14px;font-weight:700}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:0 0 18px;padding:14px 0;border-block:1px solid var(--line)}
-.facts dt{color:var(--mute);font-size:.8rem}
-.facts dd{margin:0;font-weight:500}
-.desc{margin:0 0 20px;max-width:62ch}
-.gallery{display:grid;gap:10px}
-.shot{padding:0;border:0;background:var(--line);border-radius:var(--r);min-height:180px;cursor:zoom-in;overflow:hidden}
-.shot img{width:100%;height:auto}
-.next{display:block;margin-top:32px;padding:16px 0;border-top:1px solid var(--line)}
+.view{padding:0 var(--pad);max-width:1000px;margin:0 auto}
+.back{display:inline-flex;align-items:center;color:var(--mute);padding:14px 0;font-size:.88rem}
+.view h1{font-size:clamp(1.8rem,5vw,3.2rem);line-height:1.35;margin:8px 0 22px;font-weight:600;letter-spacing:-.04em}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 22px;margin:0 0 22px;padding:18px 0;border-block:1px solid var(--line)}
+.facts dt{color:var(--mute);font-size:.78rem}
+.facts dd{margin:2px 0 0;font-weight:500}
+.desc{margin:0 0 30px;max-width:62ch;color:#5f5e56}
+.gallery{display:grid;gap:12px}
+.shot{padding:0;border:0;background:#e5e0d7;border-radius:2px;min-height:0;cursor:zoom-in;overflow:hidden;opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.shot.in{opacity:1;transform:none}
+.shot img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;transition:transform .8s var(--ease)}
+.next{display:block;margin-top:42px;padding:18px 0;border-top:1px solid var(--line)}
 .next span{display:block;color:var(--mute);font-size:.8rem}
-.next b{font-size:1.1rem}
-@media(min-width:640px){.gallery{grid-template-columns:1fr 1fr}.gallery .shot:first-child{grid-column:1/-1}}
+.next b{font-size:1.15rem;font-weight:600}
+@media(min-width:640px){.gallery{grid-template-columns:1fr 1fr;gap:16px}.gallery .shot:first-child{grid-column:1/-1}.gallery .shot:first-child img{aspect-ratio:16/9}.facts{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.shot{opacity:1;transform:none;transition:none}.shot img{transition:none}}

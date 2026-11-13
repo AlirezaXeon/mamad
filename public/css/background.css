@@ -1,27 +1,4 @@
-/* پس‌زمینه: ۱) شبکه نقشه  ۲) نور ملایم  ۳) بافت کاغذ — همه ثابت و بدون انیمیشن.
-   رنگ زمینه روی html است و body شفاف می‌ماند تا لایه‌ها دیده شوند. */
-
-/* ۱) شبکه: خطوط ریز هر ۲۴px و خطوط اصلی هر ۱۲۰px، محو به سمت پایین */
-body::before{
-  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background-image:
-    linear-gradient(rgba(29,79,145,.10) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(29,79,145,.10) 1px,transparent 1px),
-    linear-gradient(rgba(29,79,145,.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(29,79,145,.05) 1px,transparent 1px);
-  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
-  -webkit-mask-image:linear-gradient(to bottom,#000 0,transparent 75%);
-  mask-image:linear-gradient(to bottom,#000 0,transparent 75%);
-}
-
-/* ۲) روشنایی ملایم بالای صفحه */
-body::after{
-  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:radial-gradient(70% 42% at 50% 0%,rgba(255,255,255,.7),transparent 72%);
-}
-
-/* ۳) بافت نویز بسیار ریز (SVG داخلی، بدون درخواست شبکه) */
-html::before{
-  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* Warm paper surface: intentionally quiet so the architecture photography leads. */
+body{background:var(--bg)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.2;background-image:radial-gradient(rgba(75,65,50,.16) .55px,transparent .55px);background-size:5px 5px}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(70% 45% at 50% 0%,rgba(255,255,255,.58),transparent 75%)}

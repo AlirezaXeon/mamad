@@ -1,3 +1,5 @@
-.contact{position:fixed;inset:auto 0 0 0;display:flex;gap:10px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);z-index:10}
-.contact-btn{flex:1;text-align:center;border:1px solid var(--accent);border-radius:var(--r);padding:11px 8px;font-weight:700;color:var(--accent)}
-.contact-btn.primary{background:var(--accent);color:var(--on-accent)}
+.contact{position:fixed;inset:auto 0 0;display:flex;gap:10px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:rgba(244,241,235,.92);border-top:1px solid rgba(221,216,206,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:30}
+.contact-btn{flex:1;min-height:46px;display:grid;place-items:center;text-align:center;border:1px solid var(--line);border-radius:2px;padding:9px 12px;font-size:.82rem;font-weight:600;color:var(--ink);transition:background .2s,border-color .2s}
+.contact-btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+@media(hover:hover){.contact-btn:not(.primary):hover{border-color:var(--accent);color:var(--accent)}}
+@media(min-width:700px){.contact{justify-content:center}.contact-btn{flex:0 1 220px}}
