@@ -17,9 +17,12 @@ export async function home() {
 
   const profile = site.profile || {};
   const profileName = profile.name || 'محمد فهیمی';
-  const profileBubbles = Array.isArray(profile.bubbles) && profile.bubbles.length >= 2
-    ? profile.bubbles
-    : ['محمد فهیمی', 'طراح داخلی و نقشه‌کش'];
+  const DEFAULT_BUBBLES = ['محمد فهیمی', 'طراح داخلی', 'نقشه‌کش', 'از ایده تا اجرا'];
+  let profileBubbles = Array.isArray(profile.bubbles) ? profile.bubbles.filter(Boolean) : [];
+  for (let i = profileBubbles.length; i < 4; i++) {
+    profileBubbles.push(DEFAULT_BUBBLES[i]);
+  }
+  profileBubbles = profileBubbles.slice(0, 4);
 
   // حروف اول نام جهت نمایش در صورت عدم بارگذاری تصویر
   const initials = profileName
@@ -34,8 +37,8 @@ export async function home() {
         class: 'hero-avatar-img',
         src: profile.image,
         alt: profileName,
-        width: '164',
-        height: '164',
+        width: '280',
+        height: '280',
         fetchpriority: 'high',
         decoding: 'async',
         onerror: e => {
@@ -52,19 +55,28 @@ export async function home() {
     'aria-label': profileName
   }, initials);
 
-  const bubble1 = h('div', { class: 'hero-bubble hero-bubble-1' },
-    h('span', { class: 'hero-bubble-text' }, profileBubbles[0]));
+  // ساخت حباب ابر با ۳ نقطه اتصال تفکر (Thought-bubble connector)
+  const createCloudBubble = (text, idx) => {
+    return h('div', { class: `hero-bubble-wrapper hero-bubble-w${idx + 1}` },
+      h('div', { class: 'hero-cloud' },
+        h('span', { class: 'hero-cloud-text' }, text)
+      ),
+      h('div', { class: 'hero-connector', 'aria-hidden': 'true' },
+        h('span', { class: 'dot dot-1' }),
+        h('span', { class: 'dot dot-2' }),
+        h('span', { class: 'dot dot-3' })
+      )
+    );
+  };
 
-  const bubble2 = h('div', { class: 'hero-bubble hero-bubble-2' },
-    h('span', { class: 'hero-bubble-text' }, profileBubbles[1]));
+  const bubbleEls = profileBubbles.map((txt, i) => createCloudBubble(txt, i));
 
-  const avatarCluster = h('div', { class: 'hero-avatar-cluster', 'data-reveal': '' },
+  const avatarCluster = h('div', { class: 'hero-avatar-cluster' },
     h('div', { class: 'hero-avatar-ring' },
       avatarImg,
       avatarFallback
     ),
-    bubble1,
-    bubble2
+    ...bubbleEls
   );
 
   const heroCopy = h('div', { class: 'hero-copy', 'data-reveal': '' },
@@ -131,4 +143,11 @@ export async function home() {
   draw('همه');
   initReveals(app);
   initFadeScroll(heroCopy);
+
+  if (typeof IntersectionObserver !== 'undefined') {
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      hero.classList.toggle('hero-paused', !entry.isIntersecting);
+    }, { threshold: 0.05 });
+    heroObserver.observe(hero);
+  }
 }
