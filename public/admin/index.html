@@ -5,36 +5,177 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0F1311">
-<title>پنل سفارش‌ها</title>
+<title>پنل مدیریت استودیو</title>
 <link rel="stylesheet" href="../css/tokens.css">
 <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <main class="adm">
   <section id="login" class="login" hidden>
-    <h1>پنل سفارش‌ها</h1>
+    <h1>پنل مدیریت استودیو</h1>
     <form id="loginForm">
       <input class="in" id="pass" type="password" placeholder="رمز مدیریت" autocomplete="current-password" required>
       <button class="btn primary" type="submit">ورود</button>
       <p id="loginErr" class="err" role="alert"></p>
     </form>
   </section>
+
   <section id="panel" hidden>
     <header class="top">
-      <h1>سفارش‌ها <small id="count"></small></h1>
+      <h1>پنل مدیریت استودیو</h1>
       <div class="tools">
         <button class="btn" id="refresh" type="button">به‌روزرسانی</button>
-        <button class="btn" id="csv" type="button">خروجی CSV</button>
         <button class="btn" id="logout" type="button">خروج</button>
       </div>
     </header>
-    <div class="filters">
-      <select class="in" id="status" aria-label="فیلتر وضعیت"></select>
-      <input class="in" id="q" type="search" placeholder="جستجو: نام، موبایل یا کد پیگیری">
+
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="orders" type="button" role="tab">سفارش‌ها <small id="count"></small></button>
+      <button class="tab-btn" data-tab="projects" type="button" role="tab">پروژه‌ها <small id="pcount"></small></button>
+      <button class="tab-btn" data-tab="profile" type="button" role="tab">پروفایل و معرفی</button>
+    </nav>
+
+    <!-- تب ۱: سفارش‌ها -->
+    <div id="tab-orders" class="tab-content">
+      <div class="filters">
+        <select class="in" id="status" aria-label="فیلتر وضعیت"></select>
+        <input class="in" id="q" type="search" placeholder="جستجو: نام، موبایل یا کد پیگیری">
+        <button class="btn" id="csv" type="button">خروجی CSV</button>
+      </div>
+      <div id="list"></div>
     </div>
-    <div id="list"></div>
+
+    <!-- تب ۲: پروژه‌ها -->
+    <div id="tab-projects" class="tab-content" hidden>
+      <div class="projects-head">
+        <h2>پروژه‌ها</h2>
+        <button class="btn primary" id="newProjectBtn" type="button">+ پروژه جدید</button>
+      </div>
+      <div id="projectsList" class="projects-list"></div>
+    </div>
+
+    <!-- تب ۳: پروفایل -->
+    <div id="tab-profile" class="tab-content" hidden>
+      <h2>اطلاعات پروفایل و حباب‌های شناور</h2>
+      <form id="profileForm" class="profile-form">
+        <div class="profile-avatar-sec">
+          <div class="profile-avatar-wrap">
+            <img id="avatarPreview" class="profile-avatar-preview" src="" alt="پیش‌نمایش آواتار" onerror="this.style.display='none'; document.getElementById('avatarFallbackPreview').style.display='flex'">
+            <div id="avatarFallbackPreview" class="profile-avatar-fallback">م‌ف</div>
+          </div>
+          <div class="avatar-upload-tools">
+            <label class="btn upload-label" for="avatarFileInput">آپلود عکس پروفایل (WebP)</label>
+            <input type="file" id="avatarFileInput" accept="image/webp" hidden>
+            <small class="hint">فقط تصویر با فرمت WebP تا ۳ مگابایت</small>
+          </div>
+        </div>
+
+        <label class="f-label">
+          <span>نام و نام خانوادگی</span>
+          <input class="in" id="profName" type="text" required placeholder="محمد فهیمی">
+        </label>
+
+        <label class="f-label">
+          <span>نقش‌ها و عناوین (با کاما یا ویرگول جدا کنید)</span>
+          <input class="in" id="profRoles" type="text" placeholder="طراح داخلی، نقشه‌کش">
+        </label>
+
+        <div class="f-row">
+          <label class="f-label">
+            <span>متن حباب ۱</span>
+            <input class="in" id="profBubble1" type="text" placeholder="محمد فهیمی">
+          </label>
+          <label class="f-label">
+            <span>متن حباب ۲</span>
+            <input class="in" id="profBubble2" type="text" placeholder="طراح داخلی و نقشه‌کش">
+          </label>
+        </div>
+
+        <label class="f-label">
+          <span>توضیح کوتاه درباره استودیو (Hero About)</span>
+          <textarea class="in" id="profAbout" rows="3" placeholder="توضیح کوتاه درباره استودیو و سبک کار..."></textarea>
+        </label>
+
+        <button class="btn primary save-btn" type="submit">ذخیره تغییرات پروفایل</button>
+      </form>
+    </div>
   </section>
 </main>
+
+<!-- مدال ایجاد / ویرایش پروژه -->
+<div id="projectModal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modalTitle">پروژه جدید</h2>
+      <button class="btn-close" id="closeModalBtn" type="button" aria-label="بستن">✕</button>
+    </div>
+    <form id="projectForm" class="project-form">
+      <input type="hidden" id="pId">
+      <div class="f-row">
+        <label class="f-label">
+          <span>عنوان پروژه *</span>
+          <input class="in" id="pTitle" type="text" required placeholder="مثال: ویلای نارنجستان">
+        </label>
+        <label class="f-label">
+          <span>شناسه انگلیسی (slug) *</span>
+          <input class="in" id="pSlug" type="text" required pattern="^[a-z0-9-]+$" placeholder="villa-narenjestan" dir="ltr">
+        </label>
+      </div>
+
+      <div class="f-row">
+        <label class="f-label">
+          <span>دسته‌بندی *</span>
+          <input class="in" id="pCat" type="text" required placeholder="مسکونی، تجاری، اداری و...">
+        </label>
+        <label class="f-label">
+          <span>ترتیب نمایش</span>
+          <input class="in" id="pSort" type="number" value="0">
+        </label>
+      </div>
+
+      <label class="f-label">
+        <span>خلاصه کوتاه</span>
+        <input class="in" id="pSummary" type="text" placeholder="مثال: ویلا، شمال، ۲۵۰ متر">
+      </label>
+
+      <label class="f-label">
+        <span>توضیحات کامل پروژه</span>
+        <textarea class="in" id="pDesc" rows="4" placeholder="توضیح کامل کانسپت، متریال‌ها، نورپردازی..."></textarea>
+      </label>
+
+      <!-- مشخصات کلیدی (Facts) -->
+      <div class="facts-section">
+        <div class="facts-header">
+          <span>مشخصات کلیدی پروژه</span>
+          <button class="btn" id="addFactBtn" type="button">+ افزودن مشخصه</button>
+        </div>
+        <div id="factsList" class="facts-inputs"></div>
+      </div>
+
+      <!-- تصاویر و آپلود WebP -->
+      <div class="gallery-section">
+        <div class="gallery-header">
+          <span>تصاویر پروژه (فقط فرمت WebP، حداکثر ۳ مگابایت)</span>
+          <label class="btn upload-label" for="projectFilesInput">+ آپلود تصاویر WebP</label>
+          <input type="file" id="projectFilesInput" accept="image/webp" multiple hidden>
+        </div>
+        <p class="hint">روی دکمه «کاور» کلیک کنید تا به عنوان تصویر شاخص انتخاب شود.</p>
+        <div id="pGallery" class="gallery-grid"></div>
+      </div>
+
+      <label class="checkbox-label">
+        <input type="checkbox" id="pActive" checked>
+        <span>پروژه در سایت نمایش داده شود (فعال)</span>
+      </label>
+
+      <div class="modal-actions">
+        <button class="btn primary" type="submit">ذخیره پروژه</button>
+        <button class="btn" id="cancelModalBtn" type="button">انصراف</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="toast" class="toast" role="status"></div>
 <script src="admin.js"></script>
 </body>
