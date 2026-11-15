@@ -121,6 +121,11 @@ async function uploadMedia(req, env) {
 }
 
 async function serveMedia(rawKey, env, ctx, req) {
+  // اعتبارسنجی کلید پیش از دسترسی به Workers KV
+  if (!/^(img:)?[a-f0-9]{32}\.webp$/.test(rawKey)) {
+    return new Response('Image not found', { status: 404 });
+  }
+
   if (!env.MEDIA) return new Response('Storage unavailable', { status: 503 });
 
   const kvKey = toKvKey(rawKey);
