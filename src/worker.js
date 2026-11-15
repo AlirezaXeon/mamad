@@ -56,42 +56,27 @@ function newCode() {
 }
 
 // ══════════════════════════════════════════════
-// مدیریت رسانه و آپلود WebP مستقیماً در دیتابیس D1
+// مدیریت رسانه و آپلود WebP در Workers KV (نیم‌اسپیس MEDIA)
 // ══════════════════════════════════════════════
 
-function bufferToBase64(buffer) {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  const chunkSize = 8192;
-  for (let i = 0; i < len; i += chunkSize) {
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
-}
-
-function base64ToBuffer(base64) {
-  const binary = atob(base64);
-  const len = binary.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes.buffer;
+function toKvKey(key) {
+  return key.startsWith('img:') ? key : ('img:' + key);
 }
 
 async function uploadMedia(req, env) {
-  if (!env.DB) {
-    return J({ error: 'دیتابیس D1 (با شناسه DB) تنظیم نشده است.' }, 500);
+  if (!env.MEDIA) {
+    return J({ error: 'نیم‌اسپیس Workers KV (با شناسه MEDIA) تنظیم نشده است.' }, 500);
   }
 
   let buffer;
+  let originalName = '';
   const contentType = req.headers.get('content-type') || '';
 
   if (contentType.includes('multipart/form-data')) {
     const formData = await req.formData();
     const file = formData.get('file');
     if (!file) return J({ error: 'فایلی جهت آپلود ارسال نشده است.' }, 400);
+    originalName = file.name || '';
     buffer = await file.arrayBuffer();
   } else {
     buffer = await req.arrayBuffer();
@@ -110,46 +95,28 @@ async function uploadMedia(req, env) {
   }
 
   const hash = (await sha(buffer)).slice(0, 32);
-  const key = `${hash}.webp`;
+  const key = `img:${hash}.webp`;
 
-  // تبدیل به base64 و تکه‌تکه کردن (Chunking) جهت قرارگیری در حدود کوئری‌های D1
-  const b64 = bufferToBase64(buffer);
-  const CHUNK_SIZE = 120 * 1024;
-  const chunks = [];
-  for (let i = 0; i < b64.length; i += CHUNK_SIZE) {
-    chunks.push(b64.slice(i, i + CHUNK_SIZE));
-  }
+  const metadata = {
+    size: buffer.byteLength,
+    type: 'image/webp',
+    name: clean(originalName, 100) || key,
+    createdAt: new Date().toISOString()
+  };
 
-  await env.DB.prepare(
-    `INSERT INTO media (key, mime, size) VALUES (?, 'image/webp', ?)
-     ON CONFLICT(key) DO UPDATE SET size = excluded.size`
-  ).bind(key, buffer.byteLength).run();
-
-  await env.DB.prepare('DELETE FROM media_chunks WHERE key = ?').bind(key).run();
-
-  const batchStatements = chunks.map((chunk, index) =>
-    env.DB.prepare('INSERT INTO media_chunks (key, chunk_index, data) VALUES (?, ?, ?)')
-      .bind(key, index, chunk)
-  );
-  await env.DB.batch(batchStatements);
+  await env.MEDIA.put(key, buffer, { metadata });
 
   return J({ ok: true, url: `/api/media/${key}`, key });
 }
 
-async function serveMedia(key, env) {
-  if (!env.DB) return new Response('Database unavailable', { status: 503 });
-  if (!/^[a-zA-Z0-9_.-]+$/.test(key)) return new Response('Invalid key', { status: 400 });
+async function serveMedia(rawKey, env) {
+  if (!env.MEDIA) return new Response('Storage unavailable', { status: 503 });
 
-  const { results } = await env.DB.prepare(
-    'SELECT data FROM media_chunks WHERE key = ? ORDER BY chunk_index ASC'
-  ).bind(key).all();
-
-  if (!results || !results.length) {
+  const kvKey = toKvKey(rawKey);
+  const buffer = await env.MEDIA.get(kvKey, 'arrayBuffer');
+  if (!buffer) {
     return new Response('Image not found', { status: 404 });
   }
-
-  const b64 = results.map(r => r.data).join('');
-  const buffer = base64ToBuffer(b64);
 
   const headers = new Headers();
   headers.set('Content-Type', 'image/webp');
@@ -159,14 +126,11 @@ async function serveMedia(key, env) {
   return new Response(buffer, { headers });
 }
 
-async function deleteMedia(key, env) {
-  if (!env.DB) return J({ error: 'دیتابیس D1 تنظیم نشده است.' }, 500);
-  if (!/^[a-zA-Z0-9_.-]+$/.test(key)) return J({ error: 'شناسه فایل نامعتبر است.' }, 400);
+async function deleteMedia(rawKey, env) {
+  if (!env.MEDIA) return J({ error: 'نیم‌اسپیس Workers KV تنظیم نشده است.' }, 500);
 
-  await env.DB.batch([
-    env.DB.prepare('DELETE FROM media WHERE key = ?').bind(key),
-    env.DB.prepare('DELETE FROM media_chunks WHERE key = ?').bind(key)
-  ]);
+  const kvKey = toKvKey(rawKey);
+  await env.MEDIA.delete(kvKey);
   return J({ ok: true });
 }
 
@@ -475,9 +439,9 @@ export default {
       if (pathname === '/api/projects' && req.method === 'GET') return await getPublicProjects(req, env);
       if (pathname === '/api/site' && req.method === 'GET') return await getPublicSite(req, env);
 
-      // ۲. سرو فایل‌های رسانه‌ای ذخیره‌شده در R2
-      const mediaMatch = pathname.match(/^\/api\/media\/([a-zA-Z0-9_.-]+)$/);
-      if (mediaMatch && req.method === 'GET') return await serveMedia(mediaMatch[1], env);
+      // ۲. سرو فایل‌های رسانه‌ای ذخیره‌شده در Workers KV
+      const mediaMatch = pathname.match(/^\/api\/media\/(.+)$/);
+      if (mediaMatch && req.method === 'GET') return await serveMedia(decodeURIComponent(mediaMatch[1]), env);
 
       // ۳. مسیرهای ادمین (نیازمند احراز هویت)
       if (pathname.startsWith('/api/admin/')) {
@@ -490,8 +454,8 @@ export default {
 
         // آپلود و حذف رسانه
         if (pathname === '/api/admin/upload' && req.method === 'POST') return await uploadMedia(req, env);
-        const deleteMediaMatch = pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_.-]+)$/);
-        if (deleteMediaMatch && req.method === 'DELETE') return await deleteMedia(deleteMediaMatch[1], env);
+        const deleteMediaMatch = pathname.match(/^\/api\/admin\/media\/(.+)$/);
+        if (deleteMediaMatch && req.method === 'DELETE') return await deleteMedia(decodeURIComponent(deleteMediaMatch[1]), env);
 
         // پروژه‌ها
         if (pathname === '/api/admin/projects' && req.method === 'GET') return await listAdminProjects(req, env);

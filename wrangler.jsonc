@@ -9,5 +9,11 @@
       "database_name": "portfolio-orders",
       "database_id": "177bc4d2-060b-4b1c-9bf0-2adadd3cae30"
     }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "MEDIA",
+      "id": "REPLACE_WITH_REAL_ID"
+    }
   ]
 }
