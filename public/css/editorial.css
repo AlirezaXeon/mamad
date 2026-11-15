@@ -189,6 +189,7 @@ h1, h2, h3, .st, .modal-head h2 {
   align-items: center;
   pointer-events: none;
   z-index: 3;
+  will-change: transform;
 }
 
 /* شکل ابر واقعی با شیشه‌گری، برآمدگی‌های نرم و کانتور طلایی */
