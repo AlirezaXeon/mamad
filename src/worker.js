@@ -8,7 +8,8 @@ const J = (data, status = 200) => new Response(JSON.stringify(data), {
   status,
   headers: {
     'content-type': 'application/json; charset=utf-8',
-    'cache-control': 'no-store'
+    'cache-control': 'no-store',
+    'x-content-type-options': 'nosniff'
   },
 });
 
@@ -137,6 +138,7 @@ async function serveMedia(rawKey, env, ctx, req) {
   headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   headers.set('Content-Length', String(buffer.byteLength));
   headers.set('ETag', `"${kvKey}"`);
+  headers.set('X-Content-Type-Options', 'nosniff');
 
   const response = new Response(buffer, { headers });
 
