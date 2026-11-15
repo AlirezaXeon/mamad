@@ -148,10 +148,122 @@ async function serveMedia(rawKey, env, ctx, req) {
   return response;
 }
 
+function extractMediaKey(urlOrPath) {
+  if (!urlOrPath || typeof urlOrPath !== 'string') return null;
+  const match = urlOrPath.match(/(?:^|\/api\/media\/)(img:[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+\.webp)/);
+  if (!match) return null;
+  const key = match[1];
+  return key.startsWith('img:') ? key : ('img:' + key);
+}
+
+async function getInUseMediaMap(env) {
+  const map = new Map();
+  const add = (rawKey, reason) => {
+    const key = extractMediaKey(rawKey);
+    if (!key) return;
+    const cleanKey = key.replace(/^img:/, '');
+    const current = map.get(key) || [];
+    if (!current.includes(reason)) current.push(reason);
+    map.set(key, current);
+    map.set(cleanKey, current);
+  };
+
+  // ۱. بررسی جدول پروژه‌ها در D1
+  if (env.DB) {
+    try {
+      const { results: projects } = await env.DB.prepare('SELECT title, cover, images FROM projects').all();
+      if (projects) {
+        for (const p of projects) {
+          if (p.cover) add(p.cover, `پروژه «${p.title}» (کاور)`);
+          let imgs = [];
+          try { imgs = JSON.parse(p.images || '[]'); } catch {}
+          if (Array.isArray(imgs)) {
+            for (const img of imgs) {
+              add(img, `پروژه «${p.title}» (گالری)`);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('getInUseMediaMap DB projects error:', e);
+    }
+
+    // ۲. بررسی جدول site_settings در D1
+    try {
+      const { results: settings } = await env.DB.prepare('SELECT key, value FROM site_settings').all();
+      if (settings) {
+        for (const s of settings) {
+          let val = s.value;
+          try { val = JSON.parse(s.value); } catch {}
+          if (s.key === 'profile' && val && typeof val === 'object') {
+            if (val.image) add(val.image, 'عکس پروفایل');
+          }
+          if (s.key === 'splash' && val && typeof val === 'object') {
+            if (val.logo) add(val.logo, 'لوگوی اسپلش');
+            if (val.image) add(val.image, 'تصویر اسپلش');
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('getInUseMediaMap DB site_settings error:', e);
+    }
+  }
+
+  return map;
+}
+
+async function listMedia(req, env) {
+  if (!env.MEDIA) {
+    return J({ error: 'نیم‌اسپیس Workers KV تنظیم نشده است.' }, 500);
+  }
+
+  const url = new URL(req.url);
+  const cursor = url.searchParams.get('cursor') || undefined;
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit')) || 40));
+
+  const listRes = await env.MEDIA.list({ prefix: 'img:', cursor, limit });
+  const inUseMap = await getInUseMediaMap(env);
+
+  const items = (listRes.keys || []).map(k => {
+    const meta = k.metadata || {};
+    const kvKey = k.name;
+    const cleanKey = kvKey.replace(/^img:/, '');
+    const usedList = inUseMap.get(kvKey) || inUseMap.get(cleanKey) || [];
+    return {
+      key: kvKey,
+      url: `/api/media/${kvKey}`,
+      name: meta.name || cleanKey,
+      size: meta.size || 0,
+      type: meta.type || 'image/webp',
+      createdAt: meta.createdAt || null,
+      in_use: usedList.length > 0,
+      used_in: usedList
+    };
+  });
+
+  return J({
+    ok: true,
+    items,
+    cursor: listRes.cursor || null,
+    list_complete: listRes.list_complete ?? true
+  });
+}
+
 async function deleteMedia(rawKey, env, ctx, req) {
   if (!env.MEDIA) return J({ error: 'نیم‌اسپیس Workers KV تنظیم نشده است.' }, 500);
 
   const kvKey = toKvKey(rawKey);
+  const cleanKey = rawKey.replace(/^img:/, '');
+
+  // محافظت در برابر حذف فایلی که در پروژه‌ها یا تنظیمات سایت استفاده شده است
+  const inUseMap = await getInUseMediaMap(env);
+  const usedList = inUseMap.get(kvKey) || inUseMap.get(cleanKey) || [];
+  if (usedList.length > 0) {
+    return J({
+      error: `این تصویر در حال حاضر در ${usedList.join(' و ')} استفاده شده است و حذف آن مجاز نیست.`
+    }, 400);
+  }
+
   await env.MEDIA.delete(kvKey);
 
   // پاکسازی از Cache API
@@ -489,7 +601,8 @@ export default {
         const orderMatch = pathname.match(/^\/api\/admin\/orders\/(\d+)$/);
         if (orderMatch && req.method === 'PATCH') return await updateOrder(req, env, Number(orderMatch[1]));
 
-        // آپلود و حذف رسانه
+        // رسانه (لیست، آپلود و حذف)
+        if (pathname === '/api/admin/media' && req.method === 'GET') return await listMedia(req, env);
         if (pathname === '/api/admin/upload' && req.method === 'POST') return await uploadMedia(req, env);
         const deleteMediaMatch = pathname.match(/^\/api\/admin\/media\/(.+)$/);
         if (deleteMediaMatch && req.method === 'DELETE') return await deleteMedia(decodeURIComponent(deleteMediaMatch[1]), env, ctx, req);
