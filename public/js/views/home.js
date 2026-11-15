@@ -4,7 +4,8 @@ import { initReveals, initParallax, initFadeScroll } from '../components/scroll-
 
 const card = p => h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' },
   h('div', { class: 'pic' },
-    h('img', { src: p.cover || p.images[0], alt: p.title, loading: 'lazy', decoding: 'async' })),
+    h('img', { src: p.cover || p.images[0], alt: p.title, loading: 'lazy', decoding: 'async' }),
+    p.category && h('span', { class: 'badge' }, p.category)),
   h('div', { class: 'tb' },
     h('div', { class: 'tb-main' },
       h('h2', {}, p.title),
@@ -17,7 +18,7 @@ export async function home() {
 
   const heroCopy = h('div', { class: 'hero-copy', 'data-reveal': '' },
     h('p', { class: 'eyebrow' }, 'ARCHITECTURE  /  INTERIOR DESIGN'),
-    h('h1', {}, site.tagline),
+    h('h1', {}, 'طراحی داخلی؛ از ', h('em', {}, 'ایده'), ' تا اجرا'),
     h('p', { class: 'hero-desc' }, site.about),
     h('div', { class: 'hero-actions' },
       h('a', {
@@ -43,10 +44,18 @@ export async function home() {
     heroCopy,
     h('div', { class: 'scroll-indicator' }, h('span', {})));
 
-  const principles = h('div', { class: 'principles', 'data-reveal': 'stagger' },
-    h('span', {}, 'از ایده تا فضا'),
-    h('span', {}, 'جزئیات با معنا'),
-    h('span', {}, 'سادگی ماندگار'));
+  const principlesData = [
+    { num: '01', title: 'از ایده تا فضا', desc: 'خلق فضاهای معمارانه با هویت مستقل و روایت اختصاصی' },
+    { num: '02', title: 'جزئیات با معنا', desc: 'دقت در گزینش متریال ماندگار، بازی نور و تناسبات دقیق' },
+    { num: '03', title: 'سادگی ماندگار', desc: 'پرهیز از حواشی زائد و تمرکز بر خلوص، آرامش و کارایی' }
+  ];
+
+  const principles = h('section', { class: 'principles-section' },
+    h('div', { class: 'principles', 'data-reveal': 'stagger' },
+      principlesData.map(item => h('div', { class: 'pr-card' },
+        h('span', { class: 'pr-num' }, item.num),
+        h('h3', { class: 'pr-title' }, item.title),
+        h('p', { class: 'pr-desc' }, item.desc)))));
 
   const heading = h('div', { class: 'section-heading', 'data-reveal': '' },
     h('div', {},

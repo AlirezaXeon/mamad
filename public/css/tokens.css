@@ -20,7 +20,8 @@
   --danger: #E06C58;
   --accent-soft: rgba(198, 166, 109, 0.12);
   --field: rgba(255, 255, 255, 0.03);
-  --r: 0px;
+  --r: 18px;
+  --r-lg: 28px;
   --pad: 20px;
   --max: 1180px;
   --font: Vazirmatn, Tahoma, system-ui, sans-serif;

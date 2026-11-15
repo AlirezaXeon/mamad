@@ -1,21 +1,85 @@
-/* ═══ صفحه جزئیات پروژه — Mobile First ═══ */
+/* ═══ صفحه جزئیات پروژه — Mobile First (گوشه‌های نرم و چیدمان مدرن) ═══ */
 
 .view { padding:0 0 110px; max-width:none; margin:0 }
 
 /* --- Hero تصویری فول‌عرض --- */
-.project-hero { position:relative; width:100%; height:70svh; min-height:360px; overflow:hidden }
-.project-hero-img { position:absolute; top:-15%; inset-inline:0; width:100%; height:130%; object-fit:cover; will-change:transform; filter:brightness(0.75) contrast(1.05) }
-.project-hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(10,10,11,0.88) 0%, rgba(10,10,11,0.25) 50%, transparent 100%) }
-.project-hero-content { position:absolute; bottom:0; inset-inline:0; padding:32px var(--pad); z-index:2 }
-.project-hero-content .eyebrow { color:var(--accent); margin-bottom:10px }
-.project-hero-content h1 { color:#F2EFE9; font-size:clamp(1.5rem,7vw,2.8rem); font-weight:300; line-height:1.4; margin:0; font-family:var(--serif) }
+.project-hero {
+  position:relative;
+  width:100%;
+  height:70svh;
+  min-height:360px;
+  overflow:hidden;
+}
+.project-hero-img {
+  position:absolute;
+  top:-15%;
+  inset-inline:0;
+  width:100%;
+  height:130%;
+  object-fit:cover;
+  will-change:transform;
+  filter:brightness(0.75) contrast(1.05);
+}
+.project-hero-overlay {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top, rgba(10,10,11,0.92) 0%, rgba(10,10,11,0.3) 50%, transparent 100%);
+}
+.project-hero-content {
+  position:absolute;
+  bottom:0;
+  inset-inline:0;
+  padding:32px var(--pad);
+  z-index:2;
+}
+.project-hero-content .eyebrow {
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.project-hero-content h1 {
+  color:#F2EFE9;
+  font-size:clamp(1.6rem, 7vw, 2.9rem);
+  font-weight:700;
+  line-height:1.4;
+  margin:0;
+  font-family:Vazirmatn, var(--serif);
+  letter-spacing:0;
+}
 
 /* --- دکمه بازگشت fixed (موبایل) --- */
-.back-fixed { display:flex; position:fixed; top:14px; left:14px; z-index:25; width:44px; height:44px; align-items:center; justify-content:center; background:rgba(10,10,11,0.65); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(54,51,46,0.6); color:var(--ink); text-decoration:none; transition:opacity 0.3s, background 0.3s }
+.back-fixed {
+  display:flex;
+  position:fixed;
+  top:14px;
+  left:14px;
+  z-index:25;
+  width:44px;
+  height:44px;
+  align-items:center;
+  justify-content:center;
+  background:rgba(10,10,11,0.65);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(54,51,46,0.6);
+  border-radius:50%;
+  color:var(--ink);
+  text-decoration:none;
+  transition:opacity 0.3s, background 0.3s;
+}
 .back-fixed:hover { background:rgba(10,10,11,0.9) }
 .back-fixed svg { display:block }
+
 /* دکمه بازگشت متنی (دسکتاپ) */
-.back { display:none; color:var(--mute); text-decoration:none; font-size:0.85rem; letter-spacing:0.04em; padding:24px var(--pad) 0; transition:color 0.2s }
+.back {
+  display:none;
+  color:var(--mute);
+  text-decoration:none;
+  font-size:0.88rem;
+  letter-spacing:0;
+  padding:28px var(--pad) 0;
+  transition:color 0.2s;
+  font-weight:500;
+}
 .back:hover { color:var(--accent) }
 
 @media (min-width:768px) {
@@ -26,53 +90,191 @@
 }
 
 /* --- مشخصات (Facts) --- */
-.facts { display:grid; grid-template-columns:1fr; gap:0; margin:24px var(--pad) 22px; padding:0; border:0 }
-.facts > div { padding:14px 0; border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:12px }
+.facts {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+  margin:28px var(--pad) 24px;
+  padding:0;
+  border:0;
+}
+.facts > div {
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+}
 .facts > div:last-child { border-bottom:0 }
-.facts dt { color:var(--mute); font-size:0.75rem; letter-spacing:0.08em; border-right:2px solid var(--accent); padding-right:10px; min-width:55px; flex:none }
-.facts dd { margin:0; font:400 1rem var(--serif); color:var(--ink) }
+.facts dt {
+  color:var(--mute);
+  font-size:0.75rem;
+  letter-spacing:0;
+  border-right:2px solid var(--accent);
+  padding-right:10px;
+  min-width:55px;
+  flex:none;
+}
+.facts dd {
+  margin:0;
+  font:600 1.05rem var(--serif);
+  color:var(--ink);
+  letter-spacing:0;
+}
 
-@media (min-width:640px) { .facts { grid-template-columns:repeat(2,1fr); gap:0 20px } }
+@media (min-width:640px) { .facts { grid-template-columns:repeat(2,1fr); gap:0 24px } }
 @media (min-width:1024px) { .facts { grid-template-columns:repeat(4,1fr); max-width:var(--max); margin-inline:auto } }
 
 /* --- توضیحات --- */
-.desc { padding:0 var(--pad); margin:0 0 28px; max-width:62ch; color:var(--mute); font-size:0.92rem; line-height:2.2 }
-@media (min-width:1024px) { .desc { max-width:var(--max); margin-inline:auto; padding:0; font-size:0.96rem } }
+.desc {
+  padding:0 var(--pad);
+  margin:0 0 32px;
+  max-width:44ch;
+  color:var(--mute);
+  font-size:0.96rem;
+  line-height:2.1;
+  letter-spacing:0;
+}
+@media (min-width:1024px) {
+  .desc {
+    max-width:var(--max);
+    margin-inline:auto;
+    padding:0;
+    font-size:1rem;
+  }
+}
 
-/* --- گالری (موبایل: اسکرول افقی) --- */
-.gallery { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:10px; padding:20px 0 20px var(--pad); -webkit-overflow-scrolling:touch; scrollbar-width:none }
+/* --- گالری (موبایل: اسکرول افقی با گوشه‌های گرد) --- */
+.gallery {
+  display:flex;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  gap:12px;
+  padding:20px 0 20px var(--pad);
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
 .gallery::-webkit-scrollbar { display:none }
-.shot { flex:none; width:85vw; scroll-snap-align:center; padding:0; border:0; background:var(--paper); cursor:zoom-in; overflow:hidden; border:1px solid var(--line) }
-.shot img { width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; transition:transform 0.8s var(--ease-out-expo,cubic-bezier(.16,1,.3,1)) }
+.shot {
+  flex:none;
+  width:85vw;
+  scroll-snap-align:center;
+  padding:0;
+  border:0;
+  background:var(--paper);
+  cursor:zoom-in;
+  overflow:hidden;
+  border-radius:var(--r, 18px);
+  border:1px solid rgba(255, 255, 255, 0.05);
+}
+.shot img {
+  width:100%;
+  height:auto;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  transition:transform 0.8s var(--ease-out-expo, cubic-bezier(.16,1,.3,1));
+}
 
-/* تبلت و دسکتاپ: گرید متعادل */
+/* تبلت و دسکتاپ: گرید متعادل با گوشه‌های نرم */
 @media (min-width:640px) {
-  .gallery { display:grid; grid-template-columns:1fr 1fr; gap:12px; overflow:visible; scroll-snap-type:none; padding:24px var(--pad) }
-  .shot { width:auto; scroll-snap-align:unset }
+  .gallery {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    overflow:visible;
+    scroll-snap-type:none;
+    padding:24px var(--pad);
+  }
+  .shot {
+    width:auto;
+    scroll-snap-align:unset;
+    border-radius:var(--r, 18px);
+  }
   .gallery .shot:first-child { grid-column:1/-1 }
   .gallery .shot:first-child img { aspect-ratio:16/9 }
   .gallery .shot:last-child:nth-child(even):not(:first-child) { grid-column:1/-1 }
   .gallery .shot:last-child:nth-child(even):not(:first-child) img { aspect-ratio:16/9 }
 }
-@media (min-width:1024px) { .gallery { max-width:var(--max); margin-inline:auto; gap:16px; padding:32px 0 } }
+@media (min-width:1024px) {
+  .gallery {
+    max-width:var(--max);
+    margin-inline:auto;
+    gap:20px;
+    padding:36px 0;
+  }
+}
 
 /* ریویل گالری */
-.shot { opacity:0; transform:scale(0.96); transition:opacity 0.7s var(--ease-out-expo,cubic-bezier(.16,1,.3,1)) var(--d,0s), transform 0.7s var(--ease-out-expo,cubic-bezier(.16,1,.3,1)) var(--d,0s) }
+.shot {
+  opacity:0;
+  transform:scale(0.96);
+  transition:opacity 0.7s var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d,0s),
+              transform 0.7s var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d,0s);
+}
 .shot.in { opacity:1; transform:none }
 @media (hover:hover) { .shot:hover img { transform:scale(1.03) } }
 
 /* --- پروژه بعدی --- */
-.next-project { display:block; position:relative; width:100%; height:40vh; min-height:240px; overflow:hidden; text-decoration:none; margin-top:48px }
-.next-project-img { width:100%; height:100%; object-fit:cover; filter:brightness(0.6); transition:transform 1.2s var(--ease-out-expo,cubic-bezier(.16,1,.3,1)), filter 0.5s ease }
-.next-project-overlay { position:absolute; inset:0; background:rgba(10,10,11,0.5) }
-.next-project-content { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center }
-.next-project-content span { font-size:0.72rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:10px }
-.next-project-content b { font:400 clamp(1.2rem,4vw,1.6rem) var(--serif); color:#F2EFE9 }
+.next-project {
+  display:block;
+  position:relative;
+  width:100%;
+  height:40vh;
+  min-height:240px;
+  overflow:hidden;
+  text-decoration:none;
+  margin-top:56px;
+  border-radius:var(--r-lg, 28px);
+}
+.next-project-img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:brightness(0.6);
+  transition:transform 1.2s var(--ease-out-expo, cubic-bezier(.16,1,.3,1)), filter 0.5s ease;
+}
+.next-project-overlay {
+  position:absolute;
+  inset:0;
+  background:rgba(10,10,11,0.5);
+}
+.next-project-content {
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.next-project-content span {
+  font-size:0.75rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.next-project-content b {
+  font:700 clamp(1.3rem, 4vw, 1.8rem) Vazirmatn, var(--serif);
+  color:#F2EFE9;
+  letter-spacing:0;
+}
 
-@media (hover:hover) { .next-project:hover .next-project-img { transform:scale(1.05); filter:brightness(0.7) } .next-project:hover .next-project-content b { color:var(--accent) } }
-@media (min-width:1024px) { .next-project { height:50vh } }
+@media (hover:hover) {
+  .next-project:hover .next-project-img { transform:scale(1.05); filter:brightness(0.7) }
+  .next-project:hover .next-project-content b { color:var(--accent) }
+}
+@media (min-width:1024px) {
+  .next-project {
+    height:50vh;
+    max-width:var(--max);
+    margin-inline:auto;
+  }
+}
 
-/* .next (old): hide */
 .next { display:none }
 
-@media (prefers-reduced-motion:reduce) { .shot,.next-project-img { transition:none; opacity:1; transform:none } .project-hero-img { will-change:auto } }
+@media (prefers-reduced-motion:reduce) {
+  .shot, .next-project-img { transition:none; opacity:1; transform:none }
+  .project-hero-img { will-change:auto }
+}
