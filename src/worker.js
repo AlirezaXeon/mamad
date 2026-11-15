@@ -529,11 +529,12 @@ function normalizeProfile(prof) {
     bubbles.push(DEFAULT_BUBBLES[i]);
   }
   bubbles = bubbles.slice(0, 4);
+  const image = cleanImageUrl(prof.image) || '';
   return {
     name: clean(prof.name, 60) || 'محمد فهیمی',
     roles: Array.isArray(prof.roles) ? prof.roles.map(r => clean(r, 40)) : ['طراح داخلی', 'نقشه‌کش'],
     bubbles,
-    image: clean(prof.image, 300) || ''
+    image
   };
 }
 
@@ -697,6 +698,11 @@ async function updateAdminSite(req, env) {
   };
 
   if (b.profile) {
+    if (typeof b.profile !== 'object') return J({ error: 'اطلاعات پروفایل نامعتبر است.' }, 400);
+    if (b.profile.image !== undefined) {
+      const img = cleanImageUrl(b.profile.image);
+      if (img === null) return J({ error: 'آدرس تصویر پروفایل نامعتبر است.' }, 400);
+    }
     const profile = normalizeProfile(b.profile);
     await saveSetting('profile', profile);
   }
@@ -713,10 +719,22 @@ async function updateAdminSite(req, env) {
     await saveSetting('about', clean(b.about, 1000));
   }
 
-  if (b.splash !== undefined && typeof b.splash === 'object') {
+  if (b.splash !== undefined && typeof b.splash === 'object' && b.splash !== null) {
+    let logo = '';
+    if (b.splash.logo !== undefined) {
+      const l = cleanImageUrl(b.splash.logo);
+      if (l === null) return J({ error: 'آدرس لوگوی اسپلش نامعتبر است.' }, 400);
+      logo = l;
+    }
+    let image = '';
+    if (b.splash.image !== undefined) {
+      const im = cleanImageUrl(b.splash.image);
+      if (im === null) return J({ error: 'آدرس تصویر اسپلش نامعتبر است.' }, 400);
+      image = im;
+    }
     const splash = {
-      logo: clean(b.splash.logo, 300) || '',
-      image: clean(b.splash.image, 300) || '',
+      logo,
+      image,
       lines: Array.isArray(b.splash.lines) ? b.splash.lines.map(l => clean(l, 80)) : []
     };
     await saveSetting('splash', splash);
