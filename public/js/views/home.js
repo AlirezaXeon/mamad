@@ -76,12 +76,14 @@ export async function home() {
     initReveals(list);
   }
 
+  const projectsSection = h('section', { class: 'projects-section', id: 'projects' }, heading, chips, list);
+
   const statement = h('section', { class: 'studio-statement', 'data-reveal': '' },
     h('p', { class: 'eyebrow' }, 'THE STUDIO'),
     h('p', { class: 'statement-text' }, 'طراحی خوب، فقط دیده نمی‌شود؛ در آن زندگی جریان پیدا می‌کند.'),
     h('a', { href: '#/order', class: 'statement-link' }, 'درباره پروژه‌تان صحبت کنیم  ↗'));
 
-  app.replaceChildren(hero, principles, h('section', { class: 'projects-section', id: 'projects' }, heading, chips, list), statement);
+  app.replaceChildren(hero, projectsSection, principles, statement);
   draw('همه');
   initReveals(app);
   initParallax();
