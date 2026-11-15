@@ -1,5 +1,5 @@
 // Worker: API سفارش‌ها، پروژه‌ها، مدیریت رسانه و تنظیمات سایت
-// پیش‌نیازها: D1 (DB)، R2 (IMAGES)، ASSETS و سکرت‌های ADMIN_PASSWORD ، TELEGRAM_BOT_TOKEN ، TELEGRAM_CHAT_ID
+// پیش‌نیازها: D1 (DB)، Workers KV (MEDIA)، ASSETS و سکرت‌های ADMIN_PASSWORD ، TELEGRAM_BOT_TOKEN ، TELEGRAM_CHAT_ID
 
 const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // حداکثر ۳ مگابایت برای هر تصویر WebP
 const STATUSES = ['new', 'review', 'contacted', 'contract', 'archived'];
