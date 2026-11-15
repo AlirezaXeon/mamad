@@ -1,12 +1,28 @@
 let cache;
-export async function load() {
-  if (!cache) {
-    const [site, projects] = await Promise.all(
-      ['data/site.json', 'data/projects.json'].map(u => fetch(u).then(r => r.json()))
-    );
+
+async function fetchWithFallback(apiUrl, fallbackUrl) {
+  try {
+    const res = await fetch(apiUrl);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) ? data.length > 0 : (data && Object.keys(data).length > 0)) {
+        return data;
+      }
+    }
+  } catch {}
+  return fetch(fallbackUrl).then(r => r.json());
+}
+
+export async function load(forceReload = false) {
+  if (!cache || forceReload) {
+    const [site, projects] = await Promise.all([
+      fetchWithFallback('/api/site', 'data/site.json'),
+      fetchWithFallback('/api/projects', 'data/projects.json')
+    ]);
     cache = { site, projects };
   }
   return cache;
 }
+
 let oc;
 export const loadOrder = () => (oc ||= fetch('data/order.json').then(r => r.json()));
