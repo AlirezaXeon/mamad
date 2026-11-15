@@ -53,7 +53,10 @@ function isWebP(bytes) {
 
 let cfgCache;
 async function getCfg(env, url) {
-  if (!cfgCache) cfgCache = await (await env.ASSETS.fetch(new URL('/data/order.json', url))).json();
+  if (cfgCache) return cfgCache;
+  const res = await env.ASSETS.fetch(new URL('/data/order.json', url));
+  if (!res.ok) throw new Error('order.json unavailable: ' + res.status);
+  cfgCache = await res.json();
   return cfgCache;
 }
 const lab = (list, id) => (list.find(o => o.id === id) || {}).label || id || '—';
