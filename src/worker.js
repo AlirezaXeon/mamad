@@ -109,10 +109,24 @@ async function uploadMedia(req, env) {
   return J({ ok: true, url: `/api/media/${key}`, key });
 }
 
-async function serveMedia(rawKey, env) {
+async function serveMedia(rawKey, env, ctx, req) {
   if (!env.MEDIA) return new Response('Storage unavailable', { status: 503 });
 
   const kvKey = toKvKey(rawKey);
+
+  // ۱. بررسی کش لبه‌ای کلادفلر (Cache API) جهت صرفه‌جویی در خواندن‌های KV
+  const cache = typeof caches !== 'undefined' ? caches.default : null;
+  const cacheKey = req ? new Request(req.url, { method: 'GET' }) : null;
+  if (cache && cacheKey) {
+    try {
+      const cached = await cache.match(cacheKey);
+      if (cached) return cached;
+    } catch (e) {
+      console.warn('Cache API match error:', e);
+    }
+  }
+
+  // ۲. دریافت از Workers KV
   const buffer = await env.MEDIA.get(kvKey, 'arrayBuffer');
   if (!buffer) {
     return new Response('Image not found', { status: 404 });
@@ -122,15 +136,38 @@ async function serveMedia(rawKey, env) {
   headers.set('Content-Type', 'image/webp');
   headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   headers.set('Content-Length', String(buffer.byteLength));
+  headers.set('ETag', `"${kvKey}"`);
 
-  return new Response(buffer, { headers });
+  const response = new Response(buffer, { headers });
+
+  // ۳. ذخیره در Cache API به صورت نامتقارن
+  if (cache && cacheKey && ctx && ctx.waitUntil) {
+    ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  }
+
+  return response;
 }
 
-async function deleteMedia(rawKey, env) {
+async function deleteMedia(rawKey, env, ctx, req) {
   if (!env.MEDIA) return J({ error: 'نیم‌اسپیس Workers KV تنظیم نشده است.' }, 500);
 
   const kvKey = toKvKey(rawKey);
   await env.MEDIA.delete(kvKey);
+
+  // پاکسازی از Cache API
+  if (typeof caches !== 'undefined' && caches.default && req) {
+    const cache = caches.default;
+    const mediaUrl = new URL(`/api/media/${rawKey}`, req.url);
+    const altKey = rawKey.startsWith('img:') ? rawKey.slice(4) : ('img:' + rawKey);
+    const altUrl = new URL(`/api/media/${altKey}`, req.url);
+    if (ctx && ctx.waitUntil) {
+      ctx.waitUntil(Promise.all([
+        cache.delete(new Request(mediaUrl)),
+        cache.delete(new Request(altUrl))
+      ]).catch(() => {}));
+    }
+  }
+
   return J({ ok: true });
 }
 
@@ -441,7 +478,7 @@ export default {
 
       // ۲. سرو فایل‌های رسانه‌ای ذخیره‌شده در Workers KV
       const mediaMatch = pathname.match(/^\/api\/media\/(.+)$/);
-      if (mediaMatch && req.method === 'GET') return await serveMedia(decodeURIComponent(mediaMatch[1]), env);
+      if (mediaMatch && req.method === 'GET') return await serveMedia(decodeURIComponent(mediaMatch[1]), env, ctx, req);
 
       // ۳. مسیرهای ادمین (نیازمند احراز هویت)
       if (pathname.startsWith('/api/admin/')) {
@@ -455,7 +492,7 @@ export default {
         // آپلود و حذف رسانه
         if (pathname === '/api/admin/upload' && req.method === 'POST') return await uploadMedia(req, env);
         const deleteMediaMatch = pathname.match(/^\/api\/admin\/media\/(.+)$/);
-        if (deleteMediaMatch && req.method === 'DELETE') return await deleteMedia(decodeURIComponent(deleteMediaMatch[1]), env);
+        if (deleteMediaMatch && req.method === 'DELETE') return await deleteMedia(decodeURIComponent(deleteMediaMatch[1]), env, ctx, req);
 
         // پروژه‌ها
         if (pathname === '/api/admin/projects' && req.method === 'GET') return await listAdminProjects(req, env);
