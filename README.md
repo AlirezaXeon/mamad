@@ -1,26 +1,88 @@
-# سایت نمونه‌کار (Cloudflare، موبایل‌محور)
+# سایت نمونه‌کار معماری و طراحی داخلی (Cloudflare Worker + D1 + R2)
 
-## ثبت سفارش و پنل (نیازمند دیتابیس D1)
-جریان کاربر: دکمه «ثبت سفارش» ← پنجره راهنما (باید تأیید شود) ← فرم ۵ مرحله‌ای (خدمات، ملک و متراژ با ماشین‌حساب، سبک و بودجه، توضیحات، تماس) ← کد پیگیری.
+یک وب‌سایت مدرن با طراحی تحریریه (Editorial Obsidian)، تایپوگرافی بهینه فارسی (Vazirmatn)، آواتار پروفایل همراه با حباب‌های معرفی شناور، پنل مدیریت پروژه‌ها، سفارش‌ها و آپلود تصاویر WebP با استفاده از Cloudflare R2 و دیتابیس D1.
 
-- `public/data/order.json` : همه گزینه‌ها، متن راهنما و متن‌های «؟» (تنها منبع؛ Worker هم از همین فایل اعتبارسنجی می‌کند)
-- `public/js/views/order.js` + `components/` (modal, choice, help, measure, icons) : رابط فرم
-- `src/worker.js` : API (`POST /api/order` و API پنل) + سرو فایل‌های ثابت
-- `schema.sql` : جدول سفارش‌ها در D1
-- `public/admin/` : پنل مدیریت (آدرس `/admin/`)، وضعیت‌دهی، یادداشت داخلی، جستجو و خروجی CSV
+---
 
-### راه‌اندازی (یک‌بار)
-    npx wrangler d1 create portfolio-orders        # database_id را در wrangler.jsonc بگذارید
-    npx wrangler d1 execute portfolio-orders --remote --file=schema.sql
-    npx wrangler secret put ADMIN_PASSWORD          # رمز ورود به /admin/ (طولانی انتخاب کنید)
-    npx wrangler secret put TELEGRAM_BOT_TOKEN      # اختیاری: توکن ربات از @BotFather
-    npx wrangler secret put TELEGRAM_CHAT_ID        # اختیاری: چت‌آیدی شما یا گروه (ربات باید عضو باشد / /start خورده باشد)
-    npx wrangler deploy
+## قابلیت‌های اصلی
 
-تست محلی: `npx wrangler d1 execute portfolio-orders --local --file=schema.sql` سپس `npx wrangler dev` (برای رمز محلی فایل `.dev.vars` بسازید: `ADMIN_PASSWORD=test`).
-بدون توکن تلگرام، سفارش‌ها فقط در پنل ذخیره می‌شوند.
-پیشنهاد امنیتی: برای `/admin/*` در Cloudflare یک Access یا Rate-limiting rule هم بگذارید.
+1. **طراحی واکنش‌گرا و مدرن (G1 & G2):**
+   - هدر شیشه‌ای چسبان (Sticky Blur Bar).
+   - بخش معرفی (Hero) خلاصه و زیبا همراه با آواتار دایره‌ای با قاب طلایی، افکت نور و حباب‌های شیشه‌ای ابر مانند شناور با انیمیشن‌های نرم CSS.
+   - اولویت بالای پروژه‌ها در صفحه اول (نمایش پروژه‌ها بلافاصله پس از هیرو بدون نیاز به اسکرول طولانی در موبایل).
+   - کارت‌های پروژه با گوشه‌های گرد نرم و لایت‌باکس تمام‌صفحه تصاویر.
+   - فرم چندمرحله‌ای سفارش آنلاین با اعتبارسنجی دقیق و اطلاع‌رسانی خودکار به تلگرام.
 
-## اجرا و انتشار
-    npx wrangler dev        # تست محلی
-    npx wrangler deploy     # انتشار روی Cloudflare
+2. **پنل مدیریت استودیو (Admin Panel):**
+   - **سفارش‌ها:** فیلتر بر اساس وضعیت، جستجوی سریع، تغییر وضعیت، ثبت یادداشت داخلی، و خروجی اکسل/CSV.
+   - **پروژه‌ها:** ایجاد، ویرایش، حذف، مرتب‌سازی (جابجایی بالا/پایین)، انتخاب تصویر کاور، ثبت مشخصات اختصاصی (متراژ، موقعیت، سال...).
+   - **پروفایل و حباب‌ها:** ویرایش نام، عنوان شغلی، متن حباب‌های شناور هیرو و آپلود مستقیم تصویر پروفایل.
+   - **مدیریت رسانه (R2):** آپلود تصاویر با فرمت مجاز `image/webp` (حداکثر ۳ مگابایت)، بررسی بایت‌های جادویی WebP در سرور، و کش تغییرناپذیر (`immutable, max-age=31536000`).
+
+---
+
+## ساختار پروژه
+
+- `src/worker.js` : سرور کلودفلر (API سفارش‌ها، پروژه‌ها، رسانه R2 و سرو استاتیک فرانت‌اند)
+- `public/admin/` : پنل مدیریت (`/admin/`) با تب‌های سفارش‌ها، پروژه‌ها و پروفایل
+- `public/js/` : روتینگ SPA بر پایه Hash، بدون فریم‌ورک سنگین (Vanilla ES Modules)
+- `public/css/` : لایه‌های استایل مدرن (`editorial.css`، `cards.css`، `tokens.css`)
+- `migrations/` : مایگریشن‌های ساختار دیتابیس D1 (`0001_orders.sql` و `0002_projects.sql`)
+- `wrangler.jsonc` : پیکربندی کلودفلر برای D1 و R2
+
+---
+
+## راه‌اندازی و دیپلوی
+
+### ۱. پیش‌نیازها و ساخت باکت R2 و دیتابیس D1
+
+```bash
+# ساخت دیتابیس D1
+npx wrangler d1 create portfolio-orders
+
+# ساخت باکت R2 برای تصاویر
+npx wrangler r2 bucket create portfolio-images
+```
+
+شناسه دیتابیس را در فایل `wrangler.jsonc` بررسی و ثبت کنید.
+
+### ۲. اجرای مایگریشن‌ها
+
+**برای تست محلی:**
+```bash
+npx wrangler d1 execute portfolio-orders --local --file=migrations/0001_orders.sql
+npx wrangler d1 execute portfolio-orders --local --file=migrations/0002_projects.sql
+```
+
+**برای محیط پروداکشن (ابری):**
+```bash
+npx wrangler d1 execute portfolio-orders --remote --file=migrations/0001_orders.sql
+npx wrangler d1 execute portfolio-orders --remote --file=migrations/0002_projects.sql
+```
+
+### ۳. تنظیم سکرت‌های سرور
+
+```bash
+npx wrangler secret put ADMIN_PASSWORD        # رمز مدیریت پنل /admin/
+npx wrangler secret put TELEGRAM_BOT_TOKEN    # اختیاری: توکن ربات تلگرام
+npx wrangler secret put TELEGRAM_CHAT_ID      # اختیاری: چت‌آیدی ارسال سفارشات
+```
+
+برای تست محلی می‌توانید یک فایل `.dev.vars` ایجاد کنید:
+```env
+ADMIN_PASSWORD=test
+```
+
+### ۴. اجرا و انتشار
+
+```bash
+npx wrangler dev       # اجرای سرور محلی روی پورت 8787
+npx wrangler deploy    # انتشار پروژه روی سرورهای Cloudflare
+```
+
+---
+
+## نکات بارگذاری تصاویر (WebP Only)
+- برای حفظ حداکثر سرعت و کارایی، سیستم هیچ‌گونه فشرده‌سازی در سمت سرور انجام نمی‌دهد.
+- تمام تصاویر قبل از بارگذاری در پنل، باید با فرمت `.webp` ذخیره شده باشند.
+- حداکثر حجم مجاز برای هر فایل ۳ مگابایت است.
