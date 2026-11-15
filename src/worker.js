@@ -21,6 +21,46 @@ const toEn = s => String(s ?? '')
 const clean = (s, n) => String(s ?? '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
 const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
+// اعتبارسنجی آدرس‌های تصویر، تصاویر و مشخصات پروژه
+function cleanImageUrl(v) {
+  if (v == null || v === '') return '';
+  if (typeof v !== 'string') return null;
+  const s = v.replace(/[\u0000-\u001f]/g, '').trim();
+  if (!s) return '';
+  if (s.length > 300) return null;
+  const isKv = /^\/api\/media\/img:[a-f0-9]{32}\.webp$/.test(s);
+  const isStatic = /^\/?images\/[\w./-]+$/.test(s);
+  const isHttps = /^https:\/\/\S+$/.test(s);
+  if (isKv || isStatic || isHttps) return s;
+  return null;
+}
+
+function cleanImages(arr) {
+  if (!Array.isArray(arr)) return { error: 'تصاویر پروژه باید به صورت آرایه ارسال شوند.' };
+  if (arr.length > 30) return { error: 'حداکثر ۳۰ تصویر برای هر پروژه مجاز است.' };
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    const u = cleanImageUrl(arr[i]);
+    if (!u) {
+      return { error: `آدرس تصویر شماره ${i + 1} نامعتبر است.` };
+    }
+    out.push(u);
+  }
+  return { images: out };
+}
+
+function cleanFacts(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
+  const entries = Object.entries(obj).slice(0, 20);
+  const out = {};
+  for (const [k, v] of entries) {
+    const ck = clean(k, 40);
+    const cv = clean(String(v ?? ''), 120);
+    if (ck) out[ck] = cv;
+  }
+  return out;
+}
+
 async function sha(s) {
   const b = await crypto.subtle.digest('SHA-256', typeof s === 'string' ? new TextEncoder().encode(s) : s);
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -554,9 +594,21 @@ async function createAdminProject(req, env) {
   const category = clean(b.category, 60) || 'عمومی';
   const summary = clean(b.summary, 200);
   const description = clean(b.description, 2000);
-  const cover = clean(b.cover, 300);
-  const images = JSON.stringify(Array.isArray(b.images) ? b.images : []);
-  const factsObj = (b.facts && typeof b.facts === 'object') ? b.facts : ((b.info && typeof b.info === 'object') ? b.info : {});
+
+  const cover = cleanImageUrl(b.cover);
+  if (cover === null) {
+    return J({ error: 'آدرس تصویر کاور نامعتبر است.' }, 400);
+  }
+
+  let imagesList = [];
+  if (b.images !== undefined) {
+    const imgCheck = cleanImages(b.images);
+    if (imgCheck.error) return J({ error: imgCheck.error }, 400);
+    imagesList = imgCheck.images;
+  }
+  const images = JSON.stringify(imagesList);
+
+  const factsObj = cleanFacts(b.facts || b.info || {});
   const facts = JSON.stringify(factsObj);
   const sortOrder = Number(b.sort_order) || 0;
   const isActive = b.is_active !== undefined ? (b.is_active ? 1 : 0) : 1;
@@ -595,10 +647,18 @@ async function updateAdminProject(req, env, id) {
   if (b.category !== undefined) { sets.push('category = ?'); p.push(clean(b.category, 60)); }
   if (b.summary !== undefined) { sets.push('summary = ?'); p.push(clean(b.summary, 200)); }
   if (b.description !== undefined) { sets.push('description = ?'); p.push(clean(b.description, 2000)); }
-  if (b.cover !== undefined) { sets.push('cover = ?'); p.push(clean(b.cover, 300)); }
-  if (b.images !== undefined) { sets.push('images = ?'); p.push(JSON.stringify(Array.isArray(b.images) ? b.images : [])); }
+  if (b.cover !== undefined) {
+    const cover = cleanImageUrl(b.cover);
+    if (cover === null) return J({ error: 'آدرس تصویر کاور نامعتبر است.' }, 400);
+    sets.push('cover = ?'); p.push(cover);
+  }
+  if (b.images !== undefined) {
+    const imgCheck = cleanImages(b.images);
+    if (imgCheck.error) return J({ error: imgCheck.error }, 400);
+    sets.push('images = ?'); p.push(JSON.stringify(imgCheck.images));
+  }
   if (b.facts !== undefined || b.info !== undefined) {
-    const factsObj = (b.facts && typeof b.facts === 'object') ? b.facts : ((b.info && typeof b.info === 'object') ? b.info : {});
+    const factsObj = cleanFacts(b.facts || b.info || {});
     sets.push('facts = ?'); p.push(JSON.stringify(factsObj));
   }
   if (b.sort_order !== undefined) { sets.push('sort_order = ?'); p.push(Number(b.sort_order) || 0); }
