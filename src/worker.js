@@ -503,7 +503,7 @@ async function getPublicProjects(req, env) {
       const { results } = await env.DB.prepare(
         'SELECT * FROM projects WHERE is_active = 1 ORDER BY sort_order ASC, id DESC'
       ).all();
-      if (results && results.length) {
+      if (Array.isArray(results)) {
         return J(results.map(formatProject));
       }
     } catch (e) {
@@ -570,7 +570,7 @@ async function listAdminProjects(req, env) {
   if (env.DB) {
     try {
       const { results } = await env.DB.prepare('SELECT * FROM projects ORDER BY sort_order ASC, id DESC').all();
-      if (results && results.length) {
+      if (Array.isArray(results)) {
         return J({ projects: results.map(formatProject) });
       }
     } catch (e) {
@@ -578,7 +578,7 @@ async function listAdminProjects(req, env) {
     }
   }
   const fallback = await (await env.ASSETS.fetch(new URL('/data/projects.json', req.url))).json();
-  return J({ projects: fallback.map((p, i) => ({ ...p, id: i + 1, sort_order: i + 1, is_active: 1 })) });
+  return J({ projects: fallback.map((p, i) => ({ ...p, id: i + 1, sort_order: i + 1, is_active: 1 })), fallback: true });
 }
 
 async function createAdminProject(req, env) {

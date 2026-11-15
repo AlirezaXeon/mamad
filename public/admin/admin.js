@@ -274,6 +274,9 @@
     try {
       const res = await api('/api/admin/projects');
       projects = res.projects || [];
+      if (res.fallback) {
+        toast('دیتابیس در دسترس نیست؛ پروژه‌ها فقط‌خواندنی هستند.');
+      }
       $('#pcount').textContent = `(${projects.length})`;
       renderProjectsList();
     } catch (err) {
