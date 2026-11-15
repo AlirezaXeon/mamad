@@ -124,14 +124,46 @@ async function serveMedia(rawKey, env, ctx, req) {
   if (!env.MEDIA) return new Response('Storage unavailable', { status: 503 });
 
   const kvKey = toKvKey(rawKey);
+  const etag = `"${kvKey}"`;
+  const ifNoneMatch = req?.headers.get('if-none-match');
 
-  // ۱. بررسی کش لبه‌ای کلادفلر (Cache API) جهت صرفه‌جویی در خواندن‌های KV
+  // ۱. بررسی کش لبه‌ای کلادفلر (Cache API) با کلید نرمال‌شده (بدون search params)
   const cache = typeof caches !== 'undefined' ? caches.default : null;
-  const cacheKey = req ? new Request(req.url, { method: 'GET' }) : null;
+  let cacheKey = null;
+  if (req) {
+    const u = new URL(req.url);
+    u.search = '';
+    cacheKey = new Request(u.toString(), { method: 'GET' });
+  }
+
+  if (ifNoneMatch && (ifNoneMatch === etag || ifNoneMatch === kvKey || ifNoneMatch === '*')) {
+    return new Response(null, {
+      status: 304,
+      headers: {
+        'ETag': etag,
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'X-Content-Type-Options': 'nosniff'
+      }
+    });
+  }
+
   if (cache && cacheKey) {
     try {
       const cached = await cache.match(cacheKey);
-      if (cached) return cached;
+      if (cached) {
+        const cachedEtag = cached.headers.get('etag');
+        if (ifNoneMatch && cachedEtag && (ifNoneMatch === cachedEtag || ifNoneMatch === '*')) {
+          return new Response(null, {
+            status: 304,
+            headers: {
+              'ETag': cachedEtag,
+              'Cache-Control': 'public, max-age=31536000, immutable',
+              'X-Content-Type-Options': 'nosniff'
+            }
+          });
+        }
+        return cached;
+      }
     } catch (e) {
       console.warn('Cache API match error:', e);
     }
@@ -147,12 +179,12 @@ async function serveMedia(rawKey, env, ctx, req) {
   headers.set('Content-Type', 'image/webp');
   headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   headers.set('Content-Length', String(buffer.byteLength));
-  headers.set('ETag', `"${kvKey}"`);
+  headers.set('ETag', etag);
   headers.set('X-Content-Type-Options', 'nosniff');
 
   const response = new Response(buffer, { headers });
 
-  // ۳. ذخیره در Cache API به صورت نامتقارن
+  // ۳. ذخیره در Cache API به صورت نامتقارن با کلید نرمال‌شده
   if (cache && cacheKey && ctx && ctx.waitUntil) {
     ctx.waitUntil(cache.put(cacheKey, response.clone()));
   }
@@ -282,8 +314,10 @@ async function deleteMedia(rawKey, env, ctx, req) {
   if (typeof caches !== 'undefined' && caches.default && req) {
     const cache = caches.default;
     const mediaUrl = new URL(`/api/media/${rawKey}`, req.url);
+    mediaUrl.search = '';
     const altKey = rawKey.startsWith('img:') ? rawKey.slice(4) : ('img:' + rawKey);
     const altUrl = new URL(`/api/media/${altKey}`, req.url);
+    altUrl.search = '';
     if (ctx && ctx.waitUntil) {
       ctx.waitUntil(Promise.all([
         cache.delete(new Request(mediaUrl)),
