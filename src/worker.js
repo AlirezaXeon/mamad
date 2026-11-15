@@ -26,6 +26,13 @@ async function sha(s) {
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
+async function clientHash(req, env) {
+  const ip = req.headers.get('cf-connecting-ip') || 'x';
+  const salt = env.ADMIN_PASSWORD || '';
+  const h = await sha(ip + salt);
+  return h.slice(0, 16);
+}
+
 async function isAdmin(req, env) {
   let t = (req.headers.get('authorization') || '').replace(/^Bearer /, '');
   try { t = decodeURIComponent(t); } catch {}
@@ -321,7 +328,7 @@ async function createOrder(req, env, ctx) {
   }
   o.phone = '0' + o.phone.slice(-10);
 
-  const ipHash = (await sha((req.headers.get('cf-connecting-ip') || 'x') + (env.ADMIN_PASSWORD || ''))).slice(0, 16);
+  const ipHash = await clientHash(req, env);
   const { n } = await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE ip_hash = ? AND created_at > datetime('now','-1 hour')").bind(ipHash).first();
   if (n >= 5) return J({ error: 'تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید.' }, 429);
 
@@ -633,9 +640,43 @@ export default {
       const mediaMatch = pathname.match(/^\/api\/media\/(.+)$/);
       if (mediaMatch && req.method === 'GET') return await serveMedia(decodeURIComponent(mediaMatch[1]), env, ctx, req);
 
-      // ۳. مسیرهای ادمین (نیازمند احراز هویت)
+      // ۳. مسیرهای ادمین (نیازمند احراز هویت و مهار حملات حدس رمز)
       if (pathname.startsWith('/api/admin/')) {
-        if (!(await isAdmin(req, env))) return J({ error: 'رمز اشتباه است' }, 401);
+        let ipHash = null;
+        if (env.DB) {
+          try {
+            ipHash = await clientHash(req, env);
+            const row = await env.DB.prepare(
+              "SELECT COUNT(*) AS c FROM admin_attempts WHERE ip_hash = ? AND created_at > datetime('now', '-15 minutes')"
+            ).bind(ipHash).first();
+            if (row && Number(row.c) >= 10) {
+              return new Response(JSON.stringify({ error: 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً ۱۵ دقیقه دیگر تلاش کنید.' }), {
+                status: 429,
+                headers: {
+                  'content-type': 'application/json; charset=utf-8',
+                  'retry-after': '900',
+                  'cache-control': 'no-store',
+                  'x-content-type-options': 'nosniff'
+                }
+              });
+            }
+          } catch (e) {
+            console.warn('Admin rate limiter check error:', e);
+          }
+        }
+
+        if (!(await isAdmin(req, env))) {
+          if (env.DB && ipHash) {
+            const insP = env.DB.prepare('INSERT INTO admin_attempts (ip_hash) VALUES (?)').bind(ipHash).run();
+            const cleanP = env.DB.prepare("DELETE FROM admin_attempts WHERE created_at < datetime('now', '-1 day')").run();
+            if (ctx && ctx.waitUntil) {
+              ctx.waitUntil(Promise.all([insP, cleanP]));
+            } else {
+              await Promise.all([insP, cleanP]).catch(() => {});
+            }
+          }
+          return J({ error: 'رمز اشتباه است' }, 401);
+        }
 
         // سفارش‌ها
         if (pathname === '/api/admin/orders' && req.method === 'GET') return await listOrders(req, env);
