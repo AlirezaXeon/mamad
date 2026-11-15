@@ -1,15 +1,35 @@
 import { h, app } from '../utils.js';
 import { load } from '../store.js';
+import { openLightbox } from '../components/lightbox.js';
 import { initReveals, initFadeScroll } from '../components/scroll-animator.js';
 
-const card = p => h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' },
-  h('div', { class: 'pic' },
-    h('img', { src: p.cover || p.images[0], alt: p.title, loading: 'lazy', decoding: 'async' }),
-    p.category && h('span', { class: 'badge' }, p.category)),
-  h('div', { class: 'tb' },
-    h('div', { class: 'tb-main' },
-      h('h2', {}, p.title),
-      h('p', {}, p.summary || p.category))));
+const card = p => {
+  const images = (p.images && p.images.length) ? p.images : (p.cover ? [p.cover] : []);
+
+  const pic = h('div', {
+    class: 'pic',
+    role: 'button',
+    tabindex: '0',
+    'aria-label': 'مشاهده تمام‌صفحه تصویر ' + p.title,
+    onclick: e => {
+      e.preventDefault();
+      e.stopPropagation();
+      openLightbox(images, 0, p.title, p.slug);
+    }
+  },
+    h('img', { src: p.cover || images[0], alt: p.title, loading: 'lazy', decoding: 'async' }),
+    p.category && h('span', { class: 'badge' }, p.category),
+    h('span', { class: 'pic-zoom-hint', 'aria-hidden': 'true' })
+  );
+  pic.querySelector('.pic-zoom-hint').innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+
+  return h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' },
+    pic,
+    h('div', { class: 'tb' },
+      h('div', { class: 'tb-main' },
+        h('h2', {}, p.title),
+        h('p', {}, p.summary || p.category))));
+};
 
 export async function home() {
   const { site, projects } = await load();

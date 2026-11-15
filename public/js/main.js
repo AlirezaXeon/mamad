@@ -7,6 +7,10 @@ import { order } from './views/order.js';
 import { splash } from './components/splash.js';
 import { contactBar } from './components/contact.js';
 import { initDynamicBg } from './components/dynamic-bg.js';
+import { initProtection } from './components/protection.js';
+
+// فعال‌سازی محافظت از کپی و جلوگیری از زوم ناخواسته سایت
+initProtection();
 
 try {
   const { site } = await load();
