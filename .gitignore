@@ -1,0 +1,14 @@
+# Environment variables and secrets
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Cloudflare Wrangler build artifacts and state
+.wrangler/
+
+# Node dependencies
+node_modules/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
