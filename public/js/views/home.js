@@ -55,12 +55,25 @@ export async function home() {
     'aria-label': profileName
   }, initials);
 
-  // ساخت حباب ابر با ۳ نقطه اتصال تفکر (Thought-bubble connector)
+  // ساخت حباب ابر ۳۶۰ درجه ارگانیک با برآمدگی‌های کامل دور تا دور و دنباله تفکر
   const createCloudBubble = (text, idx) => {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'hero-cloud-svg');
+    svg.setAttribute('viewBox', '0 0 170 60');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', 'M 24,20 C 24,9 40,5 54,12 C 66,2 100,2 112,11 C 126,6 142,10 148,20 C 164,25 164,36 148,41 C 140,54 122,54 110,49 C 96,58 70,58 58,49 C 42,55 28,51 24,40 C 9,35 9,25 24,20 Z');
+    svg.appendChild(path);
+
+    const cloud = h('div', { class: 'hero-cloud' },
+      svg,
+      h('span', { class: 'hero-cloud-text' }, text)
+    );
+
     return h('div', { class: `hero-bubble-wrapper hero-bubble-w${idx + 1}` },
-      h('div', { class: 'hero-cloud' },
-        h('span', { class: 'hero-cloud-text' }, text)
-      ),
+      cloud,
       h('div', { class: 'hero-connector', 'aria-hidden': 'true' },
         h('span', { class: 'dot dot-1' }),
         h('span', { class: 'dot dot-2' }),
@@ -79,7 +92,7 @@ export async function home() {
     ...bubbleEls
   );
 
-  const heroCopy = h('div', { class: 'hero-copy', 'data-reveal': '' },
+  const heroCopy = h('div', { class: 'hero-copy' },
     h('p', { class: 'eyebrow' }, 'ARCHITECTURE  /  INTERIOR DESIGN'),
     h('h1', {}, 'طراحی داخلی؛ از ', h('em', {}, 'ایده'), ' تا اجرا'),
     h('p', { class: 'hero-desc' }, site.about),
@@ -142,7 +155,6 @@ export async function home() {
   app.replaceChildren(hero, projectsSection, principles, statement);
   draw('همه');
   initReveals(app);
-  initFadeScroll(heroCopy);
 
   if (typeof IntersectionObserver !== 'undefined') {
     const heroObserver = new IntersectionObserver(([entry]) => {
