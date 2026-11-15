@@ -1,6 +1,6 @@
 import { h, app } from '../utils.js';
 import { load } from '../store.js';
-import { initReveals, initParallax, initFadeScroll } from '../components/scroll-animator.js';
+import { initReveals, initFadeScroll } from '../components/scroll-animator.js';
 
 const card = p => h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' },
   h('div', { class: 'pic' },
@@ -130,6 +130,5 @@ export async function home() {
   app.replaceChildren(hero, projectsSection, principles, statement);
   draw('همه');
   initReveals(app);
-  initParallax();
   initFadeScroll(heroCopy);
 }

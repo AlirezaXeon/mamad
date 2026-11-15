@@ -113,13 +113,15 @@ h1, h2, h3, .st, .modal-head h2 {
 .hero {
   position: relative;
   width: 100%;
-  min-height: 52svh;
+  min-height: 48svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(28px, 4.5vw, 50px) var(--pad) clamp(20px, 3vw, 32px);
-  background: radial-gradient(circle at 50% 28%, rgba(198, 166, 109, 0.08) 0%, rgba(10, 10, 11, 0) 70%), var(--bg);
-  overflow: hidden;
+  padding: clamp(24px, 4vw, 44px) var(--pad) clamp(16px, 2.5vw, 28px);
+  background: none;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
 }
 .hero-container {
   width: 100%;
@@ -692,5 +694,5 @@ h1 em {
     transform: none;
   }
   .scroll-indicator span { animation: none; }
-  .hero-bg, .project-hero-img { will-change: auto; }
+  .project-hero-img { will-change: auto; }
 }
