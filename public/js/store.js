@@ -5,7 +5,7 @@ async function fetchWithFallback(apiUrl, fallbackUrl) {
     const res = await fetch(apiUrl, { cache: 'no-cache' });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) ? data.length > 0 : (data && Object.keys(data).length > 0)) {
+      if (Array.isArray(data) || (data && Object.keys(data).length > 0)) {
         return data;
       }
     }
