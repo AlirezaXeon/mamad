@@ -14,7 +14,58 @@ const card = p => h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 
 export async function home() {
   const { site, projects } = await load();
   document.title = site.name + ' | معماری و طراحی داخلی';
-  const featured = projects[0];
+
+  const profile = site.profile || {};
+  const profileName = profile.name || 'محمد فهیمی';
+  const profileBubbles = Array.isArray(profile.bubbles) && profile.bubbles.length >= 2
+    ? profile.bubbles
+    : ['محمد فهیمی', 'طراح داخلی و نقشه‌کش'];
+
+  // حروف اول نام جهت نمایش در صورت عدم بارگذاری تصویر
+  const initials = profileName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(p => p[0])
+    .slice(0, 2)
+    .join('‌') || 'م‌ف';
+
+  const avatarImg = profile.image
+    ? h('img', {
+        class: 'hero-avatar-img',
+        src: profile.image,
+        alt: profileName,
+        width: '164',
+        height: '164',
+        fetchpriority: 'high',
+        decoding: 'async',
+        onerror: e => {
+          e.currentTarget.style.display = 'none';
+          const fb = e.currentTarget.nextElementSibling;
+          if (fb) fb.style.display = 'flex';
+        }
+      })
+    : null;
+
+  const avatarFallback = h('div', {
+    class: 'hero-avatar-fallback',
+    style: profile.image ? 'display:none;' : 'display:flex;',
+    'aria-label': profileName
+  }, initials);
+
+  const bubble1 = h('div', { class: 'hero-bubble hero-bubble-1' },
+    h('span', { class: 'hero-bubble-text' }, profileBubbles[0]));
+
+  const bubble2 = h('div', { class: 'hero-bubble hero-bubble-2' },
+    h('span', { class: 'hero-bubble-text' }, profileBubbles[1]));
+
+  const avatarCluster = h('div', { class: 'hero-avatar-cluster', 'data-reveal': '' },
+    h('div', { class: 'hero-avatar-ring' },
+      avatarImg,
+      avatarFallback
+    ),
+    bubble1,
+    bubble2
+  );
 
   const heroCopy = h('div', { class: 'hero-copy', 'data-reveal': '' },
     h('p', { class: 'eyebrow' }, 'ARCHITECTURE  /  INTERIOR DESIGN'),
@@ -31,18 +82,11 @@ export async function home() {
       }, 'مشاهده پروژه‌ها')));
 
   const hero = h('section', { class: 'hero' },
-    h('img', {
-      class: 'hero-bg',
-      src: featured.cover || featured.images[0],
-      alt: '',
-      fetchpriority: 'high',
-      decoding: 'async',
-      'data-parallax': '',
-      'data-parallax-speed': '0.28'
-    }),
-    h('div', { class: 'hero-overlay' }),
-    heroCopy,
-    h('div', { class: 'scroll-indicator' }, h('span', {})));
+    h('div', { class: 'hero-container' },
+      avatarCluster,
+      heroCopy
+    )
+  );
 
   const principlesData = [
     { num: '01', title: 'از ایده تا فضا', desc: 'خلق فضاهای معمارانه با هویت مستقل و روایت اختصاصی' },
