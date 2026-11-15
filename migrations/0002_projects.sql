@@ -1,4 +1,4 @@
--- Migration 0002: Projects and Site Settings
+-- Migration 0002: Projects, Site Settings and Native Media in D1
 CREATE TABLE IF NOT EXISTS projects (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   slug TEXT UNIQUE NOT NULL,
@@ -22,6 +22,21 @@ CREATE TABLE IF NOT EXISTS site_settings (
   value TEXT NOT NULL,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS media (
+  key TEXT PRIMARY KEY,
+  mime TEXT NOT NULL DEFAULT 'image/webp',
+  size INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS media_chunks (
+  key TEXT NOT NULL,
+  chunk_index INTEGER NOT NULL,
+  data TEXT NOT NULL,
+  PRIMARY KEY (key, chunk_index)
+);
+CREATE INDEX IF NOT EXISTS idx_media_chunks ON media_chunks(key, chunk_index);
 
 -- داده‌های اولیه پروژه‌ها
 INSERT OR IGNORE INTO projects (slug, title, category, summary, description, cover, images, facts, sort_order) VALUES

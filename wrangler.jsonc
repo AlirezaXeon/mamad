@@ -9,11 +9,5 @@
       "database_name": "portfolio-orders",
       "database_id": "177bc4d2-060b-4b1c-9bf0-2adadd3cae30"
     }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "IMAGES",
-      "bucket_name": "portfolio-images"
-    }
   ]
 }

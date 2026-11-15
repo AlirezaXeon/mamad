@@ -56,12 +56,33 @@ function newCode() {
 }
 
 // ══════════════════════════════════════════════
-// مدیریت رسانه و آپلود WebP در R2
+// مدیریت رسانه و آپلود WebP مستقیماً در دیتابیس D1
 // ══════════════════════════════════════════════
 
+function bufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  const chunkSize = 8192;
+  for (let i = 0; i < len; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function base64ToBuffer(base64) {
+  const binary = atob(base64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
 async function uploadMedia(req, env) {
-  if (!env.IMAGES) {
-    return J({ error: 'مخزن R2 (با شناسه IMAGES) تنظیم نشده است.' }, 500);
+  if (!env.DB) {
+    return J({ error: 'دیتابیس D1 (با شناسه DB) تنظیم نشده است.' }, 500);
   }
 
   let buffer;
@@ -91,36 +112,61 @@ async function uploadMedia(req, env) {
   const hash = (await sha(buffer)).slice(0, 32);
   const key = `${hash}.webp`;
 
-  await env.IMAGES.put(key, buffer, {
-    httpMetadata: {
-      contentType: 'image/webp',
-      cacheControl: 'public, max-age=31536000, immutable'
-    }
-  });
+  // تبدیل به base64 و تکه‌تکه کردن (Chunking) جهت قرارگیری در حدود کوئری‌های D1
+  const b64 = bufferToBase64(buffer);
+  const CHUNK_SIZE = 120 * 1024;
+  const chunks = [];
+  for (let i = 0; i < b64.length; i += CHUNK_SIZE) {
+    chunks.push(b64.slice(i, i + CHUNK_SIZE));
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO media (key, mime, size) VALUES (?, 'image/webp', ?)
+     ON CONFLICT(key) DO UPDATE SET size = excluded.size`
+  ).bind(key, buffer.byteLength).run();
+
+  await env.DB.prepare('DELETE FROM media_chunks WHERE key = ?').bind(key).run();
+
+  const batchStatements = chunks.map((chunk, index) =>
+    env.DB.prepare('INSERT INTO media_chunks (key, chunk_index, data) VALUES (?, ?, ?)')
+      .bind(key, index, chunk)
+  );
+  await env.DB.batch(batchStatements);
 
   return J({ ok: true, url: `/api/media/${key}`, key });
 }
 
 async function serveMedia(key, env) {
-  if (!env.IMAGES) return new Response('Storage unavailable', { status: 503 });
+  if (!env.DB) return new Response('Database unavailable', { status: 503 });
   if (!/^[a-zA-Z0-9_.-]+$/.test(key)) return new Response('Invalid key', { status: 400 });
 
-  const obj = await env.IMAGES.get(key);
-  if (!obj) return new Response('Image not found', { status: 404 });
+  const { results } = await env.DB.prepare(
+    'SELECT data FROM media_chunks WHERE key = ? ORDER BY chunk_index ASC'
+  ).bind(key).all();
+
+  if (!results || !results.length) {
+    return new Response('Image not found', { status: 404 });
+  }
+
+  const b64 = results.map(r => r.data).join('');
+  const buffer = base64ToBuffer(b64);
 
   const headers = new Headers();
   headers.set('Content-Type', 'image/webp');
   headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-  if (obj.httpEtag) headers.set('ETag', obj.httpEtag);
+  headers.set('Content-Length', String(buffer.byteLength));
 
-  return new Response(obj.body, { headers });
+  return new Response(buffer, { headers });
 }
 
 async function deleteMedia(key, env) {
-  if (!env.IMAGES) return J({ error: 'مخزن R2 تنظیم نشده است.' }, 500);
+  if (!env.DB) return J({ error: 'دیتابیس D1 تنظیم نشده است.' }, 500);
   if (!/^[a-zA-Z0-9_.-]+$/.test(key)) return J({ error: 'شناسه فایل نامعتبر است.' }, 400);
 
-  await env.IMAGES.delete(key);
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM media WHERE key = ?').bind(key),
+    env.DB.prepare('DELETE FROM media_chunks WHERE key = ?').bind(key)
+  ]);
   return J({ ok: true });
 }
 
