@@ -32,7 +32,9 @@
     <nav class="tabs" role="tablist">
       <button class="tab-btn active" data-tab="orders" type="button" role="tab">سفارش‌ها <small id="count"></small></button>
       <button class="tab-btn" data-tab="projects" type="button" role="tab">پروژه‌ها <small id="pcount"></small></button>
-      <button class="tab-btn" data-tab="profile" type="button" role="tab">پروفایل و معرفی</button>
+      <button class="tab-btn" data-tab="profile" type="button" role="tab">پروفایل و حباب‌ها</button>
+      <button class="tab-btn" data-tab="site" type="button" role="tab">تنظیمات سایت و اسپلش</button>
+      <button class="tab-btn" data-tab="media" type="button" role="tab">کتابخانه تصاویر <small id="mcount"></small></button>
     </nav>
 
     <!-- تب ۱: سفارش‌ها -->
@@ -48,15 +50,15 @@
     <!-- تب ۲: پروژه‌ها -->
     <div id="tab-projects" class="tab-content" hidden>
       <div class="projects-head">
-        <h2>پروژه‌ها</h2>
+        <h2>مدیریت پروژه‌ها</h2>
         <button class="btn primary" id="newProjectBtn" type="button">+ پروژه جدید</button>
       </div>
       <div id="projectsList" class="projects-list"></div>
     </div>
 
-    <!-- تب ۳: پروفایل -->
+    <!-- تب ۳: پروفایل و حباب‌ها -->
     <div id="tab-profile" class="tab-content" hidden>
-      <h2>اطلاعات پروفایل و حباب‌های شناور</h2>
+      <h2>اطلاعات پروفایل و ۴ حباب معرفی</h2>
       <form id="profileForm" class="profile-form">
         <div class="profile-avatar-sec">
           <div class="profile-avatar-wrap">
@@ -64,9 +66,11 @@
             <div id="avatarFallbackPreview" class="profile-avatar-fallback">م‌ف</div>
           </div>
           <div class="avatar-upload-tools">
-            <label class="btn upload-label" for="avatarFileInput">آپلود عکس پروفایل (WebP)</label>
-            <input type="file" id="avatarFileInput" accept="image/webp" hidden>
-            <small class="hint">فقط تصویر با فرمت WebP تا ۳ مگابایت</small>
+            <div class="btn-group">
+              <button class="btn" id="btnPickAvatar" type="button">تغییر تصویر آواتار</button>
+              <button class="btn danger" id="btnRemoveAvatar" type="button">حذف تصویر</button>
+            </div>
+            <small class="hint">فقط فرمت WebP تا ۳ مگابایت</small>
           </div>
         </div>
 
@@ -76,28 +80,91 @@
         </label>
 
         <label class="f-label">
-          <span>نقش‌ها و عناوین (با کاما یا ویرگول جدا کنید)</span>
+          <span>نقش‌ها و عناوین شغلی (با کاما جدا کنید)</span>
           <input class="in" id="profRoles" type="text" placeholder="طراح داخلی، نقشه‌کش">
         </label>
 
-        <div class="f-row">
-          <label class="f-label">
-            <span>متن حباب ۱</span>
-            <input class="in" id="profBubble1" type="text" placeholder="محمد فهیمی">
-          </label>
-          <label class="f-label">
-            <span>متن حباب ۲</span>
-            <input class="in" id="profBubble2" type="text" placeholder="طراح داخلی و نقشه‌کش">
-          </label>
+        <!-- ۴ حباب ابری -->
+        <div class="f-label">
+          <span>متن ۴ حباب ابری شناور</span>
+          <div class="bubbles-grid">
+            <input class="in" id="profBubble1" type="text" placeholder="حباب ۱: محمد فهیمی" required>
+            <input class="in" id="profBubble2" type="text" placeholder="حباب ۲: طراح داخلی" required>
+            <input class="in" id="profBubble3" type="text" placeholder="حباب ۳: نقشه‌کش" required>
+            <input class="in" id="profBubble4" type="text" placeholder="حباب ۴: از ایده تا اجرا" required>
+          </div>
         </div>
 
         <label class="f-label">
           <span>توضیح کوتاه درباره استودیو (Hero About)</span>
-          <textarea class="in" id="profAbout" rows="3" placeholder="توضیح کوتاه درباره استودیو و سبک کار..."></textarea>
+          <textarea class="in" id="profAbout" rows="3" placeholder="توضیح کوتاه درباره استودیو..."></textarea>
         </label>
 
         <button class="btn primary save-btn" type="submit">ذخیره تغییرات پروفایل</button>
       </form>
+    </div>
+
+    <!-- تب ۴: تنظیمات سایت و اسپلش -->
+    <div id="tab-site" class="tab-content" hidden>
+      <h2>تنظیمات هویت استودیو و اسپلش</h2>
+      <form id="siteSettingsForm" class="profile-form">
+        <label class="f-label">
+          <span>نام استودیو / عنوان اصلی</span>
+          <input class="in" id="siteName" type="text" required placeholder="استودیو معماری نمونه">
+        </label>
+
+        <label class="f-label">
+          <span>شعار (Tagline)</span>
+          <input class="in" id="siteTagline" type="text" placeholder="طراحی داخلی؛ از ایده تا اجرا">
+        </label>
+
+        <div class="f-row">
+          <!-- لوگوی اسپلش -->
+          <div class="site-image-card">
+            <span>لوگوی اسپلش (WebP / SVG)</span>
+            <div class="site-img-preview-wrap">
+              <img id="splashLogoPreview" src="" alt="لوگوی اسپلش" onerror="this.style.display='none'">
+              <span id="splashLogoEmpty" class="hint">لوگو انتخاب نشده است</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm" id="btnPickSplashLogo" type="button">تغییر لوگو</button>
+              <button class="btn btn-sm danger" id="btnRemoveSplashLogo" type="button">حذف</button>
+            </div>
+          </div>
+
+          <!-- تصویر پس‌زمینه اسپلش -->
+          <div class="site-image-card">
+            <span>تصویر شاخص اسپلش (اختیاری)</span>
+            <div class="site-img-preview-wrap">
+              <img id="splashImagePreview" src="" alt="تصویر اسپلش" onerror="this.style.display='none'">
+              <span id="splashImageEmpty" class="hint">تصویر انتخاب نشده است</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm" id="btnPickSplashImage" type="button">تغییر تصویر</button>
+              <button class="btn btn-sm danger" id="btnRemoveSplashImage" type="button">حذف</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn primary save-btn" type="submit">ذخیره تنظیمات سایت</button>
+      </form>
+    </div>
+
+    <!-- تب ۵: کتابخانه تصاویر (Workers KV) -->
+    <div id="tab-media" class="tab-content" hidden>
+      <div class="media-header">
+        <div>
+          <h2>کتابخانه رسانه‌ها</h2>
+          <p class="hint">تمام تصاویر بارگذاری‌شده در Workers KV ذخیره و به صورت ابری کش می‌شوند.</p>
+        </div>
+        <button class="btn primary" id="btnUploadMediaDirect" type="button">+ آپلود تصویر جدید (WebP)</button>
+        <input type="file" id="mediaDirectFileInput" accept="image/webp" multiple hidden>
+      </div>
+
+      <div id="mediaGrid" class="media-library-grid"></div>
+      <div id="mediaLoadMoreWrap" class="text-center" style="margin-top:20px;" hidden>
+        <button class="btn" id="btnLoadMoreMedia" type="button">بارگذاری تصاویر بیشتر</button>
+      </div>
     </div>
   </section>
 </main>
@@ -147,19 +214,20 @@
       <div class="facts-section">
         <div class="facts-header">
           <span>مشخصات کلیدی پروژه</span>
-          <button class="btn" id="addFactBtn" type="button">+ افزودن مشخصه</button>
+          <button class="btn btn-sm" id="addFactBtn" type="button">+ افزودن مشخصه</button>
         </div>
         <div id="factsList" class="facts-inputs"></div>
       </div>
 
-      <!-- تصاویر و آپلود WebP -->
+      <!-- تصاویر پروژه با جایگزینی، حذف و جابجایی -->
       <div class="gallery-section">
         <div class="gallery-header">
-          <span>تصاویر پروژه (فقط فرمت WebP، حداکثر ۳ مگابایت)</span>
-          <label class="btn upload-label" for="projectFilesInput">+ آپلود تصاویر WebP</label>
-          <input type="file" id="projectFilesInput" accept="image/webp" multiple hidden>
+          <span>تصاویر پروژه (فقط WebP تا ۳ مگابایت)</span>
+          <div class="btn-group">
+            <button class="btn btn-sm primary" id="btnAddProjectImages" type="button">+ افزودن تصویر</button>
+          </div>
         </div>
-        <p class="hint">روی دکمه «کاور» کلیک کنید تا به عنوان تصویر شاخص انتخاب شود.</p>
+        <p class="hint">با دکمه‌های «▲» و «▼» می‌توانید ترتیب تصاویر را جابجا کنید. دکمه «کاور» تصویر شاخص را مشخص می‌کند.</p>
         <div id="pGallery" class="gallery-grid"></div>
       </div>
 
@@ -173,6 +241,32 @@
         <button class="btn" id="cancelModalBtn" type="button">انصراف</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- کامپوننت مدال انتخابگر تصویر (Image Picker Modal) -->
+<div id="imagePickerModal" class="modal-overlay" hidden>
+  <div class="modal-box image-picker-box">
+    <div class="modal-header">
+      <h3 id="imagePickerTitle">انتخاب یا بارگذاری تصویر</h3>
+      <button class="btn-close" id="closeImagePickerBtn" type="button">✕</button>
+    </div>
+
+    <div class="image-picker-body">
+      <!-- بخش آپلود فایل جدید -->
+      <div class="picker-upload-zone" id="pickerDropZone">
+        <p>فایل تصویر WebP را اینجا بکشید یا دکمه زیر را بزنید</p>
+        <label class="btn primary" for="pickerFileInput">انتخاب فایل از سیستم (WebP)</label>
+        <input type="file" id="pickerFileInput" accept="image/webp" hidden>
+        <span class="hint">حداکثر ۳ مگابایت</span>
+      </div>
+
+      <hr class="divider">
+
+      <!-- بخش انتخاب از تصاویر موجود -->
+      <h4>یا انتخاب از کتابخانه تصاویر موجود:</h4>
+      <div id="pickerMediaGrid" class="picker-media-grid"></div>
+    </div>
   </div>
 </div>
 

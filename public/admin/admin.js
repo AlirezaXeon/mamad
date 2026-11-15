@@ -21,6 +21,10 @@
   let modalImages = [];
   let modalCover = '';
 
+  // وضعیت کتابخانه رسانه
+  let mediaItems = [];
+  let mediaCursor = null;
+
   const lab = (list, id) => (list.find(o => o.id === id) || {}).label || id || '—';
   const labs = (list, ids) => (ids || []).map(i => lab(list, i)).join('، ') || '—';
   const when = s => new Date(String(s).replace(' ', 'T') + 'Z').toLocaleString('fa-IR');
@@ -29,7 +33,7 @@
     const t = $('#toast');
     t.textContent = m;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2400);
+    setTimeout(() => t.classList.remove('show'), 2800);
   };
 
   async function api(path, opt = {}) {
@@ -63,9 +67,13 @@
     $('#tab-orders').hidden = tabId !== 'orders';
     $('#tab-projects').hidden = tabId !== 'projects';
     $('#tab-profile').hidden = tabId !== 'profile';
+    $('#tab-site').hidden = tabId !== 'site';
+    $('#tab-media').hidden = tabId !== 'media';
 
     if (tabId === 'projects') loadProjects();
     if (tabId === 'profile') loadProfile();
+    if (tabId === 'site') loadSiteSettings();
+    if (tabId === 'media') loadMediaLibrary(true);
   }
 
   $$('.tab-btn').forEach(btn => {
@@ -82,7 +90,7 @@
     const isNameWebP = file.name.toLowerCase().endsWith('.webp');
     const isTypeWebP = file.type === 'image/webp';
     if (!isNameWebP && !isTypeWebP) {
-      toast(`فایل "${file.name}" باید با فرمت WebP باشد.`);
+      toast(`فایل "${file.name}" باید حتماً با فرمت WebP باشد.`);
       return false;
     }
     if (file.size > MAX_FILE_SIZE) {
@@ -107,6 +115,86 @@
       return null;
     }
   }
+
+  // ══════════════════════════════════════════════
+  // کامپوننت مشترک انتخابگر تصویر (Unified Image Picker)
+  // ══════════════════════════════════════════════
+  let pickerCallback = null;
+
+  async function openImagePicker({ title = 'انتخاب یا آپلود تصویر', onSelect }) {
+    pickerCallback = onSelect;
+    $('#imagePickerTitle').textContent = title;
+    $('#imagePickerModal').hidden = false;
+    $('#pickerFileInput').value = '';
+    loadPickerMedia();
+  }
+
+  function closeImagePicker() {
+    $('#imagePickerModal').hidden = true;
+    pickerCallback = null;
+  }
+
+  $('#closeImagePickerBtn').onclick = closeImagePicker;
+
+  async function loadPickerMedia() {
+    $('#pickerMediaGrid').innerHTML = '<p class="hint">در حال بارگذاری تصاویر کتابخانه...</p>';
+    try {
+      const res = await api('/api/admin/media?limit=24');
+      const items = res.items || [];
+      if (!items.length) {
+        $('#pickerMediaGrid').innerHTML = '<p class="hint">هنوز تصویری در کتابخانه آپلود نشده است.</p>';
+        return;
+      }
+      $('#pickerMediaGrid').innerHTML = items.map(m => `
+        <div class="picker-item" data-url="${esc(m.url)}" title="${esc(m.name)}">
+          <img src="${esc(m.url)}" alt="${esc(m.name)}" loading="lazy">
+          <span class="picker-item-name">${esc(m.name)}</span>
+        </div>
+      `).join('');
+    } catch (e) {
+      $('#pickerMediaGrid').innerHTML = '<p class="hint">خطا در دریافت لیست تصاویر.</p>';
+    }
+  }
+
+  $('#pickerMediaGrid').addEventListener('click', e => {
+    const item = e.target.closest('.picker-item');
+    if (!item) return;
+    const url = item.dataset.url;
+    if (pickerCallback) pickerCallback(url);
+    closeImagePicker();
+  });
+
+  $('#pickerFileInput').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    toast('در حال آپلود تصویر WebP...');
+    const url = await uploadWebPFile(file);
+    if (url) {
+      toast('تصویر با موفقیت آپلود شد.');
+      if (pickerCallback) pickerCallback(url);
+      closeImagePicker();
+    }
+  });
+
+  // پشتیبانی از Drag & Drop در پیکر
+  const dropZone = $('#pickerDropZone');
+  ['dragenter', 'dragover'].forEach(n => {
+    dropZone.addEventListener(n, e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  });
+  ['dragleave', 'drop'].forEach(n => {
+    dropZone.addEventListener(n, e => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+  });
+  dropZone.addEventListener('drop', async e => {
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    toast('در حال آپلود تصویر WebP...');
+    const url = await uploadWebPFile(file);
+    if (url) {
+      toast('تصویر با موفقیت آپلود شد.');
+      if (pickerCallback) pickerCallback(url);
+      closeImagePicker();
+    }
+  });
 
   // ══════════════════════════════════════════════
   // بخش سفارش‌ها (Orders)
@@ -201,12 +289,13 @@
 
     $('#projectsList').innerHTML = projects.map((p, idx) => {
       const cover = p.cover || (p.images && p.images[0]) || '';
+      const coverSrc = cover.startsWith('/') || cover.startsWith('http') ? cover : '../' + cover;
       return `
         <div class="project-item ${p.is_active ? '' : 'inactive'}" data-id="${p.id || p.slug}">
-          <img class="project-thumb" src="../${cover}" alt="${esc(p.title)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232A312D%22 width=%22100%22 height=%22100%22/></svg>'">
+          <img class="project-thumb" src="${esc(coverSrc)}" alt="${esc(p.title)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232A312D%22 width=%22100%22 height=%22100%22/></svg>'">
           <div class="project-meta">
             <h3>${esc(p.title)} ${p.is_active ? '' : '<span class="badge-dim">مخفی</span>'}</h3>
-            <p>${esc(p.category)} &bull; <code dir="ltr">${esc(p.slug)}</code> &bull; ترتیب: ${p.sort_order ?? idx}</p>
+            <p>${esc(p.category)} &bull; <code dir="ltr">${esc(p.slug)}</code> &bull; ترتیب: ${p.sort_order ?? idx} &bull; ${Array.isArray(p.images) ? p.images.length : 0} تصویر</p>
           </div>
           <div class="project-actions">
             <button class="btn btn-sm" data-action="up" data-idx="${idx}" title="انتقال به بالا" ${idx === 0 ? 'disabled' : ''}>▲</button>
@@ -313,7 +402,6 @@
   $('#closeModalBtn').onclick = closeProjectModal;
   $('#cancelModalBtn').onclick = closeProjectModal;
 
-  // مشخصات کلیدی داینامیک
   function addFactRow(k = '', v = '') {
     const row = document.createElement('div');
     row.className = 'fact-row';
@@ -328,55 +416,76 @@
 
   $('#addFactBtn').onclick = () => addFactRow();
 
-  // آپلود عکس پروژه (فقط WebP)
-  $('#projectFilesInput').addEventListener('change', async e => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
-
-    toast('در حال آپلود تصاویر WebP...');
-    for (const f of files) {
-      const url = await uploadWebPFile(f);
-      if (url) {
+  // افزودن تصویر به پروژه با Image Picker
+  $('#btnAddProjectImages').onclick = () => {
+    openImagePicker({
+      title: 'افزودن تصویر به گالری پروژه',
+      onSelect: url => {
         modalImages.push(url);
         if (!modalCover) modalCover = url;
+        renderModalGallery();
       }
-    }
-    renderModalGallery();
-    e.target.value = '';
-    toast('تصاویر با موفقیت اضافه شدند.');
-  });
+    });
+  };
 
   function renderModalGallery() {
     if (!modalImages.length) {
-      $('#pGallery').innerHTML = '<p class="empty-gallery">هنوز تصویری آپلود نشده است.</p>';
+      $('#pGallery').innerHTML = '<p class="empty-gallery">هنوز تصویری برای این پروژه انتخاب نشده است.</p>';
       return;
     }
 
     $('#pGallery').innerHTML = modalImages.map((src, i) => {
       const isCover = modalCover === src || (!modalCover && i === 0);
+      const displaySrc = src.startsWith('/') || src.startsWith('http') ? src : '../' + src;
       return `
         <div class="gallery-item ${isCover ? 'is-cover' : ''}">
-          <img src="../${src}" alt="تصویر ${i + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232A312D%22 width=%22100%22 height=%22100%22/></svg>'">
-          <span class="cover-badge">${isCover ? 'کاور اصلی' : ''}</span>
-          <button class="del-img" type="button" data-idx="${i}" title="حذف">✕</button>
-          ${isCover ? '' : `<button class="make-cover" type="button" data-idx="${i}">انتخاب کاور</button>`}
+          <img src="${esc(displaySrc)}" alt="تصویر ${i + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232A312D%22 width=%22100%22 height=%22100%22/></svg>'">
+          <span class="cover-badge">${isCover ? 'کاور' : ''}</span>
+          <div class="gallery-item-tools">
+            <button class="btn-tool" type="button" data-act="up" data-idx="${i}" title="حرکت به چپ" ${i === 0 ? 'disabled' : ''}>◄</button>
+            <button class="btn-tool" type="button" data-act="down" data-idx="${i}" title="حرکت به راست" ${i === modalImages.length - 1 ? 'disabled' : ''}>►</button>
+            <button class="btn-tool primary" type="button" data-act="replace" data-idx="${i}" title="جایگزینی">🔄</button>
+            <button class="btn-tool danger" type="button" data-act="del" data-idx="${i}" title="حذف">✕</button>
+          </div>
+          ${isCover ? '' : `<button class="make-cover" type="button" data-act="cover" data-idx="${i}">انتخاب کاور</button>`}
         </div>
       `;
     }).join('');
   }
 
   $('#pGallery').addEventListener('click', e => {
-    if (e.target.classList.contains('del-img')) {
-      const i = Number(e.target.dataset.idx);
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const act = btn.dataset.act;
+    const i = Number(btn.dataset.idx);
+
+    if (act === 'del') {
       const removed = modalImages.splice(i, 1)[0];
-      if (modalCover === removed) {
-        modalCover = modalImages[0] || '';
-      }
+      if (modalCover === removed) modalCover = modalImages[0] || '';
       renderModalGallery();
-    } else if (e.target.classList.contains('make-cover')) {
-      const i = Number(e.target.dataset.idx);
+    } else if (act === 'cover') {
       modalCover = modalImages[i] || '';
       renderModalGallery();
+    } else if (act === 'up' && i > 0) {
+      const temp = modalImages[i];
+      modalImages[i] = modalImages[i - 1];
+      modalImages[i - 1] = temp;
+      renderModalGallery();
+    } else if (act === 'down' && i < modalImages.length - 1) {
+      const temp = modalImages[i];
+      modalImages[i] = modalImages[i + 1];
+      modalImages[i + 1] = temp;
+      renderModalGallery();
+    } else if (act === 'replace') {
+      openImagePicker({
+        title: 'جایگزینی تصویر پروژه',
+        onSelect: newUrl => {
+          const oldUrl = modalImages[i];
+          modalImages[i] = newUrl;
+          if (modalCover === oldUrl) modalCover = newUrl;
+          renderModalGallery();
+        }
+      });
     }
   });
 
@@ -391,7 +500,6 @@
     const description = $('#pDesc').value.trim();
     const is_active = $('#pActive').checked ? 1 : 0;
 
-    // استخراج مشخصات پروژه
     const facts = {};
     $$('#factsList .fact-row').forEach(r => {
       const k = r.querySelector('.fact-k').value.trim();
@@ -434,7 +542,7 @@
   });
 
   // ══════════════════════════════════════════════
-  // بخش پروفایل (Profile)
+  // بخش پروفایل و ۴ حباب (Profile & 4 Bubbles)
   // ══════════════════════════════════════════════
   let profileAvatarUrl = '';
 
@@ -445,9 +553,14 @@
       $('#profName').value = prof.name || 'محمد فهیمی';
       $('#profRoles').value = Array.isArray(prof.roles) ? prof.roles.join('، ') : (prof.roles || 'طراح داخلی، نقشه‌کش');
 
-      const bubbles = Array.isArray(prof.bubbles) ? prof.bubbles : ['محمد فهیمی', 'طراح داخلی و نقشه‌کش'];
+      const bubbles = Array.isArray(prof.bubbles) && prof.bubbles.length >= 4
+        ? prof.bubbles
+        : ['محمد فهیمی', 'طراح داخلی', 'نقشه‌کش', 'از ایده تا اجرا'];
+
       $('#profBubble1').value = bubbles[0] || 'محمد فهیمی';
-      $('#profBubble2').value = bubbles[1] || 'طراح داخلی و نقشه‌کش';
+      $('#profBubble2').value = bubbles[1] || 'طراح داخلی';
+      $('#profBubble3').value = bubbles[2] || 'نقشه‌کش';
+      $('#profBubble4').value = bubbles[3] || 'از ایده تا اجرا';
 
       $('#profAbout').value = siteData.about || '';
       profileAvatarUrl = prof.image || '';
@@ -479,33 +592,37 @@
     }
   }
 
-  $('#avatarFileInput').addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
+  $('#btnPickAvatar').onclick = () => {
+    openImagePicker({
+      title: 'انتخاب تصویر آواتار پروفایل',
+      onSelect: url => {
+        profileAvatarUrl = url;
+        updateAvatarPreview(url, $('#profName').value);
+      }
+    });
+  };
 
-    toast('در حال آپلود عکس پروفایل WebP...');
-    const url = await uploadWebPFile(file);
-    if (url) {
-      profileAvatarUrl = url;
-      updateAvatarPreview(url, $('#profName').value);
-      toast('عکس پروفایل آپلود شد (جهت ثبت دکمه ذخیره را بزنید).');
-    }
-    e.target.value = '';
-  });
+  $('#btnRemoveAvatar').onclick = () => {
+    profileAvatarUrl = '';
+    updateAvatarPreview('', $('#profName').value);
+    toast('تصویر آواتار برداشته شد.');
+  };
 
   $('#profileForm').addEventListener('submit', async e => {
     e.preventDefault();
     const name = $('#profName').value.trim() || 'محمد فهیمی';
     const roles = $('#profRoles').value.split(/[،,]/).map(s => s.trim()).filter(Boolean);
-    const bubble1 = $('#profBubble1').value.trim() || name;
-    const bubble2 = $('#profBubble2').value.trim() || (roles[0] || 'طراح داخلی');
+    const bubble1 = $('#profBubble1').value.trim() || 'محمد فهیمی';
+    const bubble2 = $('#profBubble2').value.trim() || 'طراح داخلی';
+    const bubble3 = $('#profBubble3').value.trim() || 'نقشه‌کش';
+    const bubble4 = $('#profBubble4').value.trim() || 'از ایده تا اجرا';
     const about = $('#profAbout').value.trim();
 
     const payload = {
       profile: {
         name,
         roles,
-        bubbles: [bubble1, bubble2],
+        bubbles: [bubble1, bubble2, bubble3, bubble4],
         image: profileAvatarUrl
       },
       about
@@ -516,9 +633,220 @@
         method: 'PATCH',
         body: JSON.stringify(payload)
       });
-      toast('اطلاعات پروفایل و حباب‌ها با موفقیت ذخیره شد.');
+      toast('اطلاعات پروفایل و ۴ حباب با موفقیت ذخیره شد.');
     } catch (err) {
       toast(err.message);
+    }
+  });
+
+  // ══════════════════════════════════════════════
+  // بخش تنظیمات سایت و اسپلش (Site Settings)
+  // ══════════════════════════════════════════════
+  let splashLogoUrl = '';
+  let splashImageUrl = '';
+
+  async function loadSiteSettings() {
+    try {
+      siteData = await (await fetch('/api/site')).json().catch(() => ({}));
+      $('#siteName').value = siteData.name || '';
+      $('#siteTagline').value = siteData.tagline || '';
+
+      const splash = siteData.splash || {};
+      splashLogoUrl = splash.logo || '';
+      splashImageUrl = splash.image || '';
+
+      updateSiteImagePreview('splashLogo', splashLogoUrl);
+      updateSiteImagePreview('splashImage', splashImageUrl);
+    } catch (err) {
+      toast('خطا در دریافت تنظیمات سایت: ' + err.message);
+    }
+  }
+
+  function updateSiteImagePreview(prefix, url) {
+    const img = $(`#${prefix}Preview`);
+    const empty = $(`#${prefix}Empty`);
+    if (url) {
+      img.src = url.startsWith('/') || url.startsWith('http') ? url : '../' + url;
+      img.style.display = 'block';
+      if (empty) empty.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+    }
+  }
+
+  $('#btnPickSplashLogo').onclick = () => {
+    openImagePicker({
+      title: 'انتخاب لوگوی اسپلش (WebP / SVG)',
+      onSelect: url => {
+        splashLogoUrl = url;
+        updateSiteImagePreview('splashLogo', url);
+      }
+    });
+  };
+
+  $('#btnRemoveSplashLogo').onclick = () => {
+    splashLogoUrl = '';
+    updateSiteImagePreview('splashLogo', '');
+  };
+
+  $('#btnPickSplashImage').onclick = () => {
+    openImagePicker({
+      title: 'انتخاب تصویر پس‌زمینه اسپلش',
+      onSelect: url => {
+        splashImageUrl = url;
+        updateSiteImagePreview('splashImage', url);
+      }
+    });
+  };
+
+  $('#btnRemoveSplashImage').onclick = () => {
+    splashImageUrl = '';
+    updateSiteImagePreview('splashImage', '');
+  };
+
+  $('#siteSettingsForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('#siteName').value.trim();
+    const tagline = $('#siteTagline').value.trim();
+
+    const payload = {
+      name,
+      tagline,
+      splash: {
+        logo: splashLogoUrl,
+        image: splashImageUrl,
+        lines: siteData.splash?.lines || ['طراحی داخلی', 'معماری و اجرا', 'از ایده تا اجرا']
+      }
+    };
+
+    try {
+      await api('/api/admin/site', {
+        method: 'PATCH',
+        body: JSON.stringify(payload)
+      });
+      toast('تنظیمات استودیو و اسپلش ذخیره شد.');
+    } catch (err) {
+      toast(err.message);
+    }
+  });
+
+  // ══════════════════════════════════════════════
+  // بخش کتابخانه رسانه (Media Library - Workers KV)
+  // ══════════════════════════════════════════════
+  async function loadMediaLibrary(reset = false) {
+    if (reset) {
+      mediaItems = [];
+      mediaCursor = null;
+    }
+
+    const p = new URLSearchParams({ limit: '30' });
+    if (mediaCursor) p.set('cursor', mediaCursor);
+
+    try {
+      const res = await api('/api/admin/media?' + p);
+      if (reset) mediaItems = res.items || [];
+      else mediaItems = [...mediaItems, ...(res.items || [])];
+
+      mediaCursor = res.cursor || null;
+      $('#mcount').textContent = `(${mediaItems.length})`;
+      renderMediaLibrary();
+
+      $('#mediaLoadMoreWrap').hidden = Boolean(res.list_complete || !mediaCursor);
+    } catch (err) {
+      toast(err.message);
+    }
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  function renderMediaLibrary() {
+    if (!mediaItems.length) {
+      $('#mediaGrid').innerHTML = '<p class="empty" style="grid-column:1/-1">هنوز تصویری در کتابخانه ذخیره نشده است.</p>';
+      return;
+    }
+
+    $('#mediaGrid').innerHTML = mediaItems.map(m => {
+      const cleanKey = m.key.replace(/^img:/, '');
+      const usageBadges = m.in_use && m.used_in.length
+        ? `<div class="in-use-pill" title="استفاده شده در: ${esc(m.used_in.join('، '))}">در حال استفاده (${m.used_in.length})</div>`
+        : `<div class="unused-pill">بدون استفاده</div>`;
+
+      return `
+        <div class="media-card" data-key="${esc(m.key)}" data-url="${esc(m.url)}">
+          <div class="media-thumb-wrap">
+            <img class="media-thumb" src="${esc(m.url)}" alt="${esc(m.name)}" loading="lazy">
+            ${usageBadges}
+          </div>
+          <div class="media-info">
+            <div class="media-name" title="${esc(m.name)}">${esc(m.name)}</div>
+            <div class="media-sub">${formatBytes(m.size)} &bull; <code dir="ltr">${esc(cleanKey.slice(0, 10))}...</code></div>
+          </div>
+          <div class="media-card-actions">
+            <button class="btn btn-sm btn-copy-url" type="button" data-url="${esc(m.url)}">کپی آدرس</button>
+            <button class="btn btn-sm danger btn-del-media" type="button" data-key="${esc(m.key)}" ${m.in_use ? 'data-inuse="1"' : ''}>حذف</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  $('#btnUploadMediaDirect').onclick = () => $('#mediaDirectFileInput').click();
+
+  $('#mediaDirectFileInput').addEventListener('change', async e => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    toast('در حال آپلود تصاویر به Workers KV...');
+    let success = 0;
+    for (const f of files) {
+      const url = await uploadWebPFile(f);
+      if (url) success++;
+    }
+    e.target.value = '';
+    toast(`${success} تصویر با موفقیت به کتابخانه افزوده شد.`);
+    await loadMediaLibrary(true);
+  });
+
+  $('#btnLoadMoreMedia').onclick = () => loadMediaLibrary(false);
+
+  $('#mediaGrid').addEventListener('click', async e => {
+    // کپی URL
+    const btnCopy = e.target.closest('.btn-copy-url');
+    if (btnCopy) {
+      const url = btnCopy.dataset.url;
+      const fullUrl = location.origin + url;
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        toast('آدرس تصویر در کلیپ‌بورد کپی شد.');
+      }).catch(() => {
+        prompt('آدرس تصویر:', fullUrl);
+      });
+      return;
+    }
+
+    // حذف تصویر
+    const btnDel = e.target.closest('.btn-del-media');
+    if (btnDel) {
+      const key = btnDel.dataset.key;
+      if (btnDel.dataset.inuse) {
+        toast('این تصویر در سایت در حال استفاده است و برای جلوگیری از خراب شدن صفحات حذف آن مجاز نیست.');
+        return;
+      }
+      if (!confirm('آیا از حذف دائمی این تصویر از Workers KV اطمینان دارید؟')) return;
+
+      try {
+        await api('/api/admin/media/' + encodeURIComponent(key), { method: 'DELETE' });
+        toast('تصویر با موفقیت حذف شد.');
+        await loadMediaLibrary(true);
+      } catch (err) {
+        toast(err.message);
+      }
     }
   });
 
@@ -549,6 +877,8 @@
     if (activeTab === 'orders') refreshOrders().then(() => toast('سفارش‌ها به‌روز شدند.')).catch(e => toast(e.message));
     if (activeTab === 'projects') loadProjects().then(() => toast('پروژه‌ها به‌روز شدند.')).catch(e => toast(e.message));
     if (activeTab === 'profile') loadProfile().then(() => toast('پروفایل به‌روز شد.')).catch(e => toast(e.message));
+    if (activeTab === 'site') loadSiteSettings().then(() => toast('تنظیمات سایت به‌روز شد.')).catch(e => toast(e.message));
+    if (activeTab === 'media') loadMediaLibrary(true).then(() => toast('کتابخانه به‌روز شد.')).catch(e => toast(e.message));
   };
 
   $('#logout').onclick = logout;

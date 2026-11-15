@@ -577,19 +577,38 @@ async function updateAdminSite(req, env) {
   if (!env.DB) return J({ error: 'دیتابیس D1 تنظیم نشده است.' }, 500);
 
   const b = await req.json().catch(() => ({}));
+
+  const saveSetting = async (key, val) => {
+    await env.DB.prepare(
+      `INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`
+    ).bind(key, JSON.stringify(val)).run();
+  };
+
   if (b.profile) {
     const profile = normalizeProfile(b.profile);
-    await env.DB.prepare(
-      `INSERT INTO site_settings (key, value, updated_at) VALUES ('profile', ?, CURRENT_TIMESTAMP)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`
-    ).bind(JSON.stringify(profile)).run();
+    await saveSetting('profile', profile);
+  }
+
+  if (b.name !== undefined) {
+    await saveSetting('name', clean(b.name, 100));
+  }
+
+  if (b.tagline !== undefined) {
+    await saveSetting('tagline', clean(b.tagline, 200));
   }
 
   if (b.about !== undefined) {
-    await env.DB.prepare(
-      `INSERT INTO site_settings (key, value, updated_at) VALUES ('about', ?, CURRENT_TIMESTAMP)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`
-    ).bind(JSON.stringify(clean(b.about, 500))).run();
+    await saveSetting('about', clean(b.about, 1000));
+  }
+
+  if (b.splash !== undefined && typeof b.splash === 'object') {
+    const splash = {
+      logo: clean(b.splash.logo, 300) || '',
+      image: clean(b.splash.image, 300) || '',
+      lines: Array.isArray(b.splash.lines) ? b.splash.lines.map(l => clean(l, 80)) : []
+    };
+    await saveSetting('splash', splash);
   }
 
   return J({ ok: true });
