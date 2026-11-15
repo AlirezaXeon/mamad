@@ -422,6 +422,30 @@ async function getPublicProjects(req, env) {
   return env.ASSETS.fetch(new URL('/data/projects.json', req.url));
 }
 
+const DEFAULT_BUBBLES = ['محمد فهیمی', 'طراح داخلی', 'نقشه‌کش', 'از ایده تا اجرا'];
+
+function normalizeProfile(prof) {
+  if (!prof || typeof prof !== 'object') {
+    return {
+      name: 'محمد فهیمی',
+      roles: ['طراح داخلی', 'نقشه‌کش'],
+      bubbles: DEFAULT_BUBBLES,
+      image: ''
+    };
+  }
+  let bubbles = Array.isArray(prof.bubbles) ? prof.bubbles.map(b => clean(b, 60)).filter(Boolean) : [];
+  for (let i = bubbles.length; i < 4; i++) {
+    bubbles.push(DEFAULT_BUBBLES[i]);
+  }
+  bubbles = bubbles.slice(0, 4);
+  return {
+    name: clean(prof.name, 60) || 'محمد فهیمی',
+    roles: Array.isArray(prof.roles) ? prof.roles.map(r => clean(r, 40)) : ['طراح داخلی', 'نقشه‌کش'],
+    bubbles,
+    image: clean(prof.image, 300) || ''
+  };
+}
+
 async function getPublicSite(req, env) {
   let site = {};
   try {
@@ -444,6 +468,8 @@ async function getPublicSite(req, env) {
       console.warn('DB site_settings fallback:', e);
     }
   }
+
+  site.profile = normalizeProfile(site.profile);
 
   return J(site);
 }
@@ -552,13 +578,7 @@ async function updateAdminSite(req, env) {
 
   const b = await req.json().catch(() => ({}));
   if (b.profile) {
-    const p = b.profile;
-    const profile = {
-      name: clean(p.name, 60) || 'محمد فهیمی',
-      roles: Array.isArray(p.roles) ? p.roles.map(r => clean(r, 40)) : ['طراح داخلی', 'نقشه‌کش'],
-      bubbles: Array.isArray(p.bubbles) ? p.bubbles.map(r => clean(r, 60)) : ['محمد فهیمی', 'طراح داخلی و نقشه‌کش'],
-      image: clean(p.image, 300)
-    };
+    const profile = normalizeProfile(b.profile);
     await env.DB.prepare(
       `INSERT INTO site_settings (key, value, updated_at) VALUES ('profile', ?, CURRENT_TIMESTAMP)
        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`
