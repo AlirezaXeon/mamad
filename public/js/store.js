@@ -2,7 +2,7 @@ let cache;
 
 async function fetchWithFallback(apiUrl, fallbackUrl) {
   try {
-    const res = await fetch(apiUrl);
+    const res = await fetch(apiUrl, { cache: 'no-cache' });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) ? data.length > 0 : (data && Object.keys(data).length > 0)) {
