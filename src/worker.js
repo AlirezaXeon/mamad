@@ -669,7 +669,10 @@ async function updateAdminProject(req, env, id) {
 
   sets.push("updated_at = CURRENT_TIMESTAMP");
   try {
-    await env.DB.prepare(`UPDATE projects SET ${sets.join(', ')} WHERE id = ?`).bind(...p, id).run();
+    const res = await env.DB.prepare(`UPDATE projects SET ${sets.join(', ')} WHERE id = ?`).bind(...p, id).run();
+    if (!res.meta?.changes) {
+      return J({ error: 'پروژه پیدا نشد.' }, 404);
+    }
     return J({ ok: true });
   } catch (e) {
     if (String(e).includes('UNIQUE')) {
@@ -681,7 +684,10 @@ async function updateAdminProject(req, env, id) {
 
 async function deleteAdminProject(req, env, id) {
   if (!env.DB) return J({ error: 'دیتابیس D1 تنظیم نشده است.' }, 500);
-  await env.DB.prepare('DELETE FROM projects WHERE id = ?').bind(id).run();
+  const res = await env.DB.prepare('DELETE FROM projects WHERE id = ?').bind(id).run();
+  if (!res.meta?.changes) {
+    return J({ error: 'پروژه پیدا نشد.' }, 404);
+  }
   return J({ ok: true });
 }
 
