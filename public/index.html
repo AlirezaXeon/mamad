@@ -4,10 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>استودیو معماری</title>
-<meta name="description" content="معماری، طراحی داخلی و روایت فضاها؛ مجموعه‌ای از پروژه‌های منتخب استودیو.">
-<meta name="theme-color" content="#F4F1EB">
-<script>try{sessionStorage.getItem("splash")&&document.documentElement.classList.add("no-splash")}catch(e){}</script>
+<meta name="description" content="معماری، طراحی داخلی و روایت فضاها؛ مجموعهای از پروژههای منتخب استودیو.">
+<meta name="theme-color" content="#0A0A0B">
+<script>
+try {
+  var q = new URLSearchParams(location.search).get("theme"), t = q || localStorage.getItem("theme");
+  if (q) localStorage.setItem("theme", q);
+  if (t === "light") {
+    document.documentElement.dataset.theme = "light";
+    document.querySelector('meta[name=theme-color]').content = "#F4F1EB";
+  }
+  sessionStorage.getItem("splash") && document.documentElement.classList.add("no-splash");
+} catch(e) {}
+</script>
 <link rel="preload" href="fonts/Vazirmatn.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/background.css">
@@ -21,10 +34,11 @@
 <link rel="stylesheet" href="css/editorial.css">
 </head>
 <body>
+<div id="dynamic-bg" aria-hidden="true"></div>
 <div id="splash" aria-hidden="true"></div>
 <header id="top" class="bar"></header>
 <main id="app"></main>
-<nav id="contact" class="contact" aria-label="راه‌های ارتباطی"></nav>
+<nav id="contact" class="contact" aria-label="راههای ارتباطی"></nav>
 <div id="lightbox" hidden></div>
 <script type="module" src="js/main.js"></script>
 </body>

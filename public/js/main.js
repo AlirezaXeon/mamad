@@ -6,10 +6,12 @@ import { project } from './views/project.js';
 import { order } from './views/order.js';
 import { splash } from './components/splash.js';
 import { contactBar } from './components/contact.js';
+import { initDynamicBg } from './components/dynamic-bg.js';
 
 try {
   const { site } = await load();
   splash(site.splash, site.name);
+  initDynamicBg();
   document.getElementById('top').replaceChildren(h('a', { href: '#/' }, site.name));
   contactBar(site.contactUrl);
   route(/^\/$/, home);

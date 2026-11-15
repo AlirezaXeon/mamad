@@ -1,0 +1,121 @@
+/* صفحهی تماس: هماهنگ با تم مشکی و طلایی استودیو */
+:root {
+  --cyan: var(--accent);
+  --pink: var(--accent);
+  --yellow: var(--accent);
+  --green: var(--accent);
+  --purple: var(--accent);
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: 300;
+}
+#canvas-bg, .cyber-grid, .scan-line, #loader {
+  display: none !important;
+}
+body:not(.ready) .reveal {
+  animation-play-state: running;
+}
+.glitch {
+  font: 300 clamp(2.2rem, 10vw, 4.2rem)/1.2 var(--serif);
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-shadow: none;
+  color: var(--ink);
+  margin-bottom: 1.8rem;
+}
+.glitch::before, .glitch::after {
+  display: none;
+}
+.cyber-badge {
+  font: 400 0.95rem var(--serif);
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  background: var(--paper);
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0.7rem 1.8rem;
+}
+.cyber-badge:hover {
+  box-shadow: none;
+  background: var(--accent-soft);
+}
+.avatar-ring::before {
+  background: linear-gradient(135deg, var(--accent), transparent 70%);
+  animation: none;
+  filter: none;
+}
+.avatar, .avatar-fallback {
+  background: var(--paper);
+}
+.avatar-fallback {
+  color: var(--accent);
+  text-shadow: none;
+  font-family: var(--serif);
+}
+.profile-name {
+  font: 500 1.3rem var(--serif);
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+.profile-bio {
+  color: var(--mute);
+  font-family: var(--font);
+  font-style: normal;
+}
+.holo-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transform: translateY(var(--ty, 0px));
+}
+.holo-card::after {
+  display: none;
+}
+.holo-card:hover, .holo-card:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.7);
+}
+.icon-face {
+  border-radius: 0;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  color: var(--accent);
+}
+.icon-face svg {
+  filter: none;
+  stroke-width: 1.3;
+}
+.holo-card:hover .icon-face {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: none;
+}
+.card-title {
+  font: 500 0.95rem var(--serif);
+  letter-spacing: 0.2em;
+  color: var(--ink);
+}
+.back-link {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  letter-spacing: 0.04em;
+}
+.back-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.toast {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 0;
+  font-family: var(--font);
+}

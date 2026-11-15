@@ -1,6 +1,7 @@
-import { h, app } from '../utils.js';
+import { h, app, toEn } from '../utils.js';
 import { load } from '../store.js';
 import { openLightbox } from '../components/lightbox.js';
+import { initReveals, initParallax, initFadeScroll } from '../components/scroll-animator.js';
 
 export async function project(slug) {
   const { projects } = await load();
@@ -8,24 +9,35 @@ export async function project(slug) {
   if (i < 0) { location.hash = '/'; return; }
   const p = projects[i], next = projects[(i + 1) % projects.length];
   document.title = p.title + ' | پروژه';
+
+  const backBtn = h('a', { class: 'back-fixed', href: '#/', 'aria-label': 'بازگشت' });
+  backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>';
+
   app.replaceChildren(h('article', { class: 'view' },
+    h('section', { class: 'project-hero' },
+      h('img', { class: 'project-hero-img', src: p.images[0], alt: p.title, fetchpriority: 'high', decoding: 'async', 'data-parallax': '', 'data-parallax-speed': '0.3' }),
+      h('div', { class: 'project-hero-overlay' }),
+      h('div', { class: 'project-hero-content' },
+        h('p', { class: 'eyebrow' }, (p.category || 'پروژه') + '  /  SELECTED WORK'),
+        h('h1', {}, p.title))),
+    backBtn,
     h('a', { class: 'back', href: '#/' }, '← بازگشت به پروژه‌ها'),
-    h('p', { class: 'eyebrow', 'data-reveal': '' }, (p.category || 'پروژه') + '  /  SELECTED WORK'),
-    h('h1', { 'data-reveal': '' }, p.title),
-    h('dl', { class: 'facts', 'data-reveal': '' }, Object.entries(p.info || {}).map(([k, v]) => h('div', {}, h('dt', {}, k), h('dd', {}, v)))),
+    h('dl', { class: 'facts', 'data-reveal': 'stagger' },
+      Object.entries(p.info || {}).map(([k, v]) => h('div', {}, h('dt', {}, k), h('dd', {}, toEn(v))))),
     p.description && h('p', { class: 'desc', 'data-reveal': '' }, p.description),
     h('div', { class: 'gallery' }, p.images.map((src, n) =>
-      h('button', { class: 'shot', type: 'button', 'aria-label': 'نمایش تصویر ' + (n + 1), onclick: () => openLightbox(p.images, n, p.title) },
+      h('button', { class: 'shot', type: 'button', 'data-reveal': 'scale', 'aria-label': 'نمایش تصویر ' + (n + 1), onclick: () => openLightbox(p.images, n, p.title) },
         h('img', { src, alt: p.title + ' - تصویر ' + (n + 1), loading: n ? 'lazy' : 'eager', decoding: 'async' })))),
-    next.slug !== p.slug && h('a', { class: 'next', href: '#/p/' + next.slug }, h('span', {}, 'پروژه بعدی'), h('b', {}, next.title))
+    next.slug !== p.slug && h('a', { class: 'next-project', href: '#/p/' + next.slug },
+      h('img', { class: 'next-project-img', src: next.cover || next.images[0], alt: next.title, loading: 'lazy', decoding: 'async' }),
+      h('div', { class: 'next-project-overlay' }),
+      h('div', { class: 'next-project-content' },
+        h('span', {}, 'پروژه بعدی'),
+        h('b', {}, next.title)))
   ));
-  const nodes = app.querySelectorAll('[data-reveal], .shot');
-  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    nodes.forEach(el => el.classList.add('in'));
-  } else {
-    const io = new IntersectionObserver((entries, observer) => entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('in'); observer.unobserve(entry.target); }
-    }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
-    nodes.forEach(el => io.observe(el));
-  }
+
+  initReveals(app);
+  initParallax();
+  const heroContent = app.querySelector('.project-hero-content');
+  if (heroContent) initFadeScroll(heroContent);
 }

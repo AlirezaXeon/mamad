@@ -52,7 +52,7 @@ const sServices = cfg => h('div', {}, title('چه خدماتی نیاز داری
     render: o => [icon(o.id), h('b', {}, o.label), h('small', {}, o.desc)] }), helpButton(cfg.helps.services)));
 
 const sProperty = cfg => {
-  const area = h('input', { class: 'in', value: state.area, inputmode: 'decimal', autocomplete: 'off', placeholder: 'مثلاً ۱۲۰', 'aria-label': 'متراژ', oninput: e => set('area', e.target.value) });
+  const area = h('input', { class: 'in', value: state.area, inputmode: 'decimal', autocomplete: 'off', placeholder: 'مثلاً 120', 'aria-label': 'متراژ', oninput: e => set('area', e.target.value) });
   const use = v => { area.value = fa(v); set('area', String(v)); };
   return h('div', {}, title('مشخصات ملک', 'اطلاعات تقریبی هم کافی است.'),
     field('نوع ملک', choices({ options: cfg.propertyTypes, value: state.propertyType, onchange: v => set('propertyType', v) })),
@@ -64,7 +64,7 @@ const sProperty = cfg => {
 };
 
 const sStyle = cfg => h('div', {}, title('سبک و بودجه', 'سلیقه شما مسیر طراحی را مشخص می‌کند.'),
-  field('سبک طراحی (حداکثر ۲ مورد)', choices({ options: cfg.styles, multi: true, max: 2, exclusive: 'unsure', value: state.styles, variant: 'cards', onchange: v => set('styles', v),
+  field('سبک طراحی (حداکثر 2 مورد)', choices({ options: cfg.styles, multi: true, max: 2, exclusive: 'unsure', value: state.styles, variant: 'cards', onchange: v => set('styles', v),
     render: o => [h('b', {}, o.label), h('small', {}, o.desc), o.palette.length ? h('span', { class: 'pal' }, o.palette.map(c => h('i', { style: `background:${c}` }))) : null] }), helpButton(cfg.helps.style)),
   field('بودجه تقریبی پروژه', choices({ options: cfg.budgets, value: state.budget, onchange: v => set('budget', v) }), helpButton(cfg.helps.budget)),
   field('زمان شروع', choices({ options: cfg.timelines, value: state.timeline, onchange: v => set('timeline', v) })));
@@ -101,7 +101,7 @@ function validate(i) {
   if (i === 1) {
     if (!state.propertyType) return 'نوع ملک را انتخاب کنید.';
     const a = num(state.area);
-    if (!(a >= 5 && a <= 10000)) return 'متراژ را به متر مربع وارد کنید (بین ۵ تا ۱۰٬۰۰۰).';
+    if (!(a >= 5 && a <= 10000)) return 'متراژ را به متر مربع وارد کنید (بین 5 تا 10,000).';
   }
   if (i === 2) {
     if (!state.styles.length) return 'حداقل یک سبک را انتخاب کنید (یا «هنوز نمی‌دانم»).';
@@ -110,7 +110,7 @@ function validate(i) {
   }
   if (i === 4) {
     if (state.name.trim().length < 2) return 'نام خود را وارد کنید.';
-    if (!phoneOk(state.phone)) return 'شماره موبایل معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹).';
+    if (!phoneOk(state.phone)) return 'شماره موبایل معتبر نیست (مثال: 09123456789).';
   }
   return '';
 }

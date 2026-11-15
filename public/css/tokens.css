@@ -1,11 +1,56 @@
-@font-face{font-family:Vazirmatn;src:url(../fonts/Vazirmatn.woff2) format("woff2");font-weight:100 900;font-display:swap}
-:root{
-  color-scheme:light;
-  --bg:#F4F1EB;--paper:#FBF9F5;--ink:#24251F;--mute:#77766D;--line:#DDD8CE;
-  --accent:#78664F;--on-accent:#FBF9F5;--danger:#B3402F;
-  --accent-soft:rgba(120,102,79,.10);--field:rgba(255,255,255,.72);
-  --r:3px;--pad:clamp(18px,4vw,48px);--max:1240px;
-  --font:Vazirmatn,Tahoma,system-ui,sans-serif;
-  --mono:ui-monospace,Menlo,Consolas,monospace;
-  --ease:cubic-bezier(.22,.68,0,1);
+@font-face {
+  font-family: Vazirmatn;
+  src: url(../fonts/Vazirmatn.woff2) format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* تم پیشفرض: مشکی معماری و طلای مات (Obsidian & Muted Gold) */
+:root {
+  color-scheme: dark;
+  --bg: #0A0A0B;
+  --paper: #121214;
+  --surface: #18181B;
+  --ink: #F2EFE9;
+  --mute: #8E8A82;
+  --line: #242321;
+  --line-strong: #36332E;
+  --accent: #C6A66D;
+  --on-accent: #0A0A0B;
+  --danger: #E06C58;
+  --accent-soft: rgba(198, 166, 109, 0.12);
+  --field: rgba(255, 255, 255, 0.03);
+  --r: 0px;
+  --pad: 20px;
+  --max: 1180px;
+  --font: Vazirmatn, Tahoma, system-ui, sans-serif;
+  --serif: "Cormorant Garamond", Georgia, "Times New Roman", Vazirmatn, serif;
+  --mono: "Cormorant Garamond", Georgia, Consolas, ui-monospace, monospace;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --reveal-duration: 0.9s;
+  --reveal-distance: 28px;
+  --parallax-intensity: 0.08;
+}
+
+/* تم فرعی اختیاری: گالری روشن (?theme=light) */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F4F1EB;
+  --paper: #FBF9F5;
+  --surface: #EFECE6;
+  --ink: #161514;
+  --mute: #6E6A63;
+  --line: #DED9CF;
+  --line-strong: #C7C0B3;
+  --accent: #9A7B4F;
+  --on-accent: #FBF9F5;
+  --danger: #B3402F;
+  --accent-soft: rgba(154, 123, 79, 0.09);
+  --field: rgba(0, 0, 0, 0.02);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --reveal-duration: 0.9s;
+  --reveal-distance: 28px;
+  --parallax-intensity: 0.08;
 }

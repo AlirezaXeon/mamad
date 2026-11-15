@@ -1,5 +1,14 @@
 export const app = document.getElementById('app');
-export const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+// تبدیل هر نوع رقم فارسی/عربی به انگلیسی در کل سایت
+export const toEn = s => String(s ?? '')
+  .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+  .replace(/[٫،]/g, '.');
+
+// خروجی اعداد همیشه به انگلیسی
+export const fa = n => toEn(n);
+
 // ساخت المان: h('a', {href:'#/'}, 'متن', [children])
 export const h = (tag, attrs = {}, ...kids) => {
   const e = document.createElement(tag);
@@ -11,9 +20,5 @@ export const h = (tag, attrs = {}, ...kids) => {
   e.append(...kids.flat().filter(x => x != null && x !== false));
   return e;
 };
-// تبدیل ارقام فارسی/عربی به انگلیسی و خواندن عدد
-export const toEn = s => String(s ?? '')
-  .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-  .replace(/[٫،]/g, '.');
+
 export const num = s => parseFloat(toEn(s)) || 0;
