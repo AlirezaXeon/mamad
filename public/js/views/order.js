@@ -1,4 +1,4 @@
-import { h, app, fa, toEn, num } from '../utils.js';
+import { h, app, fa, toEn, num, copyText } from '../utils.js';
 import { load, loadOrder } from '../store.js';
 import { openModal } from '../components/modal.js';
 import { choices } from '../components/choice.js';
@@ -154,8 +154,12 @@ async function send(btn, err, site) {
 // ---------- صفحه موفقیت ----------
 function done(code, site) {
   const oc = site.orderContact || {};
-  const copy = h('button', { class: 'code', type: 'button', 'aria-label': 'کپی کد پیگیری', onclick: () => {
-    navigator.clipboard?.writeText(code).then(() => { copy.dataset.ok = '1'; setTimeout(() => delete copy.dataset.ok, 1400); });
+  const copy = h('button', { class: 'code', type: 'button', 'aria-label': 'کپی کد پیگیری', onclick: async () => {
+    const ok = await copyText(code);
+    if (ok) {
+      copy.dataset.ok = '1';
+      setTimeout(() => delete copy.dataset.ok, 1400);
+    }
   } }, code);
   scrollTo(0, 0);
   app.replaceChildren(h('section', { class: 'order done' },

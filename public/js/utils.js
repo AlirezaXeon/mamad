@@ -22,3 +22,32 @@ export const h = (tag, attrs = {}, ...kids) => {
 };
 
 export const num = s => parseFloat(toEn(s)) || 0;
+
+// کپی متن با fallback برای مرورگرهای درون‌برنامه‌ای (WebView، اینستاگرام، تلگرام)
+export async function copyText(text) {
+  const str = String(text ?? '');
+  if (!str) return false;
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(str);
+      return true;
+    } catch {}
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = str;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    ta.style.pointerEvents = 'none';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, str.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}
