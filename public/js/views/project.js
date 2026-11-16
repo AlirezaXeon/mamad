@@ -13,13 +13,21 @@ export async function project(slug) {
   const backBtn = h('a', { class: 'back-fixed', href: '#/', 'aria-label': 'بازگشت' });
   backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>';
 
+  const openHeroLightbox = e => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    openLightbox(p.images, 0, p.title, p.slug);
+  };
+
   app.replaceChildren(h('article', { class: 'view' },
     h('section', {
       class: 'project-hero project-hero-clickable',
       role: 'button',
       tabindex: '0',
       'aria-label': 'مشاهده تمام‌صفحه تصویر شاخص ' + p.title,
-      onclick: () => openLightbox(p.images, 0, p.title, p.slug)
+      onclick: openHeroLightbox,
+      onkeydown: e => {
+        if (e.key === 'Enter' || e.key === ' ') openHeroLightbox(e);
+      }
     },
       h('img', { class: 'project-hero-img', src: p.images[0], alt: p.title, fetchpriority: 'high', decoding: 'async', 'data-parallax': '', 'data-parallax-speed': '0.3' }),
       h('div', { class: 'project-hero-overlay' }),

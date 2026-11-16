@@ -6,15 +6,20 @@ import { initReveals, initFadeScroll } from '../components/scroll-animator.js';
 const card = p => {
   const images = (p.images && p.images.length) ? p.images : (p.cover ? [p.cover] : []);
 
+  const openGallery = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    openLightbox(images, 0, p.title, p.slug);
+  };
+
   const pic = h('div', {
     class: 'pic',
     role: 'button',
     tabindex: '0',
     'aria-label': 'مشاهده تمام‌صفحه تصویر ' + p.title,
-    onclick: e => {
-      e.preventDefault();
-      e.stopPropagation();
-      openLightbox(images, 0, p.title, p.slug);
+    onclick: openGallery,
+    onkeydown: e => {
+      if (e.key === 'Enter' || e.key === ' ') openGallery(e);
     }
   },
     h('img', { src: p.cover || images[0], alt: p.title, loading: 'lazy', decoding: 'async' }),
