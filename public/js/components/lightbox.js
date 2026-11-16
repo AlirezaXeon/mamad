@@ -24,8 +24,11 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
     ? h('a', {
         class: 'lb-project-link',
         href: `#/p/${projectSlug}`,
-        onclick: () => {
+        onclick: e => {
+          e.preventDefault();
           hide();
+          history.replaceState(null, '', `#/p/${projectSlug}`);
+          window.dispatchEvent(new HashChangeEvent('hashchange'));
         }
       }, 'مشاهده جزئیات پروژه ↗')
     : null;
