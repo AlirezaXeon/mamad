@@ -53,27 +53,28 @@
 
 ## راه‌اندازی و دیپلوی در Cloudflare
 
-### ۱. ساخت نیم‌اسپیس Workers KV
-دستور زیر را در ترمینال اجرا کنید:
+### ۱. ساخت یا تنظیم نیم‌اسپیس Workers KV
+در فایل [wrangler.jsonc](wrangler.jsonc) شناسه نیم‌اسپیس `MEDIA` از پیش تنظیم شده است. در صورت راه‌اندازی روی یک اکانت تازه کلادفلر، دستور زیر را اجرا کنید:
 ```bash
 npx wrangler kv namespace create MEDIA
 ```
-کلادفلر شناسه‌ای شبیه به این به شما نمایش می‌دهد:
-```
-{ "binding": "MEDIA", "id": "xxxxxx" }
-```
-این شناسه (`id`) را در فایل [wrangler.jsonc](file:///c:/Users/alireza/Desktop/mamad/wrangler.jsonc) در بخش `kv_namespaces` جایگزین `REPLACE_WITH_REAL_ID` کنید.
+سپس شناسه جدید نمایش‌داده‌شده را در `wrangler.jsonc` در بخش `kv_namespaces` جایگزین کنید.
 
 ### ۲. ساخت و اجرای دیتابیس D1
 اگر دیتابیس `portfolio-orders` را نساخته‌اید:
 ```bash
 npx wrangler d1 create portfolio-orders
 ```
-سپس مایگریشن‌های دیتابیس را روی کلادفلر اعمال کنید:
+سپس مایگریشن‌های دیتابیس را با دستور رسمی مایگریشن کلادفلر اعمال کنید:
 ```bash
-npx wrangler d1 execute portfolio-orders --remote --file=migrations/0001_orders.sql
-npx wrangler d1 execute portfolio-orders --remote --file=migrations/0002_projects.sql
+npx wrangler d1 migrations apply portfolio-orders --remote
 ```
+
+> **نکته در مورد پروژه‌های نمونه (Seed)**:
+> روی نصب تازه، جدول پروژه‌ها خالی است. در صورت تمایل به بارگذاری ۴ پروژه نمونه، دستور زیر را اجرا کنید:
+> ```bash
+> npx wrangler d1 execute portfolio-orders --remote --file=seed/demo_projects.sql
+> ```
 
 ### ۳. تنظیم رمز ورود به پنل مدیریت (`/admin/`)
 ```bash
@@ -90,16 +91,16 @@ npx wrangler deploy
 
 ## تست محلی روی سیستم (اختیاری)
 
-۱. ایجاد فایل `.dev.vars` در ریشه پروژه:
+۱. ایجاد فایل `.dev.vars` در ریشه پروژه بر اساس نمونه `.dev.vars.example`:
 ```env
 ADMIN_PASSWORD=test
 ```
 
 ۲. اجرای مایگریشن‌های محلی D1:
 ```bash
-npx wrangler d1 execute portfolio-orders --local --file=migrations/0001_orders.sql
-npx wrangler d1 execute portfolio-orders --local --file=migrations/0002_projects.sql
+npx wrangler d1 migrations apply portfolio-orders --local
 ```
+*(اختیاری: جهت بارگذاری پروژه‌های نمونه در محیط لوکال: `npx wrangler d1 execute portfolio-orders --local --file=seed/demo_projects.sql`)*
 
 ۳. اجرای لوکال با شبیه‌ساز KV و D1:
 ```bash
