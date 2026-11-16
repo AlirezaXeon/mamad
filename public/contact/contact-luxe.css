@@ -12,12 +12,6 @@ body {
   font-family: var(--font);
   font-weight: 300;
 }
-#canvas-bg, .cyber-grid, .scan-line, #loader {
-  display: none !important;
-}
-body:not(.ready) .reveal {
-  animation-play-state: running;
-}
 .glitch {
   font: 300 clamp(2.2rem, 10vw, 4.2rem)/1.2 var(--serif);
   letter-spacing: 0.28em;
