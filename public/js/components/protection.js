@@ -21,16 +21,4 @@ export function initProtection() {
   document.addEventListener('dragstart', e => {
     if (e.target.tagName === 'IMG') e.preventDefault();
   });
-
-  // ۴. جلوگیری از زوم ناخواسته ناشی از دابل‌تپ در مرورگرهای موبایل
-  let lastTap = 0;
-  document.addEventListener('touchend', e => {
-    const now = Date.now();
-    if (now - lastTap <= 300) {
-      if (!e.target.closest('input, textarea, button, a')) {
-        e.preventDefault();
-      }
-    }
-    lastTap = now;
-  }, { passive: false });
 }
