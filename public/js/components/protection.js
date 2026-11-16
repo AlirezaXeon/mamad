@@ -22,32 +22,7 @@ export function initProtection() {
     if (e.target.tagName === 'IMG') e.preventDefault();
   });
 
-  // ۴. جلوگیری از زوم با دو انگشت روی کل صفحه در سافاری iOS و کروم (به‌جز پاپ‌آپ لایت‌باکس که زوم فنری دارد)
-  document.addEventListener('gesturestart', e => {
-    e.preventDefault();
-  }, { passive: false });
-
-  document.addEventListener('gesturechange', e => {
-    e.preventDefault();
-  }, { passive: false });
-
-  document.addEventListener('gestureend', e => {
-    e.preventDefault();
-  }, { passive: false });
-
-  document.addEventListener('touchstart', e => {
-    if (e.touches && e.touches.length > 1 && !e.target.closest('#lightbox')) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  document.addEventListener('touchmove', e => {
-    if (e.touches && e.touches.length > 1 && !e.target.closest('#lightbox')) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  // ۵. جلوگیری از زوم ناخواسته ناشی از دابل‌تپ در مرورگرهای موبایل
+  // ۴. جلوگیری از زوم ناخواسته ناشی از دابل‌تپ در مرورگرهای موبایل
   let lastTap = 0;
   document.addEventListener('touchend', e => {
     const now = Date.now();
@@ -58,15 +33,4 @@ export function initProtection() {
     }
     lastTap = now;
   }, { passive: false });
-
-  // ۶. جلوگیری از زوم دسکتاپ با کلیدهای Ctrl + چرخ ماوس یا کلیدهای +/-
-  document.addEventListener('wheel', e => {
-    if (e.ctrlKey) e.preventDefault();
-  }, { passive: false });
-
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
-      e.preventDefault();
-    }
-  });
 }
