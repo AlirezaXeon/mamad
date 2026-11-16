@@ -8,8 +8,22 @@ export const route = (re, fn) => routes.push([re, fn]);
 async function go() {
   const hash = location.hash;
   if (hash === '#projects' || hash === '#/projects') {
-    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
-    return;
+    const el = document.getElementById('projects');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    if (current !== null) scrolls[current] = y;
+    const homeRoute = routes.find(([re]) => re.test('/'));
+    if (homeRoute) {
+      current = '/';
+      cleanup();
+      await homeRoute[1]();
+      requestAnimationFrame(() => {
+        document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+      });
+      return;
+    }
   }
   if (current !== null) scrolls[current] = y;
   const path = hash.slice(1) || '/';
