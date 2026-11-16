@@ -1,3 +1,5 @@
+-- Note: Reference only; the source of truth is the migrations/ directory.
+
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   code TEXT NOT NULL UNIQUE,
