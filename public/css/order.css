@@ -6,8 +6,8 @@ body.in-order{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 .o-meta{display:flex;justify-content:space-between;margin:0 0 8px;color:var(--mute);font-size:.8rem}
 .o-steps{display:flex;gap:6px}
 .o-steps i{flex:1;height:3px;border-radius:2px;background:var(--line)}
-.o-steps .done{background:var(--accent)}
-.o-steps .cur{background:linear-gradient(90deg,var(--accent) 55%,var(--line) 55%)}
+.o-steps .is-done{background:var(--accent)}
+.o-steps .is-cur{background:linear-gradient(90deg,var(--accent) 55%,var(--line) 55%)}
 .step{padding-top:20px;animation:stepIn .5s cubic-bezier(.2,.8,.2,1)}
 @keyframes stepIn{from{opacity:0;transform:translateY(14px)}}
 .st{margin:0 0 4px;font-size:1.5rem;line-height:1.5;font-weight:700}
@@ -56,8 +56,8 @@ textarea.in{min-height:120px;resize:vertical}
 @keyframes shake{25%{transform:translateX(5px)}75%{transform:translateX(-5px)}}
 .o-btns{display:flex;gap:10px}
 .o-btns .primary{flex:1}
-.done{padding-top:28px;text-align:center}
-.done h1{margin:6px 0;font-size:1.6rem}
+.order-done{padding-top:28px;text-align:center}
+.order-done h1{margin:6px 0;font-size:1.6rem}
 .ok{display:block;width:76px;height:76px;margin:0 auto 10px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ok circle{stroke-dasharray:151;stroke-dashoffset:151;animation:draw .8s ease forwards}
 .ok path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .6s ease forwards}

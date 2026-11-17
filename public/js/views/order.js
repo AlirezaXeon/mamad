@@ -131,7 +131,7 @@ function draw(cfg, site) {
     h('header', { class: 'o-head' },
       h('h1', { class: 'o-title' }, 'ثبت سفارش'),
       h('p', { class: 'o-meta' }, h('span', {}, `مرحله ${fa(step + 1)} از ${fa(STEPS)}`), h('span', {}, cfg.steps[step])),
-      h('div', { class: 'o-steps', 'aria-hidden': 'true' }, cfg.steps.map((_, i) => h('i', { class: i < step ? 'done' : i === step ? 'cur' : '' })))),
+      h('div', { class: 'o-steps', 'aria-hidden': 'true' }, cfg.steps.map((_, i) => h('i', { class: i < step ? 'is-done' : i === step ? 'is-cur' : '' })))),
     h('div', { class: 'step' }, STEP_VIEWS[step](cfg, redraw)),
     h('div', { class: 'o-bar' }, h('div', {}, err,
       h('div', { class: 'o-btns' },
@@ -162,7 +162,7 @@ function done(code, site) {
     }
   } }, code);
   scrollTo(0, 0);
-  app.replaceChildren(h('section', { class: 'order done' },
+  app.replaceChildren(h('section', { class: 'order order-done' },
     svg('<svg class="ok" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 14-16"/></svg>'),
     h('h1', {}, 'سفارش شما ثبت شد'),
     h('p', { class: 'lead' }, 'کد پیگیری شما (برای کپی لمس کنید):'),

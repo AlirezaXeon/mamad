@@ -818,7 +818,7 @@ h1, h2, h3, .st, .modal-head h2 {
   border-radius: 99px;
   background: var(--line-strong);
 }
-.o-steps i.cur, .o-steps i.done {
+.o-steps i.is-cur, .o-steps i.is-done {
   background: var(--accent);
 }
 .code {
