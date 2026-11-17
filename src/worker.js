@@ -452,10 +452,14 @@ async function notify(env, cfg, o, code, origin) {
     `<a href="${origin}/admin/">پنل سفارش‌ها</a>`,
   ].filter(Boolean);
   try {
-    await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: lines.join('\n'), parse_mode: 'HTML', disable_web_page_preview: true }),
     });
+    if (!res.ok) {
+      const body = (await res.text().catch(() => '')).slice(0, 300);
+      console.error('telegram error status:', res.status, body);
+    }
   } catch (e) { console.error('telegram', e); }
 }
 
