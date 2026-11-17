@@ -1,4 +1,4 @@
-/* صفحهی تماس: هماهنگ با تم مشکی و طلایی استودیو */
+/* صفحه تماس: هماهنگ با تم مشکی و طلایی استودیو و هویت بصری سایت */
 :root {
   --cyan: var(--accent);
   --pink: var(--accent);
@@ -13,9 +13,9 @@ body {
   font-weight: 300;
 }
 .glitch {
-  font: 300 clamp(2.2rem, 10vw, 4.2rem)/1.2 var(--serif);
-  letter-spacing: 0.28em;
-  text-indent: 0.28em;
+  font: 400 clamp(2.2rem, 10vw, 4.2rem)/1.2 var(--serif);
+  letter-spacing: 0.04em;
+  text-indent: 0.04em;
   text-shadow: none;
   color: var(--ink);
   margin-bottom: 1.8rem;
@@ -24,17 +24,18 @@ body {
   display: none;
 }
 .cyber-badge {
-  font: 400 0.95rem var(--serif);
-  letter-spacing: 0.14em;
+  font: 500 0.95rem var(--serif);
+  letter-spacing: 0.04em;
   color: var(--accent);
   background: var(--paper);
   border: 1px solid var(--accent);
-  border-radius: 0;
+  border-radius: 99px;
   box-shadow: none;
   padding: 0.7rem 1.8rem;
+  transition: all 0.25s ease;
 }
 .cyber-badge:hover {
-  box-shadow: none;
+  box-shadow: 0 4px 16px var(--accent-glow, rgba(198,166,109,0.25));
   background: var(--accent-soft);
 }
 .avatar-ring::before {
@@ -44,6 +45,7 @@ body {
 }
 .avatar, .avatar-fallback {
   background: var(--paper);
+  border-radius: 50%;
 }
 .avatar-fallback {
   color: var(--accent);
@@ -52,7 +54,7 @@ body {
 }
 .profile-name {
   font: 500 1.3rem var(--serif);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
   color: var(--ink);
 }
 .profile-bio {
@@ -63,10 +65,11 @@ body {
 .holo-card {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--r, 18px);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   transform: translateY(var(--ty, 0px));
+  transition: all 0.25s ease;
 }
 .holo-card::after {
   display: none;
@@ -74,10 +77,11 @@ body {
 .holo-card:hover, .holo-card:focus-visible {
   border-color: var(--accent);
   background: var(--surface);
-  box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.65), 0 0 20px -4px var(--accent-soft);
+  transform: translateY(-2px);
 }
 .icon-face {
-  border-radius: 0;
+  border-radius: var(--r-sm, 12px);
   background: var(--bg);
   border: 1px solid var(--line-strong);
   color: var(--accent);
@@ -93,15 +97,16 @@ body {
 }
 .card-title {
   font: 500 0.95rem var(--serif);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.03em;
   color: var(--ink);
 }
 .back-link {
   color: var(--ink);
   background: color-mix(in srgb, var(--bg) 85%, transparent);
   border: 1px solid var(--line-strong);
-  border-radius: 0;
-  letter-spacing: 0.04em;
+  border-radius: 99px;
+  letter-spacing: 0;
+  transition: all 0.25s ease;
 }
 .back-link:hover {
   border-color: var(--accent);
@@ -110,6 +115,6 @@ body {
 .toast {
   background: var(--accent);
   color: var(--on-accent);
-  border-radius: 0;
+  border-radius: 99px;
   font-family: var(--font);
 }
