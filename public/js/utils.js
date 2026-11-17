@@ -6,7 +6,8 @@ export const toEn = s => String(s ?? '')
   .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 
 // خروجی اعداد همیشه به انگلیسی
-export const fa = n => toEn(n);
+export const en = n => toEn(n);
+export const fa = en; // نام مستعار برای سازگاری عقب‌رو
 
 // ساخت المان: h('a', {href:'#/'}, 'متن', [children])
 export const h = (tag, attrs = {}, ...kids) => {

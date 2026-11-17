@@ -1,4 +1,4 @@
-import { h, app, fa, toEn, num, copyText } from '../utils.js';
+import { h, app, en, toEn, num, copyText } from '../utils.js';
 import { load, loadOrder } from '../store.js';
 import { openModal } from '../components/modal.js';
 import { choices } from '../components/choice.js';
@@ -35,7 +35,7 @@ function guide(cfg, done) {
     onclose: () => { if (!ok) location.hash = '/'; },
     content: h('div', {},
       h('p', { class: 'lead' }, g.intro),
-      h('ol', { class: 'guide' }, g.points.map((t, i) => h('li', {}, h('b', {}, fa(i + 1)), h('span', {}, t)))),
+      h('ol', { class: 'guide' }, g.points.map((t, i) => h('li', {}, h('b', {}, en(i + 1)), h('span', {}, t)))),
       h('label', { class: 'check', for: 'g-ok' }, box, h('span', {}, g.confirm)),
       go),
   });
@@ -59,7 +59,7 @@ const sServices = cfg => h('div', {}, title('چه خدماتی نیاز داری
 
 const sProperty = cfg => {
   const area = h('input', { class: 'in', value: state.area, inputmode: 'decimal', autocomplete: 'off', placeholder: 'مثلاً 120', 'aria-label': 'متراژ', oninput: e => set('area', e.target.value) });
-  const use = v => { area.value = fa(v); set('area', String(v)); };
+  const use = v => { area.value = en(v); set('area', String(v)); };
   return h('div', {}, title('مشخصات ملک', 'اطلاعات تقریبی هم کافی است.'),
     field('نوع ملک', choices({ options: cfg.propertyTypes, value: state.propertyType, onchange: v => set('propertyType', v) })),
     field('متراژ', h('div', { class: 'with-unit' }, area, h('span', { class: 'unit' }, 'متر مربع')), helpButton(cfg.helps.area, { onUse: use }),
@@ -83,7 +83,7 @@ const sDetails = () => h('div', {}, title('توضیحات بیشتر', 'همه �
 const row = (label, val, to, redraw) => val ? h('div', {}, h('dt', {}, label), h('dd', {}, val), h('button', { type: 'button', onclick: () => { step = to; save(); redraw(); scrollTo(0, 0); } }, 'ویرایش')) : null;
 
 const sContact = (cfg, redraw) => {
-  const prop = [lab(cfg.propertyTypes, state.propertyType), state.city, state.area && fa(num(state.area)) + ' متر'].filter(Boolean).join('، ');
+  const prop = [lab(cfg.propertyTypes, state.propertyType), state.city, state.area && en(num(state.area)) + ' متر'].filter(Boolean).join('، ');
   return h('div', {}, title('اطلاعات تماس', 'برای هماهنگی سفارش با شما تماس می‌گیریم.'),
     field('نام و نام خانوادگی', text('name', { ac: 'name', ph: 'مثلاً علی رضایی' })),
     field('شماره موبایل', text('phone', { ac: 'tel', ph: '09123456789', ltr: true, mode: 'tel' }), helpButton(cfg.helps.contact)),
@@ -136,7 +136,7 @@ function draw(cfg, site) {
   app.replaceChildren(h('section', { class: 'order' },
     h('header', { class: 'o-head' },
       h('h1', { class: 'o-title' }, 'ثبت سفارش'),
-      h('p', { class: 'o-meta' }, h('span', {}, `مرحله ${fa(step + 1)} از ${fa(STEPS)}`), h('span', {}, cfg.steps[step])),
+      h('p', { class: 'o-meta' }, h('span', {}, `مرحله ${en(step + 1)} از ${en(STEPS)}`), h('span', {}, cfg.steps[step])),
       h('div', { class: 'o-steps', 'aria-hidden': 'true' }, cfg.steps.map((_, i) => h('i', { class: i < step ? 'is-done' : i === step ? 'is-cur' : '' })))),
     h('div', { class: 'step' }, STEP_VIEWS[step](cfg, redraw)),
     h('div', { class: 'o-bar' }, h('div', {}, err,
@@ -178,7 +178,7 @@ function done(code, site) {
     h('ol', { class: 'guide next-steps' },
       ['ما در اولین فرصت با شماره‌ای که وارد کردید تماس می‌گیریم.',
        'نقشه، عکس ملک و نمونه‌های موردعلاقه را (اگر دارید) با ذکر کد پیگیری برایمان بفرستید.',
-       'بعد از گفتگو، قیمت و زمان‌بندی نهایی را هماهنگ می‌کنیم.'].map((t, i) => h('li', {}, h('b', {}, fa(i + 1)), h('span', {}, t)))),
+       'بعد از گفتگو، قیمت و زمان‌بندی نهایی را هماهنگ می‌کنیم.'].map((t, i) => h('li', {}, h('b', {}, en(i + 1)), h('span', {}, t)))),
     h('div', { class: 'done-btns' },
       tg && h('a', { class: 'btn primary', href: `https://t.me/${tg}`, target: '_blank', rel: 'noopener' }, 'ارسال نقشه و عکس در تلگرام'),
       wa && h('a', { class: 'btn', href: `https://wa.me/${wa}`, target: '_blank', rel: 'noopener' }, 'ارسال در واتساپ'),

@@ -1,4 +1,4 @@
-import { h, fa } from '../utils.js';
+import { h, en } from '../utils.js';
 
 const box = document.getElementById('lightbox');
 
@@ -16,7 +16,7 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
   const titleEl = h('h3', { class: 'lb-title' }, title || 'گالری پروژه');
 
   // شمارنده تصاویر به فارسی
-  const countEl = h('span', { class: 'lb-count' }, `${fa(currentIndex + 1)} / ${fa(total)}`);
+  const countEl = h('span', { class: 'lb-count' }, `${en(currentIndex + 1)} / ${en(total)}`);
 
   // لینک مشاهده صفحه پروژه (در صورت باز شدن از صفحه اصلی)
   const isProjectPage = window.location.hash.startsWith('#/p/');
@@ -56,7 +56,7 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
   imgs.forEach((src, idx) => {
     const img = h('img', {
       src,
-      alt: `${title || 'پروژه'} - تصویر ${fa(idx + 1)}`,
+      alt: `${title || 'پروژه'} - تصویر ${en(idx + 1)}`,
       decoding: 'async',
       loading: Math.abs(idx - currentIndex) <= 1 ? 'eager' : 'lazy'
     });
@@ -100,7 +100,7 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
     const w = track.clientWidth || 1;
     const idx = Math.round(Math.abs(track.scrollLeft) / w);
     currentIndex = Math.max(0, Math.min(idx, total - 1));
-    countEl.textContent = `${fa(currentIndex + 1)} / ${fa(total)}`;
+    countEl.textContent = `${en(currentIndex + 1)} / ${en(total)}`;
   };
 
   const step = dir => {
