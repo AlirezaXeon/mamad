@@ -42,12 +42,16 @@ img{
 }
 :focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 main{max-width:var(--max);margin:0 auto;padding-bottom:64px}
-.bar{position:sticky;top:0;z-index:20;max-width:none;margin:0;padding:0 var(--pad);min-height:72px;display:flex;align-items:center;background:color-mix(in srgb, var(--bg) 88%, transparent);border-bottom:1px solid rgba(221,216,206,.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-weight:700}
-.intro{padding:12px var(--pad) 8px}
-.intro h1{font-size:1.65rem;line-height:1.5;margin:0 0 6px;font-weight:700}
-.intro p{margin:0;color:var(--mute)}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:14px var(--pad);scrollbar-width:none}
-.chip{flex:none;border:1px solid var(--line);background:transparent;border-radius:99px;padding:4px 16px;cursor:pointer}
-.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:center;align-items:center;padding:18px var(--pad) 14px;min-height:60px;background:color-mix(in srgb, var(--bg) 88%, transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-weight:700}
+.chips{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;gap:8px;padding:8px 0 16px;scrollbar-width:none;position:sticky;top:60px;z-index:15;background:color-mix(in srgb, var(--bg) 94%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;scroll-snap-align:start;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 20px;color:var(--mute);font-size:.84rem;letter-spacing:0;cursor:pointer;transition:all .25s ease;white-space:nowrap}
+.chip:hover{color:var(--ink);border-color:var(--line-strong)}
+.chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600}
+@media(min-width:640px){.chips{flex-wrap:wrap;overflow:visible;scroll-snap-type:none;position:relative;top:auto;background:none;backdrop-filter:none}.chip{flex:initial}}
+.btn,.contact-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 26px;border-radius:99px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font-family:var(--font);font-size:.95rem;font-weight:500;letter-spacing:0;text-decoration:none;cursor:pointer;transition:background .25s,color .25s,border-color .25s,opacity .25s}
+.btn:hover,.contact-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+.btn.primary,.contact-btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.btn.primary:hover,.contact-btn.primary:hover{background:color-mix(in srgb, var(--accent) 88%, #fff);color:var(--on-accent)}
 .chip,.btn,.contact-btn,.action,.back-fixed{min-height:44px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{scroll-behavior:auto}}

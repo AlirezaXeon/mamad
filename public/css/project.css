@@ -278,8 +278,6 @@
   }
 }
 
-.next { display:none }
-
 @media (prefers-reduced-motion:reduce) {
   .shot, .next-project-img { transition:none; opacity:1; transform:none }
   .project-hero-img { will-change:auto }
