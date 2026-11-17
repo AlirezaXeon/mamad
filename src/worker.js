@@ -806,12 +806,15 @@ export default {
 
         if (!(await isAdmin(req, env))) {
           if (env.DB && ipHash) {
-            const insP = env.DB.prepare('INSERT INTO admin_attempts (ip_hash) VALUES (?)').bind(ipHash).run();
-            const cleanP = env.DB.prepare("DELETE FROM admin_attempts WHERE created_at < datetime('now', '-1 day')").run();
+            const tasks = [env.DB.prepare('INSERT INTO admin_attempts (ip_hash) VALUES (?)').bind(ipHash).run()];
+            // پاک‌سازی لاگ‌های قدیمی به صورت تصادفی (~۲٪ موارد) جهت کاهش هزینه کوئری‌های دیتابیس
+            if (Math.random() < 0.02) {
+              tasks.push(env.DB.prepare("DELETE FROM admin_attempts WHERE created_at < datetime('now', '-1 day')").run());
+            }
             if (ctx && ctx.waitUntil) {
-              ctx.waitUntil(Promise.all([insP, cleanP]));
+              ctx.waitUntil(Promise.all(tasks));
             } else {
-              await Promise.all([insP, cleanP]).catch(() => {});
+              await Promise.all(tasks).catch(() => {});
             }
           }
           return J({ error: 'رمز اشتباه است' }, 401);
