@@ -74,7 +74,8 @@ async function sha(s) {
 }
 
 async function clientHash(req, env) {
-  const ip = req.headers.get('cf-connecting-ip') || 'x';
+  const ip = req.headers.get('cf-connecting-ip');
+  if (!ip) return null;
   const salt = env.ADMIN_PASSWORD || '';
   const h = await sha(ip + salt);
   return h.slice(0, 16);
@@ -418,9 +419,12 @@ async function createOrder(req, env, ctx) {
   }
   o.phone = '0' + o.phone.slice(-10);
 
+  // بررسی نرخ ثبت سفارش: در صورت نبود IP محدودیت نادیده گرفته می‌شود تا باکت مشترک کاربران واقعی را مسدود نکند
   const ipHash = await clientHash(req, env);
-  const { n } = await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE ip_hash = ? AND created_at > datetime('now','-1 hour')").bind(ipHash).first();
-  if (n >= 5) return J({ error: 'تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید.' }, 429);
+  if (ipHash) {
+    const { n } = await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE ip_hash = ? AND created_at > datetime('now','-1 hour')").bind(ipHash).first();
+    if (n >= 5) return J({ error: 'تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید.' }, 429);
+  }
 
   let code;
   for (let i = 0; i < 4; i++) {
@@ -428,7 +432,7 @@ async function createOrder(req, env, ctx) {
     try {
       await env.DB.prepare(`INSERT INTO orders (code,name,phone,contact_method,contact_time,telegram_id,services,property_type,property_state,city,area,rooms,styles,budget,timeline,notes,refs,ip_hash)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .bind(code, o.name, o.phone, o.contactMethod, o.contactTime, o.telegramId, JSON.stringify(o.services), o.propertyType, o.propertyState, o.city, o.area, o.rooms, JSON.stringify(o.styles), o.budget, o.timeline, o.notes, o.refs, ipHash).run();
+        .bind(code, o.name, o.phone, o.contactMethod, o.contactTime, o.telegramId, JSON.stringify(o.services), o.propertyType, o.propertyState, o.city, o.area, o.rooms, JSON.stringify(o.styles), o.budget, o.timeline, o.notes, o.refs, ipHash || 'unknown').run();
       break;
     } catch (e) { if (i === 3 || !String(e).includes('UNIQUE')) throw e; }
   }
@@ -781,10 +785,10 @@ export default {
 
       // ۳. مسیرهای ادمین (نیازمند احراز هویت و مهار حملات حدس رمز)
       if (pathname.startsWith('/api/admin/')) {
-        let ipHash = null;
+        // برای ادمین، در صورت نبود IP محدودیت را سخت‌گیرانه روی باکت 'no-ip' نگه می‌داریم تا حدس پسورد مسدود شود
+        const ipHash = (await clientHash(req, env)) || 'no-ip';
         if (env.DB) {
           try {
-            ipHash = await clientHash(req, env);
             const row = await env.DB.prepare(
               "SELECT COUNT(*) AS c FROM admin_attempts WHERE ip_hash = ? AND created_at > datetime('now', '-15 minutes')"
             ).bind(ipHash).first();
@@ -805,7 +809,7 @@ export default {
         }
 
         if (!(await isAdmin(req, env))) {
-          if (env.DB && ipHash) {
+          if (env.DB) {
             const tasks = [env.DB.prepare('INSERT INTO admin_attempts (ip_hash) VALUES (?)').bind(ipHash).run()];
             // پاک‌سازی لاگ‌های قدیمی به صورت تصادفی (~۲٪ موارد) جهت کاهش هزینه کوئری‌های دیتابیس
             if (Math.random() < 0.02) {
