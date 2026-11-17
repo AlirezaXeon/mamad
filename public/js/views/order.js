@@ -42,14 +42,20 @@ function guide(cfg, done) {
 }
 
 // ---------- ساختار فرم ----------
-const title = (t, s) => [h('h2', { class: 'st' }, t), s && h('p', { class: 'ss' }, s)];
+const title = (t, s, help) => [
+  h('h2', { class: 'st' }, t),
+  s && h('p', { class: 'ss', style: help ? 'display:flex;align-items:center;gap:8px' : null }, h('span', {}, s), help)
+];
 const field = (label, control, help, hint) => h('div', { class: 'field' },
-  h('div', { class: 'lbl' }, h('span', {}, label), help), hint && h('p', { class: 'hint' }, hint), control);
+  (label || help) ? h('div', { class: 'lbl' }, label ? h('span', {}, label) : null, help) : null,
+  hint && h('p', { class: 'hint' }, hint),
+  control
+);
 const text = (k, o = {}) => h('input', { class: 'in' + (o.ltr ? ' ltr' : ''), value: state[k], autocomplete: o.ac || 'off', placeholder: o.ph || '', inputmode: o.mode, dir: o.ltr ? 'ltr' : null, oninput: e => set(k, e.target.value) });
 
-const sServices = cfg => h('div', {}, title('چه خدماتی نیاز دارید؟', 'یک یا چند مورد را انتخاب کنید.'),
+const sServices = cfg => h('div', {}, title('چه خدماتی نیاز دارید؟', 'یک یا چند مورد را انتخاب کنید.', helpButton(cfg.helps.services)),
   field('', choices({ options: cfg.services, multi: true, value: state.services, variant: 'cards', onchange: v => set('services', v),
-    render: o => [icon(o.id), h('b', {}, o.label), h('small', {}, o.desc)] }), helpButton(cfg.helps.services)));
+    render: o => [icon(o.id), h('b', {}, o.label), h('small', {}, o.desc)] })));
 
 const sProperty = cfg => {
   const area = h('input', { class: 'in', value: state.area, inputmode: 'decimal', autocomplete: 'off', placeholder: 'مثلاً 120', 'aria-label': 'متراژ', oninput: e => set('area', e.target.value) });
