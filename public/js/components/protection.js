@@ -1,19 +1,28 @@
-// جلوگیری از کپی متن، راست‌کلیک، کشیدن تصاویر و زوم ناخواسته در کل سایت
+/**
+ * ماژول حفاظت از محتوا با رعایت اصول دسترس‌پذیری (Accessibility Tradeoff):
+ * جلوگیری فراگیر از راست‌کلیک و کپی راهکار امنیتی معتبری نیست و به دسترس‌پذیری آسیب می‌زند؛
+ * لذا محدودیت‌ها باریک‌تر شده‌اند: فیلدهای فرم، پاراگراف‌های متنی محتوا (.desc, .hero-desc, .pr-desc)،
+ * خلاصه سفارش (.sum) و کد پیگیری (.code) آزادند تا کاربر بتواند متن‌ها را انتخاب و کپی کند.
+ */
 export function initProtection() {
-  // ۱. جلوگیری از منوی راست‌کلیک و منوی نگه‌داشتن انگشت (به جز در فیلدهای متنی فرم‌ها)
+  const isAllowed = el => {
+    return Boolean(el?.closest('input, textarea, [contenteditable="true"], .desc, .hero-desc, .pr-desc, .sum, .code'));
+  };
+
+  // ۱. جلوگیری از منوی راست‌کلیک فقط در المان‌های محافظت‌شده (کروم تعاملی و تصاویر)
   document.addEventListener('contextmenu', e => {
-    if (e.target.closest('input, textarea')) return;
+    if (isAllowed(e.target)) return;
     e.preventDefault();
   }, { capture: true });
 
-  // ۲. جلوگیری از رویداد کپی و کات (به جز در فیلدهای متنی فرم‌ها)
+  // ۲. جلوگیری از رویداد کپی و کات در خارج از محتوای متنی و کد پیگیری
   document.addEventListener('copy', e => {
-    if (e.target.closest('input, textarea')) return;
+    if (isAllowed(e.target)) return;
     e.preventDefault();
   }, { capture: true });
 
   document.addEventListener('cut', e => {
-    if (e.target.closest('input, textarea')) return;
+    if (isAllowed(e.target)) return;
     e.preventDefault();
   }, { capture: true });
 
