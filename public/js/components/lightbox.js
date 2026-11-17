@@ -20,15 +20,19 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
 
   // لینک مشاهده صفحه پروژه (در صورت باز شدن از صفحه اصلی)
   const isProjectPage = window.location.hash.startsWith('#/p/');
+  let navigating = false;
   const projectLinkEl = (projectSlug && !isProjectPage)
     ? h('a', {
         class: 'lb-project-link',
         href: `#/p/${projectSlug}`,
         onclick: e => {
           e.preventDefault();
-          hide();
-          history.replaceState(null, '', `#/p/${projectSlug}`);
-          window.dispatchEvent(new HashChangeEvent('hashchange'));
+          if (navigating) return;
+          navigating = true;
+          window.addEventListener('popstate', () => {
+            location.hash = `#/p/${projectSlug}`;
+          }, { once: true });
+          history.back();
         }
       }, 'مشاهده جزئیات پروژه ↗')
     : null;
@@ -105,7 +109,10 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
     if (e.key === 'ArrowRight') step(1);
   };
 
+  let closed = false;
   const hide = () => {
+    if (closed) return;
+    closed = true;
     box.hidden = true;
     box.replaceChildren();
     document.body.classList.remove('lock');
