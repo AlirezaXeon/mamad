@@ -1,7 +1,7 @@
 import { h, app } from '../utils.js';
 import { load } from '../store.js';
 import { openLightbox } from '../components/lightbox.js';
-import { initReveals, initFadeScroll } from '../components/scroll-animator.js';
+import { initReveals } from '../components/scroll-animator.js';
 
 const card = p => {
   const images = (p.images && p.images.length) ? p.images : (p.cover ? [p.cover] : []);
