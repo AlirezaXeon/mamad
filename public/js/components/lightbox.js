@@ -75,11 +75,13 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
   }, 2600);
 
   // دکمه‌های چپ و راست (در دسکتاپ و تبلت)
+  // فرض محیط راست‌به‌چپ (RTL): اسلایدها از راست به چپ چیده شده‌اند.
+  // تصویر بعدی در سمت چپ (left: -1) و تصویر قبلی در سمت راست (left: +1) قرار دارد.
   const prevBtn = h('button', {
     class: 'lb-nav-btn lb-prev',
     type: 'button',
     'aria-label': 'تصویر قبلی',
-    onclick: () => step(1) // در RTL حرکت به راست یعنی قبلی
+    onclick: () => step(1) // در RTL حرکت به سمت راست به تصویر قبلی می‌رود
   });
   prevBtn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
 
@@ -87,11 +89,13 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
     class: 'lb-nav-btn lb-next',
     type: 'button',
     'aria-label': 'تصویر بعدی',
-    onclick: () => step(-1) // در RTL حرکت به چپ یعنی بعدی
+    onclick: () => step(-1) // در RTL حرکت به سمت چپ به تصویر بعدی می‌رود
   });
   nextBtn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
 
-  // به‌روزرسانی شمارنده صفحه
+  // به‌روزرسانی شمارنده صفحه با در نظر گرفتن رفتار RTL
+  // در مرورگرهای منطبق با استاندارد (Chrome, Firefox, Safari)، scrollLeft در حالت RTL مقداری منفی یا صفر است؛
+  // لذا از Math.abs(scrollLeft) برای محاسبه دقیق شاخص اسلاید جاری استفاده می‌شود.
   const updateCounter = () => {
     const w = track.clientWidth || 1;
     const idx = Math.round(Math.abs(track.scrollLeft) / w);
@@ -105,8 +109,8 @@ export function openLightbox(imgs, start = 0, title = '', projectSlug = '') {
 
   const onKey = e => {
     if (e.key === 'Escape') history.back();
-    if (e.key === 'ArrowLeft') step(-1);
-    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1); // در RTL کلید جهت‌نمای چپ به اسلاید بعدی می‌رود
+    if (e.key === 'ArrowRight') step(1); // در RTL کلید جهت‌نمای راست به اسلاید قبلی می‌رود
   };
 
   let closed = false;
