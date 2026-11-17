@@ -15,8 +15,15 @@ const J = (data, status = 200) => new Response(JSON.stringify(data), {
 
 const toEn = s => String(s ?? '')
   .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-  .replace(/[٫،]/g, '.');
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+
+const parseNumber = s => {
+  const clean = toEn(s)
+    .replace(/[،,٬]/g, '')
+    .replace(/٫/g, '.');
+  const n = parseFloat(clean);
+  return Number.isFinite(n) ? n : 0;
+};
 
 const clean = (s, n) => String(s ?? '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
 const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -391,7 +398,7 @@ async function createOrder(req, env, ctx) {
     propertyType: one(b.propertyType, cfg.propertyTypes),
     propertyState: one(b.propertyState, cfg.propertyStates),
     city: clean(b.city, 60),
-    area: Number(toEn(b.area)),
+    area: parseNumber(b.area),
     rooms: one(b.rooms, cfg.rooms),
     styles: many(b.styles, cfg.styles, 2),
     budget: one(b.budget, cfg.budgets),

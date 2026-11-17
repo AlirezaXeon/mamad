@@ -3,8 +3,7 @@ export const app = document.getElementById('app');
 // تبدیل هر نوع رقم فارسی/عربی به انگلیسی در کل سایت
 export const toEn = s => String(s ?? '')
   .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-  .replace(/[٫،]/g, '.');
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 
 // خروجی اعداد همیشه به انگلیسی
 export const fa = n => toEn(n);
@@ -21,7 +20,16 @@ export const h = (tag, attrs = {}, ...kids) => {
   return e;
 };
 
-export const num = s => parseFloat(toEn(s)) || 0;
+// پارس اعداد با حذف جداکننده‌های هزارگان و تبدیل ممیز اعشاری
+export const parseNumber = s => {
+  const clean = toEn(s)
+    .replace(/[،,٬]/g, '')
+    .replace(/٫/g, '.');
+  const n = parseFloat(clean);
+  return Number.isFinite(n) ? n : 0;
+};
+
+export const num = parseNumber;
 
 // کپی متن با fallback برای مرورگرهای درون‌برنامه‌ای (WebView، اینستاگرام، تلگرام)
 export async function copyText(text) {
