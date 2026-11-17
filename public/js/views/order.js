@@ -160,6 +160,8 @@ async function send(btn, err, site) {
 // ---------- صفحه موفقیت ----------
 function done(code, site) {
   const oc = site.orderContact || {};
+  const tg = (oc.telegram && oc.telegram !== 'your_telegram_id') ? oc.telegram.trim() : '';
+  const wa = (oc.whatsapp && oc.whatsapp !== '989120000000') ? oc.whatsapp.trim() : '';
   const copy = h('button', { class: 'code', type: 'button', 'aria-label': 'کپی کد پیگیری', onclick: async () => {
     const ok = await copyText(code);
     if (ok) {
@@ -178,7 +180,7 @@ function done(code, site) {
        'نقشه، عکس ملک و نمونه‌های موردعلاقه را (اگر دارید) با ذکر کد پیگیری برایمان بفرستید.',
        'بعد از گفتگو، قیمت و زمان‌بندی نهایی را هماهنگ می‌کنیم.'].map((t, i) => h('li', {}, h('b', {}, fa(i + 1)), h('span', {}, t)))),
     h('div', { class: 'done-btns' },
-      oc.telegram && h('a', { class: 'btn primary', href: `https://t.me/${oc.telegram}`, target: '_blank', rel: 'noopener' }, 'ارسال نقشه و عکس در تلگرام'),
-      oc.whatsapp && h('a', { class: 'btn', href: `https://wa.me/${oc.whatsapp}`, target: '_blank', rel: 'noopener' }, 'ارسال در واتساپ'),
+      tg && h('a', { class: 'btn primary', href: `https://t.me/${tg}`, target: '_blank', rel: 'noopener' }, 'ارسال نقشه و عکس در تلگرام'),
+      wa && h('a', { class: 'btn', href: `https://wa.me/${wa}`, target: '_blank', rel: 'noopener' }, 'ارسال در واتساپ'),
       h('a', { class: 'btn', href: '#/' }, 'بازگشت به نمونه‌کارها'))));
 }

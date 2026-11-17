@@ -27,7 +27,7 @@
   },
   "contactUrl": "contact/",
   "orderContact": {
-    "telegram": "your_telegram_id",
-    "whatsapp": "989120000000"
+    "telegram": "",
+    "whatsapp": ""
   }
 }
