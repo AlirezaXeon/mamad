@@ -99,12 +99,17 @@ function isWebP(bytes) {
   return riff && webp;
 }
 
-let cfgCache;
+let cfgCache = null;
+let cfgCacheExp = 0;
+const CFG_CACHE_TTL_MS = 5 * 60 * 1000; // ۵ دقیقه TTL
+
 async function getCfg(env, url) {
-  if (cfgCache) return cfgCache;
+  const now = Date.now();
+  if (cfgCache && now < cfgCacheExp) return cfgCache;
   const res = await env.ASSETS.fetch(new URL('/data/order.json', url));
   if (!res.ok) throw new Error('order.json unavailable: ' + res.status);
   cfgCache = await res.json();
+  cfgCacheExp = now + CFG_CACHE_TTL_MS;
   return cfgCache;
 }
 const lab = (list, id) => (list.find(o => o.id === id) || {}).label || id || '—';
