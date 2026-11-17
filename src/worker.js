@@ -734,6 +734,7 @@ async function updateAdminSite(req, env) {
 
   if (b.splash !== undefined && typeof b.splash === 'object' && b.splash !== null) {
     let logo = '';
+    // لوگوی اسپلش: آپلود مدیا فقط WebP است، اما مسیرهای استاتیک موجود (مانند images/logo.svg) معتبر می‌مانند
     if (b.splash.logo !== undefined) {
       const l = cleanImageUrl(b.splash.logo);
       if (l === null) return J({ error: 'آدرس لوگوی اسپلش نامعتبر است.' }, 400);

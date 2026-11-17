@@ -680,7 +680,7 @@
 
   $('#btnPickSplashLogo').onclick = () => {
     openImagePicker({
-      title: 'انتخاب لوگوی اسپلش (WebP / SVG)',
+      title: 'انتخاب لوگوی اسپلش (فقط WebP)',
       onSelect: url => {
         splashLogoUrl = url;
         updateSiteImagePreview('splashLogo', url);
