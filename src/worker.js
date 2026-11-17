@@ -246,7 +246,8 @@ async function serveMedia(rawKey, env, ctx, req) {
 
 function extractMediaKey(urlOrPath) {
   if (!urlOrPath || typeof urlOrPath !== 'string') return null;
-  const match = urlOrPath.match(/(?:^|\/api\/media\/)(img:[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+\.webp)/);
+  const cleanUrl = urlOrPath.split(/[?#]/)[0];
+  const match = cleanUrl.match(/(?:^|\/api\/media\/)((?:img:)?[a-f0-9]{32}\.webp)$/);
   if (!match) return null;
   const key = match[1];
   return key.startsWith('img:') ? key : ('img:' + key);
