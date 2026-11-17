@@ -9,7 +9,7 @@ let fadeHandlers = [];
 export function initReveals(root) {
   const nodes = root.querySelectorAll('[data-reveal], .card, .shot');
   if (reduced) {
-    nodes.forEach(el => el.classList.add('in'));
+    nodes.forEach(el => el.classList.add('is-in'));
     return;
   }
   const io = new IntersectionObserver((entries, observer) => {
@@ -19,7 +19,7 @@ export function initReveals(root) {
       if (el.dataset.reveal === 'stagger') {
         [...el.children].forEach((c, i) => c.style.setProperty('--d', (i * 70) + 'ms'));
       }
-      el.classList.add('in');
+      el.classList.add('is-in');
       observer.unobserve(el);
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });

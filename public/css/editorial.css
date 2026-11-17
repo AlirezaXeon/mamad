@@ -42,7 +42,7 @@ h1, h2, h3, .st, .modal-head h2 {
   transition: opacity var(--reveal-duration, 0.9s) var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d, 0s),
               transform var(--reveal-duration, 0.9s) var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d, 0s);
 }
-[data-reveal].in {
+[data-reveal].is-in {
   opacity: 1;
   transform: translateY(0);
 }
@@ -52,7 +52,7 @@ h1, h2, h3, .st, .modal-head h2 {
   transition: opacity var(--reveal-duration, 0.9s) var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d, 0s),
               transform var(--reveal-duration, 0.9s) var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d, 0s);
 }
-[data-reveal="scale"].in {
+[data-reveal="scale"].is-in {
   opacity: 1;
   transform: none;
 }
@@ -62,11 +62,11 @@ h1, h2, h3, .st, .modal-head h2 {
   transition: opacity var(--reveal-duration, 0.9s) var(--ease-out-expo, cubic-bezier(.16,1,.3,1)),
               transform var(--reveal-duration, 0.9s) var(--ease-out-expo, cubic-bezier(.16,1,.3,1));
 }
-[data-reveal="stagger"].in {
+[data-reveal="stagger"].is-in {
   opacity: 1;
   transform: none;
 }
-[data-reveal="stagger"].in > * {
+[data-reveal="stagger"].is-in > * {
   opacity: 0;
   transform: translateY(16px);
   animation: staggerIn 0.6s var(--ease-out-expo, cubic-bezier(.16,1,.3,1)) var(--d, 0s) both;
@@ -895,7 +895,7 @@ h1, h2, h3, .st, .modal-head h2 {
     transition: none;
     animation: none;
   }
-  [data-reveal="stagger"].in > * {
+  [data-reveal="stagger"].is-in > * {
     animation: none;
     opacity: 1;
     transform: none;
