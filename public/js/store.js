@@ -8,8 +8,12 @@ async function fetchWithFallback(apiUrl, fallbackUrl) {
       if (Array.isArray(data) || (data && Object.keys(data).length > 0)) {
         return data;
       }
+    } else {
+      console.warn(`API request to ${apiUrl} returned HTTP ${res.status}; falling back to ${fallbackUrl}`);
     }
-  } catch {}
+  } catch (err) {
+    console.warn(`API request to ${apiUrl} failed (${err.message}); falling back to ${fallbackUrl}`);
+  }
   return fetch(fallbackUrl).then(r => r.json());
 }
 
