@@ -45,7 +45,11 @@
     const r = await fetch(path, { ...opt, headers });
     if (r.status === 401) {
       logout();
-      throw new Error('رمز ورود اشتباه است یا منقضی شده است.');
+      const msg = 'رمز ورود اشتباه است یا منقضی شده است.';
+      const errEl = $('#loginErr');
+      if (errEl) errEl.textContent = msg;
+      toast(msg);
+      throw new Error(msg);
     }
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || 'خطایی رخ داد.');
@@ -863,16 +867,23 @@
       await refreshOrders();
       await loadProjects();
     } catch (e) {
+      logout();
       $('#loginErr').textContent = e.message;
+      throw e;
     }
   }
 
   $('#loginForm').addEventListener('submit', async e => {
     e.preventDefault();
     pass = $('#pass').value;
-    sessionStorage.setItem('adm', pass);
     $('#loginErr').textContent = '';
-    await enter();
+    try {
+      await enter();
+      sessionStorage.setItem('adm', pass);
+    } catch (err) {
+      sessionStorage.removeItem('adm');
+      $('#loginErr').textContent = err.message || 'رمز ورود نامعتبر است.';
+    }
   });
 
   $('#refresh').onclick = () => {
