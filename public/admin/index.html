@@ -70,7 +70,7 @@
               <button class="btn" id="btnPickAvatar" type="button">تغییر تصویر آواتار</button>
               <button class="btn danger" id="btnRemoveAvatar" type="button">حذف تصویر</button>
             </div>
-            <small class="hint">فقط فرمت WebP تا ۳ مگابایت</small>
+            <small class="hint">JPG، PNG یا WebP؛ به‌صورت خودکار بهینه می‌شود</small>
           </div>
         </div>
 
@@ -158,8 +158,8 @@
           <h2>کتابخانه رسانه‌ها</h2>
           <p class="hint">تمام تصاویر بارگذاری‌شده در Workers KV ذخیره و به صورت ابری کش می‌شوند.</p>
         </div>
-        <button class="btn primary" id="btnUploadMediaDirect" type="button">+ آپلود تصویر جدید (WebP)</button>
-        <input type="file" id="mediaDirectFileInput" accept="image/webp" multiple hidden>
+        <button class="btn primary" id="btnUploadMediaDirect" type="button">+ آپلود تصویر جدید</button>
+        <input type="file" id="mediaDirectFileInput" accept="image/*" multiple hidden>
       </div>
 
       <div id="mediaGrid" class="media-library-grid"></div>
@@ -223,7 +223,7 @@
       <!-- تصاویر پروژه با جایگزینی، حذف و جابجایی -->
       <div class="gallery-section">
         <div class="gallery-header">
-          <span>تصاویر پروژه (فقط WebP تا ۳ مگابایت)</span>
+          <span>تصاویر پروژه (JPG، PNG یا WebP؛ خودکار بهینه می‌شود)</span>
           <div class="btn-group">
             <button class="btn btn-sm primary" id="btnAddProjectImages" type="button">+ افزودن تصویر</button>
           </div>
@@ -256,10 +256,10 @@
     <div class="image-picker-body">
       <!-- بخش آپلود فایل جدید -->
       <div class="picker-upload-zone" id="pickerDropZone">
-        <p>فایل تصویر WebP را اینجا بکشید یا دکمه زیر را بزنید</p>
-        <label class="btn primary" for="pickerFileInput">انتخاب فایل از سیستم (WebP)</label>
-        <input type="file" id="pickerFileInput" accept="image/webp" hidden>
-        <span class="hint">حداکثر ۳ مگابایت</span>
+        <p>تصویر را اینجا بکشید یا دکمه زیر را بزنید</p>
+        <label class="btn primary" for="pickerFileInput">انتخاب فایل از سیستم</label>
+        <input type="file" id="pickerFileInput" accept="image/*" hidden>
+        <span class="hint">JPG، PNG یا WebP؛ اندازه و حجم خودکار کم می‌شود</span>
       </div>
 
       <hr class="divider">

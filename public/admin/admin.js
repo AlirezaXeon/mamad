@@ -89,30 +89,62 @@
   // ══════════════════════════════════════════════
   const MAX_FILE_SIZE = 3 * 1024 * 1024; // ۳ مگابایت
 
-  function validateWebP(file) {
-    if (!file) return false;
-    const isNameWebP = file.name.toLowerCase().endsWith('.webp');
-    const isTypeWebP = file.type === 'image/webp';
-    if (!isNameWebP && !isTypeWebP) {
-      toast(`فایل "${file.name}" باید حتماً با فرمت WebP باشد.`);
-      return false;
+  const MAX_INPUT_SIZE = 30 * 1024 * 1024; // سقف فایل ورودی (قبل از فشرده‌سازی)
+
+  // پیش‌تنظیم ابعاد (px لبه بلند) و کیفیت WebP بر اساس کاربرد تصویر
+  const PRESETS = {
+    gallery: { max: 1800, q: 0.8 },
+    cover: { max: 900, q: 0.8 },
+    avatar: { max: 500, q: 0.85, square: true },
+    splash: { max: 800, q: 0.85 }
+  };
+
+  // تغییر اندازه و تبدیل به WebP در مرورگر؛ ورودی JPG / PNG / WebP
+  async function compressImage(file, { max, q, square }) {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    let sx = 0, sy = 0, sw = bmp.width, sh = bmp.height;
+    if (square) {
+      const s = Math.min(sw, sh);
+      sx = (sw - s) / 2; sy = (sh - s) / 2; sw = sh = s;
     }
-    if (file.size > MAX_FILE_SIZE) {
-      toast(`حجم فایل "${file.name}" بیشتر از ۳ مگابایت است.`);
-      return false;
+    const k = Math.min(1, max / Math.max(sw, sh));
+    const w = Math.max(1, Math.round(sw * k));
+    const h = Math.max(1, Math.round(sh * k));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/webp', q));
+    if (!blob || blob.type !== 'image/webp') {
+      throw new Error('مرورگر شما از تبدیل تصویر به WebP پشتیبانی نمی‌کند.');
     }
-    return true;
+    // اگر WebP اصلی کوچک‌تر بود و نیازی به تغییر ابعاد نبود، همان را نگه دار
+    if (!square && k === 1 && file.type === 'image/webp' && blob.size >= file.size) return file;
+    return blob;
   }
 
-  async function uploadWebPFile(file) {
-    if (!validateWebP(file)) return null;
-    const formData = new FormData();
-    formData.append('file', file);
+  async function uploadWebPFile(file, preset = 'gallery') {
+    if (!file || !file.type.startsWith('image/')) {
+      toast('فایل انتخاب‌شده تصویر معتبر نیست.');
+      return null;
+    }
+    if (file.size > MAX_INPUT_SIZE) {
+      toast(`حجم فایل "${file.name}" بیشتر از ۳۰ مگابایت است.`);
+      return null;
+    }
     try {
-      const res = await api('/api/admin/upload', {
-        method: 'POST',
-        body: formData
-      });
+      const blob = await compressImage(file, PRESETS[preset] || PRESETS.gallery);
+      if (blob.size > MAX_FILE_SIZE) {
+        toast(`حجم "${file.name}" پس از بهینه‌سازی هم بیشتر از ۳ مگابایت است.`);
+        return null;
+      }
+      const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
+      const formData = new FormData();
+      formData.append('file', new File([blob], name, { type: 'image/webp' }));
+      const res = await api('/api/admin/upload', { method: 'POST', body: formData });
       return res.url;
     } catch (err) {
       toast(err.message);
@@ -124,9 +156,11 @@
   // کامپوننت مشترک انتخابگر تصویر (Unified Image Picker)
   // ══════════════════════════════════════════════
   let pickerCallback = null;
+  let pickerPreset = 'gallery';
 
-  async function openImagePicker({ title = 'انتخاب یا آپلود تصویر', onSelect }) {
+  async function openImagePicker({ title = 'انتخاب یا آپلود تصویر', onSelect, preset = 'gallery' }) {
     pickerCallback = onSelect;
+    pickerPreset = preset;
     $('#imagePickerTitle').textContent = title;
     $('#imagePickerModal').hidden = false;
     $('#pickerFileInput').value = '';
@@ -171,8 +205,8 @@
   $('#pickerFileInput').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    toast('در حال آپلود تصویر WebP...');
-    const url = await uploadWebPFile(file);
+    toast('در حال بهینه‌سازی و آپلود تصویر...');
+    const url = await uploadWebPFile(file, pickerPreset);
     if (url) {
       toast('تصویر با موفقیت آپلود شد.');
       if (pickerCallback) pickerCallback(url);
@@ -191,8 +225,8 @@
   dropZone.addEventListener('drop', async e => {
     const file = e.dataTransfer.files[0];
     if (!file) return;
-    toast('در حال آپلود تصویر WebP...');
-    const url = await uploadWebPFile(file);
+    toast('در حال بهینه‌سازی و آپلود تصویر...');
+    const url = await uploadWebPFile(file, pickerPreset);
     if (url) {
       toast('تصویر با موفقیت آپلود شد.');
       if (pickerCallback) pickerCallback(url);
@@ -427,6 +461,7 @@
   $('#btnAddProjectImages').onclick = () => {
     openImagePicker({
       title: 'افزودن تصویر به گالری پروژه',
+      preset: 'gallery',
       onSelect: url => {
         modalImages.push(url);
         if (!modalCover) modalCover = url;
@@ -602,6 +637,7 @@
   $('#btnPickAvatar').onclick = () => {
     openImagePicker({
       title: 'انتخاب تصویر آواتار پروفایل',
+      preset: 'avatar',
       onSelect: url => {
         profileAvatarUrl = url;
         updateAvatarPreview(url, $('#profName').value);
@@ -684,7 +720,8 @@
 
   $('#btnPickSplashLogo').onclick = () => {
     openImagePicker({
-      title: 'انتخاب لوگوی اسپلش (فقط WebP)',
+      title: 'انتخاب لوگوی اسپلش',
+      preset: 'splash',
       onSelect: url => {
         splashLogoUrl = url;
         updateSiteImagePreview('splashLogo', url);
@@ -700,6 +737,7 @@
   $('#btnPickSplashImage').onclick = () => {
     openImagePicker({
       title: 'انتخاب تصویر پس‌زمینه اسپلش',
+      preset: 'splash',
       onSelect: url => {
         splashImageUrl = url;
         updateSiteImagePreview('splashImage', url);
