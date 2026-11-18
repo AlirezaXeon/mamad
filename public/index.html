@@ -62,9 +62,10 @@ html::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 :root[data-theme="light"] .orb{opacity:.7}
 :root[data-theme="light"] html::before{mix-blend-mode:multiply;opacity:.035}
 </style>
-<!-- app.css کامل به‌صورت async (غیربلاک‌کننده) بارگذاری می‌شود -->
-<link rel="preload" href="css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<!-- app.css کامل به‌صورت async (غیربلاک‌کننده) بارگذاری می‌شود. media=print → all بعد از لود -->
+<link rel="stylesheet" href="css/app.css" media="print" id="dcss">
 <noscript><link rel="stylesheet" href="css/app.css"></noscript>
+<script>document.getElementById("dcss").onload=function(){this.media="all"}</script>
 </head>
 <body>
 <div id="dynamic-bg" aria-hidden="true"></div>
