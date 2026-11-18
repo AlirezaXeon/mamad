@@ -1,9 +1,11 @@
-import { h, app } from '../utils.js';
+import { h, app, small, imgSet } from '../utils.js';
 import { load } from '../store.js';
 import { openLightbox } from '../components/lightbox.js';
 import { initReveals } from '../components/scroll-animator.js';
 
-const card = p => {
+const CARD_SIZES = '(min-width:1024px) 600px, (min-width:640px) 50vw, calc(100vw - 40px)';
+
+const card = (p, i) => {
   const images = (p.images && p.images.length) ? p.images : (p.cover ? [p.cover] : []);
 
   const openGallery = e => {
@@ -22,7 +24,7 @@ const card = p => {
       if (e.key === 'Enter' || e.key === ' ') openGallery(e);
     }
   },
-    h('img', { src: p.cover || images[0], alt: p.title, loading: 'lazy', decoding: 'async' }),
+    h('img', { src: small(p.cover || images[0]), ...imgSet(p.cover || images[0]), sizes: CARD_SIZES, alt: p.title, loading: i < 2 ? 'eager' : 'lazy', fetchpriority: i === 0 ? 'high' : null, decoding: 'async' }),
     p.category && h('span', { class: 'badge' }, p.category),
     h('span', { class: 'pic-zoom-hint', 'aria-hidden': 'true' })
   );

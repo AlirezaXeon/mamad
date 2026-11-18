@@ -177,7 +177,7 @@ function newCode() {
 // ══════════════════════════════════════════════
 
 function toKvKey(key) {
-  return key.startsWith('img:') ? key : ('img:' + key);
+  return /^imgs?:/.test(key) ? key : ('img:' + key);
 }
 
 async function uploadMedia(req, env) {
@@ -186,6 +186,7 @@ async function uploadMedia(req, env) {
   }
 
   let buffer;
+  let smallBuffer = null; // نسخه کوچک اختیاری (برای srcset)
   let originalName = '';
   const contentType = req.headers.get('content-type') || '';
 
@@ -195,6 +196,8 @@ async function uploadMedia(req, env) {
     if (!file) return J({ error: 'فایلی جهت آپلود ارسال نشده است.' }, 400);
     originalName = file.name || '';
     buffer = await file.arrayBuffer();
+    const small = formData.get('small');
+    if (small && typeof small !== 'string') smallBuffer = await small.arrayBuffer();
   } else {
     buffer = await req.arrayBuffer();
   }
@@ -223,12 +226,19 @@ async function uploadMedia(req, env) {
 
   await env.MEDIA.put(key, buffer, { metadata });
 
-  return J({ ok: true, url: `/api/media/${key}`, key });
+  // نسخه کوچک (imgs:) فقط در صورت معتبر بودن WebP ذخیره می‌شود
+  let hasSmall = false;
+  if (smallBuffer && smallBuffer.byteLength >= 12 && smallBuffer.byteLength <= MAX_IMAGE_SIZE && isWebP(new Uint8Array(smallBuffer))) {
+    await env.MEDIA.put(`imgs:${hash}.webp`, smallBuffer, { metadata: { size: smallBuffer.byteLength, type: 'image/webp' } });
+    hasSmall = true;
+  }
+
+  return J({ ok: true, url: `/api/media/${key}`, key, small: hasSmall });
 }
 
 async function serveMedia(rawKey, env, ctx, req) {
   // اعتبارسنجی کلید پیش از دسترسی به Workers KV
-  if (!/^(img:)?[a-f0-9]{32}\.webp$/.test(rawKey)) {
+  if (!/^(imgs?:)?[a-f0-9]{32}\.webp$/.test(rawKey)) {
     return new Response('Image not found', { status: 404 });
   }
 
@@ -280,23 +290,29 @@ async function serveMedia(rawKey, env, ctx, req) {
     }
   }
 
-  // ۲. دریافت از Workers KV
-  const buffer = await env.MEDIA.get(kvKey, 'arrayBuffer');
+  // ۲. دریافت از Workers KV (اگر نسخه کوچک imgs: نبود، تصویر اصلی برگردانده می‌شود)
+  let buffer = await env.MEDIA.get(kvKey, 'arrayBuffer');
+  let fallback = false;
+  if (!buffer && kvKey.startsWith('imgs:')) {
+    buffer = await env.MEDIA.get('img:' + kvKey.slice(5), 'arrayBuffer');
+    fallback = Boolean(buffer);
+  }
   if (!buffer) {
     return new Response('Image not found', { status: 404 });
   }
 
   const headers = new Headers();
   headers.set('Content-Type', 'image/webp');
-  headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  // پاسخ جایگزین نباید طولانی کش شود (ممکن است نسخه کوچک بعداً ساخته شود)
+  headers.set('Cache-Control', fallback ? 'public, max-age=300' : 'public, max-age=31536000, immutable');
   headers.set('Content-Length', String(buffer.byteLength));
-  headers.set('ETag', etag);
+  if (!fallback) headers.set('ETag', etag);
   headers.set('X-Content-Type-Options', 'nosniff');
 
   const response = new Response(buffer, { headers });
 
   // ۳. ذخیره در Cache API به صورت نامتقارن با کلید نرمال‌شده
-  if (cache && cacheKey && ctx && ctx.waitUntil) {
+  if (!fallback && cache && cacheKey && ctx && ctx.waitUntil) {
     ctx.waitUntil(cache.put(cacheKey, response.clone()));
   }
 
@@ -421,6 +437,7 @@ async function deleteMedia(rawKey, env, ctx, req) {
   }
 
   await env.MEDIA.delete(kvKey);
+  await env.MEDIA.delete('imgs:' + cleanKey); // نسخه کوچک
 
   // پاکسازی از Cache API
   if (typeof caches !== 'undefined' && caches.default && req) {
@@ -430,10 +447,13 @@ async function deleteMedia(rawKey, env, ctx, req) {
     const altKey = rawKey.startsWith('img:') ? rawKey.slice(4) : ('img:' + rawKey);
     const altUrl = new URL(`/api/media/${altKey}`, req.url);
     altUrl.search = '';
+    const smallUrl = new URL(`/api/media/imgs:${cleanKey}`, req.url);
+    smallUrl.search = '';
     if (ctx && ctx.waitUntil) {
       ctx.waitUntil(Promise.all([
         cache.delete(new Request(mediaUrl)),
-        cache.delete(new Request(altUrl))
+        cache.delete(new Request(altUrl)),
+        cache.delete(new Request(smallUrl))
       ]).catch(() => {}));
     }
   }

@@ -32,6 +32,11 @@ export const parseNumber = s => {
 
 export const num = parseNumber;
 
+// نسخه کوچک (۱۰۸۰px) تصاویر آپلودی در KV؛ برای تصاویر استاتیک و خارجی همان آدرس برمی‌گردد
+const KV_IMG = /^\/api\/media\/img:[a-f0-9]{32}\.webp$/;
+export const small = u => KV_IMG.test(u || '') ? u.replace('/api/media/img:', '/api/media/imgs:') : u;
+export const imgSet = u => KV_IMG.test(u || '') ? { srcset: `${small(u)} 1080w, ${u} 1800w` } : {};
+
 // کپی متن با fallback برای مرورگرهای درون‌برنامه‌ای (WebView، اینستاگرام، تلگرام)
 export async function copyText(text) {
   const str = String(text ?? '');

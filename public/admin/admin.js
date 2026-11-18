@@ -2,6 +2,7 @@
   const $ = s => document.querySelector(s);
   const $$ = s => document.querySelectorAll(s);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const thumb = u => String(u).replace('/api/media/img:', '/api/media/imgs:'); // پیش‌نمایش سبک (نسخه کوچک)
 
   const ST = {
     new: ['جدید', '#8FB39E'],
@@ -93,7 +94,7 @@
 
   // پیش‌تنظیم ابعاد (px لبه بلند) و کیفیت WebP بر اساس کاربرد تصویر
   const PRESETS = {
-    gallery: { max: 1800, q: 0.8 },
+    gallery: { max: 1800, q: 0.8, small: true }, // به‌علاوه نسخه ۱۰۸۰px برای موبایل
     cover: { max: 900, q: 0.8 },
     avatar: { max: 500, q: 0.85, square: true },
     splash: { max: 800, q: 0.85 }
@@ -144,6 +145,10 @@
       const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
       const formData = new FormData();
       formData.append('file', new File([blob], name, { type: 'image/webp' }));
+      if ((PRESETS[preset] || PRESETS.gallery).small) {
+        const small = await compressImage(file, { max: 1080, q: 0.75 });
+        if (small.size < blob.size) formData.append('small', new File([small], name, { type: 'image/webp' }));
+      }
       const res = await api('/api/admin/upload', { method: 'POST', body: formData });
       return res.url;
     } catch (err) {
@@ -185,7 +190,7 @@
       }
       $('#pickerMediaGrid').innerHTML = items.map(m => `
         <div class="picker-item" data-url="${esc(m.url)}" title="${esc(m.name)}">
-          <img src="${esc(m.url)}" alt="${esc(m.name)}" loading="lazy">
+          <img src="${esc(thumb(m.url))}" alt="${esc(m.name)}" loading="lazy">
           <span class="picker-item-name">${esc(m.name)}</span>
         </div>
       `).join('');
@@ -826,7 +831,7 @@
       return `
         <div class="media-card" data-key="${esc(m.key)}" data-url="${esc(m.url)}">
           <div class="media-thumb-wrap">
-            <img class="media-thumb" src="${esc(m.url)}" alt="${esc(m.name)}" loading="lazy">
+            <img class="media-thumb" src="${esc(thumb(m.url))}" alt="${esc(m.name)}" loading="lazy">
             ${usageBadges}
           </div>
           <div class="media-info">

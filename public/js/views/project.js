@@ -1,4 +1,4 @@
-import { h, app, toEn } from '../utils.js';
+import { h, app, toEn, small, imgSet } from '../utils.js';
 import { load } from '../store.js';
 import { openLightbox } from '../components/lightbox.js';
 import { initReveals, initParallax, initFadeScroll } from '../components/scroll-animator.js';
@@ -39,7 +39,7 @@ export async function project(slug) {
 
   app.replaceChildren(h('article', { class: 'view' },
     h('section', heroAttrs,
-      hasImages && h('img', { class: 'project-hero-img', src: images[0], alt: p.title, fetchpriority: 'high', decoding: 'async', 'data-parallax': '', 'data-parallax-speed': '0.3' }),
+      hasImages && h('img', { class: 'project-hero-img', src: images[0], ...imgSet(images[0]), sizes: '100vw', alt: p.title, fetchpriority: 'high', decoding: 'async', 'data-parallax': '', 'data-parallax-speed': '0.3' }),
       h('div', { class: 'project-hero-overlay' }),
       h('div', { class: 'project-hero-content' },
         h('p', { class: 'eyebrow' }, (p.category || 'پروژه') + '  /  SELECTED WORK'),
@@ -51,9 +51,9 @@ export async function project(slug) {
     p.description && h('p', { class: 'desc', 'data-reveal': '' }, p.description),
     hasImages && h('div', { class: 'gallery' }, images.map((src, n) =>
       h('button', { class: 'shot', type: 'button', 'data-reveal': 'scale', 'aria-label': 'نمایش تصویر ' + (n + 1), onclick: () => openLightbox(images, n, p.title, p.slug) },
-        h('img', { src, alt: p.title + ' - تصویر ' + (n + 1), loading: n ? 'lazy' : 'eager', decoding: 'async' })))),
+        h('img', { src: small(src), ...imgSet(src), sizes: '(min-width:1024px) 590px, (min-width:640px) 50vw, 85vw', alt: p.title + ' - تصویر ' + (n + 1), loading: n ? 'lazy' : 'eager', decoding: 'async' })))),
     next.slug !== p.slug && h('a', { class: 'next-project', href: '#/p/' + next.slug },
-      nextImg && h('img', { class: 'next-project-img', src: nextImg, alt: next.title, loading: 'lazy', decoding: 'async' }),
+      nextImg && h('img', { class: 'next-project-img', src: small(nextImg), alt: next.title, loading: 'lazy', decoding: 'async' }),
       h('div', { class: 'next-project-overlay' }),
       h('div', { class: 'next-project-content' },
         h('span', {}, 'پروژه بعدی'),
