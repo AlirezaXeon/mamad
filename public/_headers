@@ -6,13 +6,13 @@
   Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-ukaaHs9s9l9Y+V+CgcU0z9eR6MGME3lm7YxSYufg6qM=' 'sha256-HZtdhELAtpWlqik6DIrZbErZumMCoOuJ3HENCjZLDUc='; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'
 
 /images/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=31536000, immutable
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 /css/*
-  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
 /js/*
-  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
 /data/*
   Cache-Control: public, max-age=300
 /admin/*

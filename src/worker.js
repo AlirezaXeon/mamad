@@ -303,8 +303,8 @@ async function serveMedia(rawKey, env, ctx, req) {
 
   const headers = new Headers();
   headers.set('Content-Type', 'image/webp');
-  // پاسخ جایگزین نباید طولانی کش شود (ممکن است نسخه کوچک بعداً ساخته شود)
-  headers.set('Cache-Control', fallback ? 'public, max-age=300' : 'public, max-age=31536000, immutable');
+  // پاسخ جایگزین (تصویر اصلی به‌جای نسخه کوچک) هم کش طولانی می‌گیرد
+  headers.set('Cache-Control', fallback ? 'public, max-age=86400, stale-while-revalidate=604800' : 'public, max-age=31536000, immutable');
   headers.set('Content-Length', String(buffer.byteLength));
   if (!fallback) headers.set('ETag', etag);
   headers.set('X-Content-Type-Options', 'nosniff');
