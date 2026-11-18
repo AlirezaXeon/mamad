@@ -2,7 +2,6 @@ import { h, app, small, imgSet } from '../utils.js';
 import { load } from '../store.js';
 import { openLightbox } from '../components/lightbox.js';
 import { initReveals } from '../components/scroll-animator.js';
-import { attachCloud } from '../components/cloud.js';
 
 const CARD_SIZES = '(min-width:1024px) 600px, (min-width:640px) 50vw, calc(100vw - 40px)';
 
@@ -84,32 +83,13 @@ export async function home() {
     'aria-label': profileName
   }, initials);
 
-  // ساخت حباب ابر ۳۶۰ درجه ارگانیک با برآمدگی‌های کامل دور تا دور و دنباله تفکر
-  const createCloudBubble = (text, idx) => {
-    const ns = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('class', 'hero-cloud-svg');
-    svg.setAttribute('aria-hidden', 'true');
-    const path = document.createElementNS(ns, 'path');
-    svg.appendChild(path);
+  // برچسب نقشه‌کشی: کپسول شماره‌دار + خط راهنما که با یک نقطه به حلقه آواتار می‌رسد
+  const createLabel = (text, idx) =>
+    h('div', { class: `hero-label hero-label-${idx + 1}` },
+      h('span', { class: 'hero-tag' }, h('i', {}, '0' + (idx + 1)), text),
+      h('span', { class: 'hero-lead', 'aria-hidden': 'true' }));
 
-    const cloud = h('div', { class: 'hero-cloud' },
-      svg,
-      h('span', { class: 'hero-cloud-text' }, text)
-    );
-    attachCloud(cloud, svg, path, idx); // مسیر ابر بر اساس اندازه واقعی حباب رسم می‌شود
-
-    return h('div', { class: `hero-bubble-wrapper hero-bubble-w${idx + 1}` },
-      cloud,
-      h('div', { class: 'hero-connector', 'aria-hidden': 'true' },
-        h('span', { class: 'dot dot-1' }),
-        h('span', { class: 'dot dot-2' }),
-        h('span', { class: 'dot dot-3' })
-      )
-    );
-  };
-
-  const bubbleEls = profileBubbles.map((txt, i) => createCloudBubble(txt, i));
+  const bubbleEls = profileBubbles.map(createLabel);
 
   const avatarCluster = h('div', { class: 'hero-avatar-cluster' },
     h('div', { class: 'hero-avatar-ring' },
