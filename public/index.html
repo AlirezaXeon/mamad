@@ -6,10 +6,65 @@
 <title>استودیو معماری</title>
 <meta name="description" content="معماری، طراحی داخلی و روایت فضاها؛ مجموعه‌ای از پروژه‌های منتخب استودیو.">
 <meta name="theme-color" content="#0A0A0B">
-<script src="js/theme.js"></script>
+<!-- اسکریپت تم/اسپلش به‌صورت inline (بدون درخواست بلاک‌کننده). هر تغییری در متن آن نیازمند به‌روزرسانی هش sha256 در public/_headers است. -->
+<script>try{var q=new URLSearchParams(location.search).get("theme"),t=q||localStorage.getItem("theme");if(q)localStorage.setItem("theme",q);if(t==="light"){document.documentElement.dataset.theme="light";var m=document.querySelector('meta[name=theme-color]');if(m)m.content="#F4F1EB"}sessionStorage.getItem("splash")&&document.documentElement.classList.add("no-splash")}catch(e){}</script>
 <link rel="preload" href="fonts/Vazirmatn.woff2" as="font" type="font/woff2" crossorigin>
-<!-- ساخته‌شده توسط scripts/build-css.mjs (الحاق همه فایل‌های css/ به ترتیب) -->
-<link rel="stylesheet" href="css/app.css">
+<!-- Critical CSS inline: tokens + base + splash + background -->
+<style>
+@font-face{font-family:Vazirmatn;src:url(fonts/Vazirmatn.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{color-scheme:dark;--bg:#0A0A0B;--paper:#121214;--surface:#18181B;--ink:#F2EFE9;--mute:#8E8A82;--line:#242321;--line-strong:#36332E;--accent:#C6A66D;--on-accent:#0A0A0B;--danger:#E06C58;--accent-soft:rgba(198,166,109,.12);--field:rgba(255,255,255,.03);--r:18px;--r-lg:28px;--pad:20px;--max:1180px;--font:Vazirmatn,Tahoma,system-ui,sans-serif;--serif:"Cormorant Garamond",Georgia,"Times New Roman",Vazirmatn,serif;--mono:"Cormorant Garamond",Georgia,Consolas,ui-monospace,monospace;--ease-out-expo:cubic-bezier(.16,1,.3,1);--ease-out-quart:cubic-bezier(.25,1,.5,1);--reveal-duration:.9s;--reveal-distance:28px;--parallax-intensity:.08}
+:root[data-theme="light"]{color-scheme:light;--bg:#F4F1EB;--paper:#FBF9F5;--surface:#EFECE6;--ink:#161514;--mute:#6E6A63;--line:#DED9CF;--line-strong:#C7C0B3;--accent:#9A7B4F;--on-accent:#FBF9F5;--danger:#B3402F;--accent-soft:rgba(154,123,79,.09);--field:rgba(0,0,0,.02);--ease-out-expo:cubic-bezier(.16,1,.3,1);--ease-out-quart:cubic-bezier(.25,1,.5,1);--reveal-duration:.9s;--reveal-distance:28px;--parallax-intensity:.08}
+*{box-sizing:border-box}
+img,button,.btn,.contact-btn,.chip,.bar,.badge,.shot,.card,.o-steps,.lb-nav-btn{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable="true"],.desc,.hero-desc,.pr-desc,.sum,.code{-webkit-user-select:text!important;-moz-user-select:text!important;-ms-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important}
+html{-webkit-text-size-adjust:100%;background:var(--bg);scroll-behavior:smooth;scroll-padding-top:88px;touch-action:manipulation}
+body{margin:0;color:var(--ink);font:400 1rem/1.85 var(--font);padding-bottom:calc(78px + env(safe-area-inset-bottom));overflow-x:hidden;overscroll-behavior-y:contain;touch-action:manipulation}
+body.lock{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+img{display:block;max-width:100%;-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+main{max-width:var(--max);margin:0 auto;padding-bottom:64px}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:center;align-items:center;padding:18px var(--pad) 14px;min-height:60px;background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-weight:700}
+.chips{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;gap:8px;padding:8px 0 16px;scrollbar-width:none;position:sticky;top:60px;z-index:15;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;scroll-snap-align:start;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 20px;color:var(--mute);font-size:.84rem;letter-spacing:0;cursor:pointer;transition:all .25s ease;white-space:nowrap}
+.chip:hover{color:var(--ink);border-color:var(--line-strong)}
+.chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600}
+@media(min-width:640px){.chips{flex-wrap:wrap;overflow:visible;scroll-snap-type:none;position:relative;top:auto;background:none;backdrop-filter:none}.chip{flex:initial}}
+.btn,.contact-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 26px;border-radius:99px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font-family:var(--font);font-size:.95rem;font-weight:500;letter-spacing:0;text-decoration:none;cursor:pointer;transition:background .25s,color .25s,border-color .25s,opacity .25s}
+.btn:hover,.contact-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+.btn.primary,.contact-btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.btn.primary:hover,.contact-btn.primary:hover{background:color-mix(in srgb,var(--accent) 88%,#fff);color:var(--on-accent)}
+.chip,.btn,.contact-btn,.action,.back-fixed{min-height:44px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{scroll-behavior:auto}}
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;text-align:center;padding:24px;transition:transform .85s cubic-bezier(.7,0,.2,1);cursor:pointer}
+.no-splash #splash{display:none}
+#splash.out{transform:translateY(-100%)}
+html:not(.no-splash) body:has(#splash){overflow:hidden}
+.sp-logo{display:block;margin:0 auto;width:84px;height:84px;object-fit:contain;opacity:0;animation:spIn .8s .1s forwards}
+.sp-photo{width:112px;height:112px;border-radius:50%;object-fit:cover}
+.sp-rule{display:block;height:1px;width:min(220px,60vw);margin:22px auto 18px;background:var(--accent);transform:scaleX(0);animation:spLine .9s .5s cubic-bezier(.6,0,.2,1) forwards}
+.sp-name{margin:0;font-size:1.3rem;font-weight:700;opacity:0;animation:spIn .7s .9s forwards}
+.sp-text{margin:6px 0 0;color:var(--mute);opacity:0;animation:spIn .7s forwards;animation-delay:calc(1.2s + var(--i) * .4s)}
+@keyframes spIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spLine{to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}#splash{transition:opacity .3s}#splash.out{transform:none;opacity:0}}
+#dynamic-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;pointer-events:none;will-change:transform}
+.orb:nth-child(1){width:clamp(280px,55vw,700px);aspect-ratio:1;top:-15%;right:-10%;background:color-mix(in srgb,var(--accent) 6%,transparent);filter:blur(120px)}
+.orb:nth-child(2){width:clamp(220px,40vw,500px);aspect-ratio:1;bottom:20%;left:-5%;background:color-mix(in srgb,#8B6914 4%,transparent);filter:blur(120px)}
+.orb:nth-child(3){width:clamp(200px,35vw,450px);aspect-ratio:1;top:50%;right:30%;background:color-mix(in srgb,var(--accent) 3%,transparent);filter:blur(120px)}
+@media(max-width:479px){.orb:nth-child(3){display:none}.orb{filter:blur(80px)}}
+body::before{display:none}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(75% 45% at 50% 0%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 70%)}
+html::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.028;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+:root[data-theme="light"] .orb{opacity:.7}
+:root[data-theme="light"] html::before{mix-blend-mode:multiply;opacity:.035}
+</style>
+<!-- app.css کامل به‌صورت async (غیربلاک‌کننده) بارگذاری می‌شود -->
+<link rel="preload" href="css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/app.css"></noscript>
 </head>
 <body>
 <div id="dynamic-bg" aria-hidden="true"></div>
