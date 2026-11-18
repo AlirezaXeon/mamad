@@ -94,14 +94,14 @@
 
   // پیش‌تنظیم ابعاد (px لبه بلند) و کیفیت WebP بر اساس کاربرد تصویر
   const PRESETS = {
-    gallery: { max: 1800, q: 0.8, small: true }, // به‌علاوه نسخه ۱۰۸۰px برای موبایل
+    gallery: { max: 1800, q: 0.8, small: true, target: 260 * 1024 }, // به‌علاوه نسخه ۱۰۸۰px برای موبایل
     cover: { max: 900, q: 0.8 },
     avatar: { max: 500, q: 0.85, square: true },
     splash: { max: 800, q: 0.85 }
   };
 
   // تغییر اندازه و تبدیل به WebP در مرورگر؛ ورودی JPG / PNG / WebP
-  async function compressImage(file, { max, q, square }) {
+  async function compressImage(file, { max, q, square, target }) {
     const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
     let sx = 0, sy = 0, sw = bmp.width, sh = bmp.height;
     if (square) {
@@ -118,7 +118,12 @@
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, w, h);
     if (bmp.close) bmp.close();
-    const blob = await new Promise(r => canvas.toBlob(r, 'image/webp', q));
+    // اگر حجم از هدف بیشتر بود، کیفیت را پله‌پله کم می‌کنیم (تا حداقل ۰٫۵)
+    let quality = q, blob;
+    do {
+      blob = await new Promise(r => canvas.toBlob(r, 'image/webp', quality));
+      quality -= 0.08;
+    } while (target && blob && blob.type === 'image/webp' && blob.size > target && quality >= 0.5);
     if (!blob || blob.type !== 'image/webp') {
       throw new Error('مرورگر شما از تبدیل تصویر به WebP پشتیبانی نمی‌کند.');
     }
@@ -146,8 +151,9 @@
       const formData = new FormData();
       formData.append('file', new File([blob], name, { type: 'image/webp' }));
       if ((PRESETS[preset] || PRESETS.gallery).small) {
-        const small = await compressImage(file, { max: 1080, q: 0.75 });
-        if (small.size < blob.size) formData.append('small', new File([small], name, { type: 'image/webp' }));
+        // نسخه کوچک همیشه ارسال می‌شود تا آدرس imgs: وجود داشته باشد و کش یک‌ساله بگیرد
+        const small = await compressImage(file, { max: 1080, q: 0.75, target: 110 * 1024 });
+        formData.append('small', new File([small], name, { type: 'image/webp' }));
       }
       const res = await api('/api/admin/upload', { method: 'POST', body: formData });
       return res.url;

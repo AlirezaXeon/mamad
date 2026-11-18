@@ -25,7 +25,8 @@ const card = (p, i) => {
       if (e.key === 'Enter' || e.key === ' ') openGallery(e);
     }
   },
-    h('img', { src: small(p.cover || images[0]), ...imgSet(p.cover || images[0]), sizes: CARD_SIZES, alt: p.title, loading: i < 2 ? 'eager' : 'lazy', fetchpriority: i === 0 ? 'high' : null, decoding: 'async' }),
+    // عنصر LCP صفحه آواتار است؛ کارت اول فقط eager است و نباید با آن سر پهنای باند رقابت کند
+    h('img', { src: small(p.cover || images[0]), ...imgSet(p.cover || images[0]), sizes: CARD_SIZES, alt: p.title, loading: i === 0 ? 'eager' : 'lazy', decoding: 'async' }),
     p.category && h('span', { class: 'badge' }, p.category),
     h('span', { class: 'pic-zoom-hint', 'aria-hidden': 'true' })
   );
