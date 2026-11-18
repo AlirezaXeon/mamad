@@ -299,7 +299,7 @@
       const coverSrc = cover.startsWith('/') || cover.startsWith('http') ? cover : '../' + cover;
       return `
         <div class="project-item ${p.is_active ? '' : 'inactive'}" data-id="${p.id || p.slug}">
-          <img class="project-thumb" src="${esc(coverSrc)}" alt="${esc(p.title)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232A312D%22 width=%22100%22 height=%22100%22/></svg>'">
+          <img class="project-thumb" src="${esc(coverSrc)}" alt="${esc(p.title)}">
           <div class="project-meta">
             <h3>${esc(p.title)} ${p.is_active ? '' : '<span class="badge-dim">مخفی</span>'}</h3>
             <p>${esc(p.category)} &bull; <code dir="ltr">${esc(p.slug)}</code> &bull; ترتیب: ${p.sort_order ?? idx} &bull; ${Array.isArray(p.images) ? p.images.length : 0} تصویر</p>
@@ -446,7 +446,7 @@
       const displaySrc = src.startsWith('/') || src.startsWith('http') ? src : '../' + src;
       return `
         <div class="gallery-item ${isCover ? 'is-cover' : ''}">
-          <img src="${esc(displaySrc)}" alt="تصویر ${i + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232A312D%22 width=%22100%22 height=%22100%22/></svg>'">
+          <img src="${esc(displaySrc)}" alt="تصویر ${i + 1}">
           <span class="cover-badge">${isCover ? 'کاور' : ''}</span>
           <div class="gallery-item-tools">
             <button class="btn-tool" type="button" data-act="up" data-idx="${i}" title="حرکت به چپ" ${i === 0 ? 'disabled' : ''}>◄</button>
@@ -909,6 +909,38 @@
     clearTimeout(t);
     t = setTimeout(() => refreshOrders().catch(() => {}), 300);
   };
+
+  const fallbackSvg = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%232A312D' width='100' height='100'/></svg>";
+  const avatarImg = $('#avatarPreview');
+  if (avatarImg) {
+    avatarImg.addEventListener('error', () => {
+      avatarImg.style.display = 'none';
+      const fb = $('#avatarFallbackPreview');
+      if (fb) fb.style.display = 'flex';
+    });
+  }
+  const splashLogoImg = $('#splashLogoPreview');
+  if (splashLogoImg) {
+    splashLogoImg.addEventListener('error', () => {
+      splashLogoImg.style.display = 'none';
+    });
+  }
+  const splashImageImg = $('#splashImagePreview');
+  if (splashImageImg) {
+    splashImageImg.addEventListener('error', () => {
+      splashImageImg.style.display = 'none';
+    });
+  }
+  $('#projectsList')?.addEventListener('error', e => {
+    if (e.target && e.target.tagName === 'IMG' && e.target.src !== fallbackSvg) {
+      e.target.src = fallbackSvg;
+    }
+  }, true);
+  $('#modalImagesContainer')?.addEventListener('error', e => {
+    if (e.target && e.target.tagName === 'IMG' && e.target.src !== fallbackSvg) {
+      e.target.src = fallbackSvg;
+    }
+  }, true);
 
   fetch('../data/order.json').then(r => r.json()).then(c => {
     cfg = c;
