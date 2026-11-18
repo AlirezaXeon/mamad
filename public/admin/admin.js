@@ -11,7 +11,6 @@
     archived: ['بایگانی', '#8D978F']
   };
 
-  let pass = sessionStorage.getItem('adm') || '';
   let cfg;
   let orders = [];
   let projects = [];
@@ -40,12 +39,12 @@
     const isForm = opt.body instanceof FormData;
     const headers = {
       ...(opt.body && !isForm && { 'content-type': 'application/json' }),
-      authorization: 'Bearer ' + encodeURIComponent(pass)
+      ...(opt.headers || {})
     };
-    const r = await fetch(path, { ...opt, headers });
+    const r = await fetch(path, { ...opt, headers, credentials: 'same-origin' });
     if (r.status === 401) {
-      logout();
-      const msg = 'رمز ورود اشتباه است یا منقضی شده است.';
+      await logout(false);
+      const msg = 'رمز ورود اشتباه است یا نشست منقضی شده است.';
       const errEl = $('#loginErr');
       if (errEl) errEl.textContent = msg;
       toast(msg);
@@ -56,9 +55,10 @@
     return j;
   }
 
-  function logout() {
-    pass = '';
-    sessionStorage.removeItem('adm');
+  async function logout(callApi = true) {
+    if (callApi) {
+      await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
+    }
     $('#panel').hidden = true;
     $('#login').hidden = false;
   }
@@ -861,13 +861,13 @@
   // ورود و مقداردهی اولیه
   // ══════════════════════════════════════════════
   async function enter() {
-    $('#login').hidden = true;
-    $('#panel').hidden = false;
     try {
       await refreshOrders();
       await loadProjects();
+      $('#login').hidden = true;
+      $('#panel').hidden = false;
     } catch (e) {
-      logout();
+      await logout(false);
       $('#loginErr').textContent = e.message;
       throw e;
     }
@@ -875,14 +875,21 @@
 
   $('#loginForm').addEventListener('submit', async e => {
     e.preventDefault();
-    pass = $('#pass').value;
+    const password = $('#pass').value;
     $('#loginErr').textContent = '';
+    const btn = $('#loginForm button[type="submit"]');
+    if (btn) btn.disabled = true;
     try {
+      await api('/api/admin/login', {
+        method: 'POST',
+        body: JSON.stringify({ password })
+      });
+      $('#pass').value = '';
       await enter();
-      sessionStorage.setItem('adm', pass);
     } catch (err) {
-      sessionStorage.removeItem('adm');
       $('#loginErr').textContent = err.message || 'رمز ورود نامعتبر است.';
+    } finally {
+      if (btn) btn.disabled = false;
     }
   });
 
@@ -895,7 +902,7 @@
     if (activeTab === 'media') loadMediaLibrary(true).then(() => toast('کتابخانه به‌روز شد.')).catch(e => toast(e.message));
   };
 
-  $('#logout').onclick = logout;
+  $('#logout').onclick = () => logout(true);
   $('#status').onchange = () => refreshOrders().catch(e => toast(e.message));
   let t;
   $('#q').oninput = () => {
@@ -906,6 +913,9 @@
   fetch('../data/order.json').then(r => r.json()).then(c => {
     cfg = c;
     $('#status').innerHTML = '<option value="">همه وضعیت‌ها</option>' + Object.entries(ST).map(([k, [n]]) => `<option value="${k}">${n}</option>`).join('');
-    pass ? enter() : ($('#login').hidden = false);
+    enter().catch(() => {
+      $('#login').hidden = false;
+      $('#panel').hidden = true;
+    });
   });
 })();

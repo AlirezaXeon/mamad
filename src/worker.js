@@ -81,14 +81,67 @@ async function clientHash(req, env) {
   return h.slice(0, 16);
 }
 
+function getCookie(req, name) {
+  const header = req.headers.get('cookie');
+  if (!header) return null;
+  const match = header.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+async function getHmacKey(secret) {
+  return await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
+  );
+}
+
+async function createSessionToken(password) {
+  const exp = Math.floor(Date.now() / 1000) + 8 * 3600; // ۸ ساعت اعتبار
+  const data = `adm:${exp}`;
+  const key = await getHmacKey(password);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
+  const sigHex = [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
+  return `${data}.${sigHex}`;
+}
+
+async function verifySessionToken(token, password) {
+  if (!token || !password) return false;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+  const [data, sigHex] = parts;
+  const [prefix, expStr] = data.split(':');
+  if (prefix !== 'adm') return false;
+  const exp = Number(expStr);
+  if (!exp || Math.floor(Date.now() / 1000) > exp) return false;
+  if (!/^[a-f0-9]{64}$/.test(sigHex)) return false;
+  const sigBytes = new Uint8Array(sigHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  const key = await getHmacKey(password);
+  return await crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(data));
+}
+
 async function isAdmin(req, env) {
+  if (!env.ADMIN_PASSWORD) return false;
+
+  // ۱. بررسی کوکی نشست امضاشده با HMAC
+  const cookieToken = getCookie(req, 'adm_session');
+  if (cookieToken && (await verifySessionToken(cookieToken, env.ADMIN_PASSWORD))) {
+    return true;
+  }
+
+  // ۲. پشتیبانی از هدر Bearer برای سازگاری عقب‌رو
   let t = (req.headers.get('authorization') || '').replace(/^Bearer /, '');
   try { t = decodeURIComponent(t); } catch {}
-  if (!env.ADMIN_PASSWORD || !t) return false;
-  const [a, b] = await Promise.all([sha(t), sha(env.ADMIN_PASSWORD)]);
-  let d = 0;
-  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return d === 0;
+  if (t) {
+    const [a, b] = await Promise.all([sha(t), sha(env.ADMIN_PASSWORD)]);
+    let d = 0;
+    for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return d === 0;
+  }
+
+  return false;
 }
 
 // بررسی بایت‌های جادویی WebP: ۴ بایت اول RIFF و بایت‌های ۸ تا ۱۲ WEBP
@@ -811,6 +864,57 @@ export default {
           } catch (e) {
             console.warn('Admin rate limiter check error:', e);
           }
+        }
+
+        // ورود به پنل ادمین (POST /api/admin/login)
+        if (pathname === '/api/admin/login' && req.method === 'POST') {
+          const body = await req.json().catch(() => ({}));
+          const pass = String(body.password || '');
+          let isValid = false;
+          if (env.ADMIN_PASSWORD && pass) {
+            const [a, b] = await Promise.all([sha(pass), sha(env.ADMIN_PASSWORD)]);
+            let d = 0;
+            for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+            isValid = (d === 0);
+          }
+
+          if (!isValid) {
+            if (env.DB) {
+              const tasks = [env.DB.prepare('INSERT INTO admin_attempts (ip_hash) VALUES (?)').bind(ipHash).run()];
+              if (Math.random() < 0.02) {
+                tasks.push(env.DB.prepare("DELETE FROM admin_attempts WHERE created_at < datetime('now', '-1 day')").run());
+              }
+              if (ctx && ctx.waitUntil) ctx.waitUntil(Promise.all(tasks));
+              else await Promise.all(tasks).catch(() => {});
+            }
+            return J({ error: 'رمز ورود اشتباه است.' }, 401);
+          }
+
+          const token = await createSessionToken(env.ADMIN_PASSWORD);
+          const cookieVal = `adm_session=${encodeURIComponent(token)}; Path=/api/admin; Max-Age=28800; HttpOnly; Secure; SameSite=Strict`;
+          return new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: {
+              'content-type': 'application/json; charset=utf-8',
+              'set-cookie': cookieVal,
+              'cache-control': 'no-store',
+              'x-content-type-options': 'nosniff'
+            }
+          });
+        }
+
+        // خروج از پنل ادمین (POST /api/admin/logout)
+        if (pathname === '/api/admin/logout' && req.method === 'POST') {
+          const clearCookie = 'adm_session=; Path=/api/admin; Max-Age=0; HttpOnly; Secure; SameSite=Strict';
+          return new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: {
+              'content-type': 'application/json; charset=utf-8',
+              'set-cookie': clearCookie,
+              'cache-control': 'no-store',
+              'x-content-type-options': 'nosniff'
+            }
+          });
         }
 
         if (!(await isAdmin(req, env))) {
