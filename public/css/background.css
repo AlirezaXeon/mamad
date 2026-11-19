@@ -1,24 +1,6 @@
-/* بک‌گراند پویا: orb‌های طلایی شناور + هاله نوری + بافت نویز */
+/* بک‌گراند مینیمال و آرام: بدون اورب‌های متحرک و نویز */
 
-#dynamic-bg { position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden }
-
-.orb { position:absolute; border-radius:50%; pointer-events:none; will-change:transform }
-.orb:nth-child(1) { width:clamp(280px,55vw,700px); aspect-ratio:1; top:-15%; right:-10%; background:color-mix(in srgb, var(--accent) 6%, transparent); filter:blur(120px) }
-.orb:nth-child(2) { width:clamp(220px,40vw,500px); aspect-ratio:1; bottom:20%; left:-5%; background:color-mix(in srgb, var(--accent) 4%, transparent); filter:blur(120px) }
-.orb:nth-child(3) { width:clamp(200px,35vw,450px); aspect-ratio:1; top:50%; right:30%; background:color-mix(in srgb, var(--accent) 3%, transparent); filter:blur(120px) }
-
-@media (max-width:479px) {
-  .orb:nth-child(3) { display:none }
-  .orb { filter:blur(80px) }
-}
-
-/* هاله نوری گرم بالای صفحه */
-body::before { display:none }
-body::after { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(75% 45% at 50% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%) }
-
-/* بافت نویز سینمایی */
-html::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:0.028; mix-blend-mode:screen; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") }
-
-/* تم روشن: blend-mode متفاوت */
-:root[data-theme="light"] .orb { opacity:0.7 }
-:root[data-theme="light"] html::before { mix-blend-mode:multiply; opacity:0.035 }
+#dynamic-bg { position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden; display:none }
+.orb { display:none }
+body::before, body::after { display:none }
+html::before { display:none }
