@@ -2,7 +2,7 @@
 // ترتیب باید با ترتیب قبلی لینک‌ها در index.html یکی باشد.
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const files = ['tokens', 'base', 'background', 'cards', 'project', 'lightbox', 'contact', 'modal', 'order', 'splash', 'editorial'];
+const files = ['tokens', 'base', 'background', 'cards', 'project', 'lightbox', 'contact', 'modal', 'order', 'splash', 'editorial', 'hero'];
 const css = files.map(f => `/* ${f}.css */\n` + readFileSync(`public/css/${f}.css`, 'utf8')).join('\n');
 writeFileSync('public/css/app.css', css);
 console.log(`app.css: ${(css.length / 1024).toFixed(1)} KB`);

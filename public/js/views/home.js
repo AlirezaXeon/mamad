@@ -24,14 +24,10 @@ export async function home() {
 
   const profile = site.profile || {};
   const profileName = profile.name || 'محمد فهیمی';
-  const DEFAULT_BUBBLES = ['محمد فهیمی', 'طراح داخلی', 'نقشه‌کش', 'از ایده تا اجرا'];
-  let profileBubbles = Array.isArray(profile.bubbles) ? profile.bubbles.filter(Boolean) : [];
-  for (let i = profileBubbles.length; i < 4; i++) {
-    profileBubbles.push(DEFAULT_BUBBLES[i]);
-  }
-  profileBubbles = profileBubbles.slice(0, 4);
+  const roles = (Array.isArray(profile.roles) ? profile.roles : []).filter(Boolean);
+  if (!roles.length) roles.push('طراح داخلی', 'نقشه‌کش');
 
-  // حروف اول نام جهت نمایش در صورت عدم بارگذاری تصویر
+  // حروف اول نام جهت نمایش در صورت نبودن تصویر
   const initials = profileName
     .split(/\s+/)
     .filter(Boolean)
@@ -41,11 +37,11 @@ export async function home() {
 
   const avatarImg = profile.image
     ? h('img', {
-        class: 'hero-avatar-img',
+        class: 'intro-img',
         src: profile.image,
         alt: profileName,
-        width: '280',
-        height: '280',
+        width: '380',
+        height: '475',
         fetchpriority: 'high',
         decoding: 'async',
         onerror: e => {
@@ -57,49 +53,29 @@ export async function home() {
     : null;
 
   const avatarFallback = h('div', {
-    class: 'hero-avatar-fallback',
+    class: 'intro-fb',
     style: profile.image ? 'display:none;' : 'display:flex;',
     'aria-label': profileName
   }, initials);
 
-  // برچسب شیشه‌ای: یک شکل واحد + دنباله ۳ دایره‌ای به سمت آواتار
-  const createLabel = (text, idx) =>
-    h('div', { class: `hero-label hero-label-${idx + 1}` },
-      h('span', { class: 'hero-cloud' },
-        h('span', { class: 'cloud-text' }, text)),
-      h('span', { class: 'hero-trail', 'aria-hidden': 'true' },
-        h('i'), h('i'), h('i')));
-
-  const bubbleEls = profileBubbles.map(createLabel);
-
-  const avatarCluster = h('div', { class: 'hero-avatar-cluster' },
-    h('div', { class: 'hero-avatar-ring' },
-      avatarImg,
-      avatarFallback
-    ),
-    ...bubbleEls
-  );
-
-  const heroCopy = h('div', { class: 'hero-copy' },
-    h('p', { class: 'eyebrow' }, 'ARCHITECTURE  /  INTERIOR DESIGN'),
-    h('h1', {}, 'طراحی داخلی؛ از ', h('em', {}, 'ایده'), ' تا اجرا'),
-    h('p', { class: 'hero-desc' }, site.about),
-    h('div', { class: 'hero-actions' },
-      h('a', {
-        class: 'action action-primary',
-        href: '#projects',
-        onclick: e => {
-          e.preventDefault();
-          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 'مشاهده پروژه‌ها')));
-
-  const hero = h('section', { class: 'hero' },
-    h('div', { class: 'hero-container' },
-      avatarCluster,
-      heroCopy
-    )
-  );
+  const hero = h('section', { class: 'intro' },
+    h('div', { class: 'intro-in' },
+      h('div', { class: 'intro-photo' },
+        h('div', { class: 'intro-arch' }, avatarImg, avatarFallback)),
+      h('div', { class: 'intro-body' },
+        h('h1', { class: 'intro-name' }, profileName),
+        h('ul', { class: 'intro-roles' }, roles.map(r => h('li', {}, r))),
+        h('p', { class: 'intro-lead' }, site.tagline || 'طراحی داخلی؛ از ایده تا اجرا'),
+        site.about && h('p', { class: 'hero-desc intro-desc' }, site.about),
+        h('div', { class: 'intro-cta' },
+          h('a', {
+            class: 'btn primary',
+            href: '#projects',
+            onclick: e => {
+              e.preventDefault();
+              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 'مشاهده پروژه‌ها')))));
 
   const principlesData = [
     { num: '01', title: 'از ایده تا فضا', desc: 'خلق فضاهای معمارانه با هویت مستقل و روایت اختصاصی' },
@@ -143,11 +119,4 @@ export async function home() {
   app.replaceChildren(hero, projectsSection, principles, statement);
   draw('همه');
   initReveals(app);
-
-  if (typeof IntersectionObserver !== 'undefined') {
-    const heroObserver = new IntersectionObserver(([entry]) => {
-      hero.classList.toggle('hero-paused', !entry.isIntersecting);
-    }, { threshold: 0.05 });
-    heroObserver.observe(hero);
-  }
 }
