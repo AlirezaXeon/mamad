@@ -62,12 +62,10 @@ export async function home() {
     'aria-label': profileName
   }, initials);
 
-  // برچسب ابر تفکر: بدنه ارگانیک ابری با پس‌زمینه سفید و متن مشکی + دایره‌های اتصال به آواتار
+  // برچسب شیشه‌ای: یک شکل واحد + دنباله ۳ دایره‌ای به سمت آواتار
   const createLabel = (text, idx) =>
     h('div', { class: `hero-label hero-label-${idx + 1}` },
       h('span', { class: 'hero-cloud' },
-        h('span', { class: 'cloud-shape', 'aria-hidden': 'true' },
-          h('i'), h('i'), h('i'), h('i'), h('i')),
         h('span', { class: 'cloud-text' }, text)),
       h('span', { class: 'hero-trail', 'aria-hidden': 'true' },
         h('i'), h('i'), h('i')));
