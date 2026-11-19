@@ -122,16 +122,16 @@ h1, h2, h3, .st, .modal-head h2 {
   z-index: 2;
 }
 
-/* کلاستر آواتار + ۴ برچسب نقشه‌کشی */
+/* کلاستر آواتار + ۴ برچسب ابری نقشه‌کشی */
 .hero-avatar-cluster {
   --ring: clamp(170px, 46vw, 205px);   /* قطر حلقه */
-  --drop: calc(var(--ring) * .175);     /* فاصله نقطه‌ی اتصال از بالا/پایین حلقه */
-  --dx: calc(var(--ring) * .38);        /* فاصله افقی برچسب‌ها از مرکز */
+  --drop: calc(var(--ring) * .04);      /* فاصله نقطه‌ی اتصال از لبه بیرونی حلقه */
+  --dx: calc(var(--ring) * .48);        /* فاصله افقی برچسب‌ها از مرکز */
   --gap: 14px;
   position: relative;
   display: inline-flex;
   justify-content: center;
-  margin: 64px 0 56px;                  /* جای برچسب‌های بالا و پایین */
+  margin: 76px 0 68px;                  /* جای برچسب‌های بالا و پایین */
 }
 
 /* آواتار: فقط درخشش حلقه نفس می‌کشد */
@@ -180,80 +180,67 @@ h1, h2, h3, .st, .modal-head h2 {
 .hero-label-1, .hero-label-2 { bottom: calc(100% - var(--drop)); flex-direction: column; }
 .hero-label-3, .hero-label-4 { top: calc(100% - var(--drop)); flex-direction: column-reverse; }
 
-/* ══════ حباب ابری (شکل یکپارچه با کادر دور کل ابر) ══════ */
-.hero-avatar-cluster {
-  --cloud-fill: color-mix(in srgb, var(--accent) 7%, var(--paper));
-  --cloud-edge: color-mix(in srgb, var(--accent) 60%, var(--paper));
-  --cloud-shadow: rgba(0, 0, 0, .5);
-}
-:root[data-theme="light"] .hero-avatar-cluster { --cloud-shadow: rgba(60, 45, 20, .22); }
-
+/* ══════ حباب ابری (شکل کمیک‌آرت با پس‌زمینه سفید و متن مشکی) ══════ */
 .hero-cloud {
   position: relative;
-  display: inline-block;
-  padding: .5em 1.25em;
-  color: var(--ink);
-  font-size: .76rem;
-  font-weight: 600;
-  line-height: 1.6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 2.8vw, 18px) clamp(28px, 4.8vw, 40px) clamp(16px, 3.2vw, 22px);
+  color: #000000;
+  font-size: clamp(.72rem, 1.8vw, .8rem);
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: url('../images/cloud.svg') no-repeat center / 100% 100%;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .45));
   animation: cloudFloat var(--fs, 5.6s) ease-in-out var(--fd, 0s) infinite;
 }
-.cloud-text { position: relative; z-index: 1; }
-
-/* شکل ابر: بدنه + ۳ برجستگی همرنگ و غیرشفاف؛ کادر با drop-shadow دور اجتماع شکل‌ها کشیده می‌شود */
-.cloud-shape {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  filter:
-    drop-shadow(1px 0 0 var(--cloud-edge))
-    drop-shadow(-1px 0 0 var(--cloud-edge))
-    drop-shadow(0 1px 0 var(--cloud-edge))
-    drop-shadow(0 -1px 0 var(--cloud-edge))
-    drop-shadow(0 0 12px var(--cloud-shadow));
+:root[data-theme="light"] .hero-cloud {
+  filter: drop-shadow(0 6px 14px rgba(60, 45, 20, .2));
 }
-.cloud-shape::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 99px;
-  background: var(--cloud-fill);
+
+.cloud-text {
+  position: relative;
+  z-index: 1;
+  color: #000000;
+  font-family: Vazirmatn, var(--font);
+  letter-spacing: 0;
+  text-shadow: 0 0 1px rgba(0, 0, 0, .08);
 }
-.cloud-shape i { position: absolute; border-radius: 50%; background: var(--cloud-fill); }
-.cloud-shape i:nth-child(1) { width: 1.7em; height: 1.7em; top: -.65em; inset-inline-start: .8em; }
-.cloud-shape i:nth-child(2) { width: 2.2em; height: 2.2em; top: -1.1em; inset-inline-start: 38%; }
-.cloud-shape i:nth-child(3) { width: 1.5em; height: 1.5em; top: -.55em; inset-inline-end: .9em; }
 
-/* حباب‌های پایین: برجستگی‌ها سمت بیرون (فقط شکل برعکس می‌شود، متن نه) */
-.hero-label-3 .cloud-shape, .hero-label-4 .cloud-shape { transform: scaleY(-1); }
-
-/* سه دایره اتصال: بزرگ ← کوچک به سمت آواتار، با کمی انحنا */
+/* دو دایره اتصال بیضی با پس‌زمینه سفید و کادر مشکی رو به آواتار */
 .hero-trail {
   display: flex;
   align-items: center;
   gap: 5px;
+  margin-top: 3px;
   animation: cloudFloat var(--fs, 5.6s) ease-in-out var(--fd, 0s) infinite;
 }
 .hero-trail i {
   display: block;
   border-radius: 50%;
-  background: var(--cloud-fill);
-  border: 1px solid var(--cloud-edge);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent);
+  background: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
   animation: dotPulse 2.4s ease-in-out infinite;
 }
-.hero-trail i:nth-child(1) { width: 10px; height: 10px; }
-.hero-trail i:nth-child(2) { width: 7px;  height: 7px;  animation-delay: .25s; }
-.hero-trail i:nth-child(3) { width: 5px;  height: 5px;  animation-delay: .5s; }
+.hero-trail i:nth-child(1) { width: 12px; height: 9px; }
+.hero-trail i:nth-child(2) { width: 7px;  height: 6px;  animation-delay: .25s; }
 
 /* جهت دایره‌ها: بالایی‌ها رو به پایین، پایینی‌ها رو به بالا */
 .hero-label-1 .hero-trail, .hero-label-2 .hero-trail { flex-direction: column; }
-.hero-label-3 .hero-trail, .hero-label-4 .hero-trail { flex-direction: column-reverse; }
-/* انحنای مسیر به سمت مرکز آواتار */
-.hero-label-1 .hero-trail i:nth-child(2), .hero-label-3 .hero-trail i:nth-child(2) { translate: -3px 0; }
-.hero-label-1 .hero-trail i:nth-child(3), .hero-label-3 .hero-trail i:nth-child(3) { translate: -6px 0; }
-.hero-label-2 .hero-trail i:nth-child(2), .hero-label-4 .hero-trail i:nth-child(2) { translate: 3px 0; }
-.hero-label-2 .hero-trail i:nth-child(3), .hero-label-4 .hero-trail i:nth-child(3) { translate: 6px 0; }
+.hero-label-3 .hero-trail, .hero-label-4 .hero-trail { flex-direction: column-reverse; margin-top: 0; margin-bottom: 3px; }
+
+/* زاویه و انحنا به سمت مرکز آواتار */
+.hero-label-1 .hero-trail i:nth-child(1) { transform: rotate(-15deg); }
+.hero-label-1 .hero-trail i:nth-child(2) { transform: rotate(-25deg); translate: -3px 0; }
+.hero-label-2 .hero-trail i:nth-child(1) { transform: rotate(15deg); }
+.hero-label-2 .hero-trail i:nth-child(2) { transform: rotate(25deg); translate: 3px 0; }
+.hero-label-3 .hero-trail i:nth-child(1) { transform: rotate(-15deg); }
+.hero-label-3 .hero-trail i:nth-child(2) { transform: rotate(-25deg); translate: -3px 0; }
+.hero-label-4 .hero-trail i:nth-child(1) { transform: rotate(15deg); }
+.hero-label-4 .hero-trail i:nth-child(2) { transform: rotate(25deg); translate: 3px 0; }
 
 @keyframes avatarEntrance { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
 @keyframes avatarRingGlow {
@@ -324,14 +311,15 @@ h1, h2, h3, .st, .modal-head h2 {
   to   { opacity: 1; transform: none; }
 }
 
-@media (max-width: 380px) {
-  .hero-cloud { padding: 5px 11px; font-size: .72rem; }
-}
-
 @media (min-width: 860px) {
   .hero-container { flex-direction: row-reverse; justify-content: center; text-align: start; gap: 64px; }
-  .hero-avatar-cluster { --ring: clamp(260px, 22vw, 300px); --gap: 20px; --dx: calc(var(--ring) * .42); margin: 72px 0; }
-  .hero-cloud { font-size: .82rem; padding: 8px 20px; }
+  .hero-avatar-cluster {
+    --ring: clamp(230px, 19vw, 270px);
+    --gap: 20px;
+    --dx: calc(var(--ring) * .48);
+    --drop: calc(var(--ring) * .02);
+    margin: 80px 0;
+  }
   .hero-copy { text-align: start; align-items: flex-start; }
   .hero-actions { justify-content: flex-start; }
 }
