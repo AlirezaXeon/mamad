@@ -164,7 +164,7 @@
   background:var(--paper);
   cursor:zoom-in;
   overflow:hidden;
-  border-radius:var(--r, 18px);
+  border-radius:var(--r, 14px);
   border:1px solid rgba(255, 255, 255, 0.05);
 }
 .shot img {
@@ -188,7 +188,7 @@
   .shot {
     width:auto;
     scroll-snap-align:unset;
-    border-radius:var(--r, 18px);
+    border-radius:var(--r, 14px);
   }
   .gallery .shot:first-child { grid-column:1/-1 }
   .gallery .shot:first-child img { aspect-ratio:16/9 }
@@ -224,7 +224,7 @@
   overflow:hidden;
   text-decoration:none;
   margin-top:56px;
-  border-radius:var(--r-lg, 28px);
+  border-radius:var(--r-lg, 16px);
 }
 .next-project-img {
   width:100%;

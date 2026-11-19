@@ -286,7 +286,7 @@ h1, h2, h3, .st, .modal-head h2 {
   padding: clamp(20px, 3.8vw, 32px) clamp(20px, 4.2vw, 36px);
   background: color-mix(in srgb, var(--paper) 72%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
-  border-radius: 28px;
+  border-radius: var(--r-lg, 16px);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 16px 42px -12px rgba(0, 0, 0, .58);
@@ -314,12 +314,12 @@ h1, h2, h3, .st, .modal-head h2 {
   transition: all .3s ease; min-height: 44px; border-radius: 99px;
 }
 .action-primary {
-  background: var(--accent); color: var(--on-accent);
-  padding: 11px 28px; font-weight: 600;
+  background: transparent; color: var(--ink);
+  padding: 11px 28px; font-weight: 500;
   border: 1px solid var(--accent); border-radius: 99px;
-  box-shadow: 0 8px 24px -6px color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow: none;
 }
-.action-primary:hover { background: transparent; color: var(--accent); box-shadow: none; }
+.action-primary:hover { background: var(--accent-soft); color: var(--ink); box-shadow: none; }
 @keyframes heroBoxEntrance {
   from { opacity: 0; transform: translateY(28px) scale(.97); }
   to   { opacity: 1; transform: none; }
@@ -372,7 +372,7 @@ h1, h2, h3, .st, .modal-head h2 {
   padding: 28px 24px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: var(--r, 18px);
+  border-radius: var(--r, 14px);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -441,7 +441,7 @@ h1, h2, h3, .st, .modal-head h2 {
   margin: clamp(48px, 7vw, 80px) auto clamp(80px, 11vw, 130px);
   padding: clamp(72px, 10vw, 110px) var(--pad);
   border: 0;
-  border-radius: var(--r-lg, 28px);
+  border-radius: var(--r-lg, 16px);
   background: var(--paper);
   text-align: center;
 }
@@ -498,7 +498,7 @@ h1, h2, h3, .st, .modal-head h2 {
   font-weight: 600;
 }
 .cards .opt {
-  border-radius: var(--r, 18px);
+  border-radius: var(--r, 14px);
   border: 1px solid var(--line);
   background: var(--paper);
   color: var(--ink);
@@ -512,7 +512,7 @@ h1, h2, h3, .st, .modal-head h2 {
   box-shadow: none;
 }
 .sum {
-  border-radius: var(--r, 18px);
+  border-radius: var(--r, 14px);
   overflow: hidden;
 }
 .o-steps i {

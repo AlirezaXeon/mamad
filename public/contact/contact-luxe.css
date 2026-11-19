@@ -65,7 +65,7 @@ body {
 .holo-card {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: var(--r, 18px);
+  border-radius: var(--r, 14px);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   transform: translateY(var(--ty, 0px));

@@ -8,7 +8,7 @@
   position:relative;
   overflow:hidden;
   aspect-ratio:4/5;
-  border-radius:var(--r-lg, 28px);
+  border-radius:var(--r-lg, 16px);
   background:var(--paper);
   border:1px solid rgba(255,255,255,0.04);
 }
@@ -86,9 +86,6 @@
   .card:nth-child(odd) { grid-column:span 7 }
   .card:nth-child(even) { grid-column:span 5; margin-top:80px }
   .card:nth-child(odd) .pic { aspect-ratio:4/3 }
-  .card:nth-child(3n+2) .pic {
-    border-radius:var(--r-lg, 28px) var(--r-lg, 28px) 120px var(--r-lg, 28px);
-  }
   .tb { padding:28px 28px 30px }
   .tb-main h2 { font-size:1.5rem }
 }
