@@ -5,20 +5,20 @@
   font-display: swap;
 }
 
-/* تم پیشفرض: مشکی معماری و طلای مات (Obsidian & Muted Gold) */
+/* تم پیشفرض: چوب گردو و بتن (Walnut & Concrete) */
 :root {
   color-scheme: dark;
-  --bg: #0A0A0B;
-  --paper: #121214;
-  --surface: #18181B;
-  --ink: #F2EFE9;
-  --mute: #8E8A82;
-  --line: #242321;
-  --line-strong: #36332E;
-  --accent: #C6A66D;
-  --on-accent: #0A0A0B;
+  --bg: #14100D;
+  --paper: #1A1511;
+  --surface: #211B16;
+  --ink: #EFE8DC;
+  --mute: #9A9085;
+  --line: #2A231D;
+  --line-strong: #3A3129;
+  --accent: #B9855C;
+  --on-accent: #14100D;
   --danger: #E06C58;
-  --accent-soft: rgba(198, 166, 109, 0.12);
+  --accent-soft: rgba(185, 133, 92, 0.12);
   --field: rgba(255, 255, 255, 0.03);
   --r: 18px;
   --r-lg: 28px;
@@ -37,17 +37,17 @@
 /* تم فرعی اختیاری: گالری روشن (?theme=light) */
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #F4F1EB;
-  --paper: #FBF9F5;
-  --surface: #EFECE6;
-  --ink: #161514;
-  --mute: #6E6A63;
-  --line: #DED9CF;
-  --line-strong: #C7C0B3;
-  --accent: #9A7B4F;
-  --on-accent: #FBF9F5;
+  --bg: #EFEBE4;
+  --paper: #F6F3EE;
+  --surface: #E8E3DA;
+  --ink: #1E1B18;
+  --mute: #6B645B;
+  --line: #D9D3C8;
+  --line-strong: #C2BAAB;
+  --accent: #8C6A4A;
+  --on-accent: #F6F3EE;
   --danger: #B3402F;
-  --accent-soft: rgba(154, 123, 79, 0.09);
+  --accent-soft: rgba(140, 106, 74, 0.10);
   --field: rgba(0, 0, 0, 0.02);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);

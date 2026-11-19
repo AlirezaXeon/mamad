@@ -4,7 +4,7 @@ try {
   if (t === "light") {
     document.documentElement.dataset.theme = "light";
     var meta = document.querySelector('meta[name=theme-color]');
-    if (meta) meta.content = "#F4F1EB";
+    if (meta) meta.content = "#EFEBE4";
   }
   sessionStorage.getItem("splash") && document.documentElement.classList.add("no-splash");
 } catch (e) {}
