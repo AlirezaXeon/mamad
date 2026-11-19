@@ -12,34 +12,6 @@
   border-radius:var(--r-lg, 28px);
   background:var(--paper);
   border:1px solid rgba(255, 255, 255, 0.04);
-  cursor:pointer;
-}
-.pic-zoom-hint {
-  position:absolute;
-  bottom:14px;
-  left:14px;
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  background:rgba(10, 10, 11, 0.65);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  border:1px solid rgba(255, 255, 255, 0.12);
-  color:#F2EFE9;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:0.85;
-  transition:all 0.25s ease;
-  z-index:2;
-  pointer-events:none;
-}
-.pic:hover .pic-zoom-hint {
-  transform:scale(1.1);
-  opacity:1;
-  background:rgba(10, 10, 11, 0.85);
-  color:var(--accent);
-  border-color:color-mix(in srgb, var(--accent) 40%, transparent);
 }
 .pic > img {
   width:100%;

@@ -1,6 +1,5 @@
 import { h, app, small, imgSet } from '../utils.js';
 import { load } from '../store.js';
-import { openLightbox } from '../components/lightbox.js';
 import { initReveals } from '../components/scroll-animator.js';
 
 const CARD_SIZES = '(min-width:1024px) 600px, (min-width:640px) 50vw, calc(100vw - 40px)';
@@ -8,28 +7,11 @@ const CARD_SIZES = '(min-width:1024px) 600px, (min-width:640px) 50vw, calc(100vw
 const card = (p, i) => {
   const images = (p.images && p.images.length) ? p.images : (p.cover ? [p.cover] : []);
 
-  const openGallery = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    openLightbox(images, 0, p.title, p.slug);
-  };
-
-  const pic = h('div', {
-    class: 'pic',
-    role: 'button',
-    tabindex: '0',
-    'aria-label': 'مشاهده تمام‌صفحه تصویر ' + p.title,
-    onclick: openGallery,
-    onkeydown: e => {
-      if (e.key === 'Enter' || e.key === ' ') openGallery(e);
-    }
-  },
+  const pic = h('div', { class: 'pic' },
     // عنصر LCP صفحه آواتار است؛ کارت اول فقط eager است و نباید با آن سر پهنای باند رقابت کند
     h('img', { src: small(p.cover || images[0]), ...imgSet(p.cover || images[0]), sizes: CARD_SIZES, alt: p.title, loading: i === 0 ? 'eager' : 'lazy', decoding: 'async' }),
-    p.category && h('span', { class: 'badge' }, p.category),
-    h('span', { class: 'pic-zoom-hint', 'aria-hidden': 'true' })
+    p.category && h('span', { class: 'badge' }, p.category)
   );
-  pic.querySelector('.pic-zoom-hint').innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
 
   return h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' },
     pic,
