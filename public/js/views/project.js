@@ -16,24 +16,7 @@ export async function project(slug) {
   const backBtn = h('a', { class: 'back-fixed', href: '#/', 'aria-label': 'بازگشت' });
   backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>';
 
-  const openHeroLightbox = e => {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    if (!hasImages) return;
-    openLightbox(images, 0, p.title, p.slug);
-  };
-
-  const heroAttrs = {
-    class: 'project-hero' + (hasImages ? ' project-hero-clickable' : ''),
-  };
-  if (hasImages) {
-    heroAttrs.role = 'button';
-    heroAttrs.tabindex = '0';
-    heroAttrs['aria-label'] = 'مشاهده تمام‌صفحه تصویر شاخص ' + p.title;
-    heroAttrs.onclick = openHeroLightbox;
-    heroAttrs.onkeydown = e => {
-      if (e.key === 'Enter' || e.key === ' ') openHeroLightbox(e);
-    };
-  }
+  const heroAttrs = { class: 'project-hero' };
 
   const nextImg = next.cover || next.images?.[0];
 

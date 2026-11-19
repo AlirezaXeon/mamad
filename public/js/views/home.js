@@ -8,17 +8,14 @@ const card = (p, i) => {
   const images = (p.images && p.images.length) ? p.images : (p.cover ? [p.cover] : []);
 
   const pic = h('div', { class: 'pic' },
-    // عنصر LCP صفحه آواتار است؛ کارت اول فقط eager است و نباید با آن سر پهنای باند رقابت کند
     h('img', { src: small(p.cover || images[0]), ...imgSet(p.cover || images[0]), sizes: CARD_SIZES, alt: p.title, loading: i === 0 ? 'eager' : 'lazy', decoding: 'async' }),
-    p.category && h('span', { class: 'badge' }, p.category)
-  );
-
-  return h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' },
-    pic,
+    p.category && h('span', { class: 'badge' }, p.category),
     h('div', { class: 'tb' },
       h('div', { class: 'tb-main' },
         h('h2', {}, p.title),
         h('p', {}, p.summary || p.category))));
+
+  return h('a', { class: 'card', href: '#/p/' + p.slug, 'data-reveal': 'scale' }, pic);
 };
 
 export async function home() {
@@ -65,11 +62,12 @@ export async function home() {
     'aria-label': profileName
   }, initials);
 
-  // برچسب نقشه‌کشی: کپسول شماره‌دار + خط راهنما که با یک نقطه به حلقه آواتار می‌رسد
+  // حباب ابری: بدنه ابر + سه دایره اتصال که به حلقه آواتار می‌رسند
   const createLabel = (text, idx) =>
     h('div', { class: `hero-label hero-label-${idx + 1}` },
-      h('span', { class: 'hero-tag' }, h('i', {}, '0' + (idx + 1)), text),
-      h('span', { class: 'hero-lead', 'aria-hidden': 'true' }));
+      h('span', { class: 'hero-cloud' }, text),
+      h('span', { class: 'hero-trail', 'aria-hidden': 'true' },
+        h('i', {}), h('i', {}), h('i', {})));
 
   const bubbleEls = profileBubbles.map(createLabel);
 
