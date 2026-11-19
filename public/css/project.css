@@ -39,7 +39,7 @@
 .project-hero-content h1 {
   color:var(--ink);
   font-size:clamp(1.6rem, 7vw, 2.9rem);
-  font-weight:700;
+  font-weight:500;
   line-height:1.4;
   margin:0;
   font-family:Vazirmatn, var(--serif);
@@ -117,7 +117,7 @@
 }
 .facts dd {
   margin:0;
-  font:600 1.05rem var(--serif);
+  font:500 1.05rem var(--serif);
   color:var(--ink);
   letter-spacing:0;
 }
@@ -255,7 +255,7 @@
   margin-bottom:10px;
 }
 .next-project-content b {
-  font:700 clamp(1.3rem, 4vw, 1.8rem) Vazirmatn, var(--serif);
+  font:500 clamp(1.3rem, 4vw, 1.8rem) Vazirmatn, var(--serif);
   color:var(--ink);
   letter-spacing:0;
 }

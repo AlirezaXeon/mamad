@@ -47,7 +47,7 @@ img{
 }
 :focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 main{max-width:var(--max);margin:0 auto;padding-bottom:64px}
-.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:center;align-items:center;padding:18px var(--pad) 14px;min-height:60px;background:color-mix(in srgb, var(--bg) 88%, transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-weight:700}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:center;align-items:center;padding:18px var(--pad) 14px;min-height:60px;background:color-mix(in srgb, var(--bg) 88%, transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-weight:500}
 .chips{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;gap:8px;padding:8px 0 16px;scrollbar-width:none;position:sticky;top:60px;z-index:15;background:color-mix(in srgb, var(--bg) 94%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;scroll-snap-align:start;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 20px;color:var(--mute);font-size:.84rem;letter-spacing:0;cursor:pointer;transition:all .25s ease;white-space:nowrap}

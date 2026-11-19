@@ -14,7 +14,7 @@ body {
 /* ══════ اصلاح تایپوگرافی فارسی و انگلیسی ══════ */
 h1, h2, h3, .st, .modal-head h2 {
   font-family: Vazirmatn, var(--serif);
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.5;
   letter-spacing: 0;
 }
@@ -103,7 +103,7 @@ h1, h2, h3, .st, .modal-head h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(24px, 4vw, 44px) var(--pad) clamp(16px, 2.5vw, 28px);
+  padding: clamp(36px, 5.5vw, 64px) var(--pad) clamp(24px, 3.5vw, 40px);
   background: none;
   border: 0;
   box-shadow: none;
@@ -299,7 +299,7 @@ h1, h2, h3, .st, .modal-head h2 {
 }
 .hero-copy h1 {
   font-size: clamp(1.6rem, 5vw, 2.8rem);
-  font-weight: 800;
+  font-weight: 500;
   line-height: 1.35;
   color: var(--ink);
   margin: 0 0 12px;
@@ -350,7 +350,7 @@ h1, h2, h3, .st, .modal-head h2 {
 /* ══════ اصول استودیو (Principles) — کارت‌های با عدد بزرگ ══════ */
 .principles-section {
   background: var(--paper);
-  padding: clamp(40px, 6vw, 70px) 0;
+  padding: clamp(56px, 8vw, 92px) 0;
   margin: 0;
 }
 .principles {
@@ -392,7 +392,7 @@ h1, h2, h3, .st, .modal-head h2 {
 }
 .pr-title {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--ink);
   margin: 0;
   letter-spacing: 0;
@@ -410,7 +410,7 @@ h1, h2, h3, .st, .modal-head h2 {
   background: var(--bg);
   max-width: var(--max);
   margin: 0 auto;
-  padding: clamp(32px, 5vw, 48px) var(--pad) 24px;
+  padding: clamp(48px, 7vw, 80px) var(--pad) clamp(28px, 4vw, 40px);
 }
 .section-heading {
   display: flex;
@@ -424,7 +424,7 @@ h1, h2, h3, .st, .modal-head h2 {
 }
 .section-heading h2 {
   font-size: clamp(1.6rem, 4.5vw, 2.4rem);
-  font-weight: 700;
+  font-weight: 500;
   margin: 0;
   letter-spacing: 0;
 }
@@ -438,8 +438,8 @@ h1, h2, h3, .st, .modal-head h2 {
 /* ══════ بیانیه استودیو (Studio Statement) — باکس با گوشه‌های نرم و بدون خطوط ══════ */
 .studio-statement {
   max-width: var(--max);
-  margin: 40px auto 100px;
-  padding: clamp(64px, 8vw, 96px) var(--pad);
+  margin: clamp(48px, 7vw, 80px) auto clamp(80px, 11vw, 130px);
+  padding: clamp(72px, 10vw, 110px) var(--pad);
   border: 0;
   border-radius: var(--r-lg, 28px);
   background: var(--paper);
@@ -448,7 +448,7 @@ h1, h2, h3, .st, .modal-head h2 {
 .statement-text {
   font-family: Vazirmatn, var(--serif);
   font-size: clamp(1.25rem, 3.8vw, 2.05rem);
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.85;
   max-width: 38ch;
   margin: 0 auto 28px;
@@ -477,7 +477,7 @@ h1, h2, h3, .st, .modal-head h2 {
 }
 .st {
   font-size: 1.7rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--ink);
   letter-spacing: 0;
 }
@@ -527,7 +527,7 @@ h1, h2, h3, .st, .modal-head h2 {
   border-bottom-color: var(--line);
 }
 .modal-head h2 {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.3rem;
   letter-spacing: 0;
 }
@@ -552,7 +552,7 @@ h1, h2, h3, .st, .modal-head h2 {
 }
 .sp-name {
   letter-spacing: 0;
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.6rem;
   color: var(--ink);
 }
