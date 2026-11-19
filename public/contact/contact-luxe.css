@@ -35,7 +35,7 @@ body {
   transition: all 0.25s ease;
 }
 .cyber-badge:hover {
-  box-shadow: 0 4px 16px var(--accent-glow, rgba(198,166,109,0.25));
+  box-shadow: 0 4px 16px var(--accent-glow, color-mix(in srgb, var(--accent) 25%, transparent));
   background: var(--accent-soft);
 }
 .avatar-ring::before {

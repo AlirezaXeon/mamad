@@ -305,12 +305,12 @@ h1, h2, h3, .st, .modal-head h2 {
   font-size: clamp(1.6rem, 5vw, 2.8rem);
   font-weight: 800;
   line-height: 1.35;
-  color: #F2EFE9;
+  color: var(--ink);
   margin: 0 0 12px;
   letter-spacing: 0;
 }
 .hero-copy h1 em { color: var(--accent); font-style: normal; text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 45%, transparent); }
-.hero-desc { color: rgba(242, 239, 233, .82); font-size: .94rem; line-height: 1.9; margin: 0 0 20px; max-width: 44ch; letter-spacing: 0; }
+.hero-desc { color: color-mix(in srgb, var(--ink) 82%, transparent); font-size: .94rem; line-height: 1.9; margin: 0 0 20px; max-width: 44ch; letter-spacing: 0; }
 .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 2px; }
 .action {
   display: inline-flex; align-items: center; justify-content: center;

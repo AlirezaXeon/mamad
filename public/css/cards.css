@@ -25,7 +25,7 @@
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(to top, rgba(10,10,11,.88) 0%, rgba(10,10,11,.45) 32%, transparent 62%);
+  background:linear-gradient(to top, color-mix(in srgb, var(--bg) 88%, transparent) 0%, color-mix(in srgb, var(--bg) 45%, transparent) 32%, transparent 62%);
   pointer-events:none;
 }
 
@@ -37,7 +37,7 @@
   letter-spacing:0;
   padding:4px 12px;
   border-radius:99px;
-  background:rgba(10,10,11,.65);
+  background:color-mix(in srgb, var(--bg) 65%, transparent);
   backdrop-filter:blur(8px);
   -webkit-backdrop-filter:blur(8px);
   color:var(--accent);
@@ -62,13 +62,13 @@
   font-size:1.3rem;
   font-weight:700;
   line-height:1.45;
-  color:#F2EFE9;
+  color:var(--ink);
   letter-spacing:0;
   transition:color .25s ease;
 }
 .tb-main p {
   margin:4px 0 0;
-  color:rgba(242,239,233,.78);
+  color:color-mix(in srgb, var(--ink) 78%, transparent);
   font-size:.88rem;
   line-height:1.6;
   letter-spacing:0;

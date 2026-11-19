@@ -4,7 +4,7 @@
 
 .orb { position:absolute; border-radius:50%; pointer-events:none; will-change:transform }
 .orb:nth-child(1) { width:clamp(280px,55vw,700px); aspect-ratio:1; top:-15%; right:-10%; background:color-mix(in srgb, var(--accent) 6%, transparent); filter:blur(120px) }
-.orb:nth-child(2) { width:clamp(220px,40vw,500px); aspect-ratio:1; bottom:20%; left:-5%; background:color-mix(in srgb, #8B6914 4%, transparent); filter:blur(120px) }
+.orb:nth-child(2) { width:clamp(220px,40vw,500px); aspect-ratio:1; bottom:20%; left:-5%; background:color-mix(in srgb, var(--accent) 4%, transparent); filter:blur(120px) }
 .orb:nth-child(3) { width:clamp(200px,35vw,450px); aspect-ratio:1; top:50%; right:30%; background:color-mix(in srgb, var(--accent) 3%, transparent); filter:blur(120px) }
 
 @media (max-width:479px) {
