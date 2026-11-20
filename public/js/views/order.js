@@ -7,7 +7,7 @@ import { icon, svg } from '../components/icons.js';
 import { submitOrder } from '../api.js';
 
 const DRAFT = 'orderDraft', STEPS = 5;
-const blank = () => ({ services: [], propertyType: '', propertyState: '', city: '', area: '', rooms: '', styles: [], budget: '', timeline: '', notes: '', refs: '', name: '', phone: '', contactMethod: 'call', contactTime: 'any', telegramId: '', website: '' });
+const blank = () => ({ services: [], propertyType: '', city: '', area: '', styles: [], budget: '', notes: '', refs: '', name: '', phone: '', contactMethod: 'call', website: '' });
 let state = blank(), step = 0;
 try { const d = JSON.parse(sessionStorage.getItem(DRAFT)); if (d) { state = { ...blank(), ...d.state }; step = d.step || 0; } } catch {}
 const save = () => { try { sessionStorage.setItem(DRAFT, JSON.stringify({ state, step })); } catch {} };
@@ -64,16 +64,13 @@ const sProperty = cfg => {
     field('نوع ملک', choices({ options: cfg.propertyTypes, value: state.propertyType, onchange: v => set('propertyType', v) })),
     field('متراژ', h('div', { class: 'with-unit' }, area, h('span', { class: 'unit' }, 'متر مربع')), helpButton(cfg.helps.area, { onUse: use }),
       'بلد نیستید اندازه بگیرید؟ روی «؟» بزنید.'),
-    field('شهر', text('city', { ph: 'مثلاً اردبیل', ac: 'address-level2' })),
-    field('وضعیت ملک (اختیاری)', choices({ options: cfg.propertyStates, value: state.propertyState, optional: true, onchange: v => set('propertyState', v) })),
-    field('تعداد اتاق خواب (اختیاری)', choices({ options: cfg.rooms, value: state.rooms, optional: true, onchange: v => set('rooms', v) })));
+    field('شهر', text('city', { ph: 'مثلاً اردبیل', ac: 'address-level2' })));
 };
 
 const sStyle = cfg => h('div', {}, title('سبک و بودجه', 'سلیقه شما مسیر طراحی را مشخص می‌کند.'),
   field('سبک طراحی (حداکثر 2 مورد)', choices({ options: cfg.styles, multi: true, max: 2, exclusive: 'unsure', value: state.styles, variant: 'cards', onchange: v => set('styles', v),
     render: o => [h('b', {}, o.label), h('small', {}, o.desc), o.palette.length ? h('span', { class: 'pal' }, o.palette.map(c => h('i', { style: `background:${c}` }))) : null] }), helpButton(cfg.helps.style)),
-  field('بودجه تقریبی پروژه', choices({ options: cfg.budgets, value: state.budget, onchange: v => set('budget', v) }), helpButton(cfg.helps.budget)),
-  field('زمان شروع', choices({ options: cfg.timelines, value: state.timeline, onchange: v => set('timeline', v) })));
+  field('بودجه تقریبی پروژه', choices({ options: cfg.budgets, value: state.budget, onchange: v => set('budget', v) }), helpButton(cfg.helps.budget)));
 
 const sDetails = () => h('div', {}, title('توضیحات بیشتر', 'همه این بخش اختیاری است.'),
   field('خواسته‌ها و نکات مهم', h('textarea', { class: 'in', maxlength: '1000', placeholder: 'مثلاً تعداد اعضای خانواده، فضاهای موردنیاز، رنگ‌های موردعلاقه…', oninput: e => set('notes', e.target.value) }, state.notes)),
@@ -88,16 +85,13 @@ const sContact = (cfg, redraw) => {
     field('نام و نام خانوادگی', text('name', { ac: 'name', ph: 'مثلاً علی رضایی' })),
     field('شماره موبایل', text('phone', { ac: 'tel', ph: '09123456789', ltr: true, mode: 'tel' }), helpButton(cfg.helps.contact)),
     field('ترجیح می‌دهید از چه راهی تماس بگیریم؟', choices({ options: cfg.contactMethods, value: state.contactMethod, onchange: v => set('contactMethod', v || 'call') })),
-    field('بهترین زمان تماس', choices({ options: cfg.contactTimes, value: state.contactTime, onchange: v => set('contactTime', v || 'any') })),
-    field('آی‌دی تلگرام (اختیاری)', text('telegramId', { ph: 'username', ltr: true })),
     h('input', { class: 'hp', name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true', oninput: e => set('website', e.target.value) }),
     h('h3', { class: 'sum-t' }, 'خلاصه سفارش'),
     h('dl', { class: 'sum' },
       row('خدمات', state.services.map(i => lab(cfg.services, i)).join('، '), 0, redraw),
       row('ملک', prop, 1, redraw),
       row('سبک', state.styles.map(i => lab(cfg.styles, i)).join('، '), 2, redraw),
-      row('بودجه', lab(cfg.budgets, state.budget), 2, redraw),
-      row('زمان شروع', lab(cfg.timelines, state.timeline), 2, redraw)));
+      row('بودجه', lab(cfg.budgets, state.budget), 2, redraw)));
 };
 
 const STEP_VIEWS = [sServices, sProperty, sStyle, sDetails, sContact];
@@ -112,7 +106,6 @@ function validate(i) {
   if (i === 2) {
     if (!state.styles.length) return 'حداقل یک سبک را انتخاب کنید (یا «هنوز نمی‌دانم»).';
     if (!state.budget) return 'بودجه تقریبی را انتخاب کنید.';
-    if (!state.timeline) return 'زمان شروع را انتخاب کنید.';
   }
   if (i === 4) {
     if (state.name.trim().length < 2) return 'نام خود را وارد کنید.';

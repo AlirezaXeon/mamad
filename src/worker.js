@@ -479,22 +479,17 @@ async function createOrder(req, env, ctx) {
   const o = {
     services: many(b.services, cfg.services, cfg.services.length),
     propertyType: one(b.propertyType, cfg.propertyTypes),
-    propertyState: one(b.propertyState, cfg.propertyStates),
     city: clean(b.city, 60),
     area: parseNumber(b.area),
-    rooms: one(b.rooms, cfg.rooms),
     styles: many(b.styles, cfg.styles, 2),
     budget: one(b.budget, cfg.budgets),
-    timeline: one(b.timeline, cfg.timelines),
     notes: clean(b.notes, 1000),
     refs: clean(b.refs, 300),
     name: clean(b.name, 60),
     phone: toEn(clean(b.phone, 20)).replace(/[\s-]/g, ''),
     contactMethod: one(b.contactMethod, cfg.contactMethods),
-    contactTime: one(b.contactTime, cfg.contactTimes),
-    telegramId: clean(b.telegramId, 40).replace(/^@/, ''),
   };
-  if (!o.services.length || !o.propertyType || !(o.area >= 5 && o.area <= 10000) || !o.styles.length || !o.budget || !o.timeline
+  if (!o.services.length || !o.propertyType || !(o.area >= 5 && o.area <= 10000) || !o.styles.length || !o.budget
       || o.name.length < 2 || !/^(\+98|0098|98|0)?9\d{9}$/.test(o.phone) || !o.contactMethod) {
     return J({ error: 'اطلاعات ناقص یا نامعتبر است. لطفاً فرم را بررسی کنید.' }, 400);
   }
@@ -511,9 +506,9 @@ async function createOrder(req, env, ctx) {
   for (let i = 0; i < 4; i++) {
     code = newCode();
     try {
-      await env.DB.prepare(`INSERT INTO orders (code,name,phone,contact_method,contact_time,telegram_id,services,property_type,property_state,city,area,rooms,styles,budget,timeline,notes,refs,ip_hash)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .bind(code, o.name, o.phone, o.contactMethod, o.contactTime, o.telegramId, JSON.stringify(o.services), o.propertyType, o.propertyState, o.city, o.area, o.rooms, JSON.stringify(o.styles), o.budget, o.timeline, o.notes, o.refs, ipHash || 'unknown').run();
+      await env.DB.prepare(`INSERT INTO orders (code,name,phone,contact_method,services,property_type,city,area,styles,budget,notes,refs,ip_hash)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+        .bind(code, o.name, o.phone, o.contactMethod, JSON.stringify(o.services), o.propertyType, o.city, o.area, JSON.stringify(o.styles), o.budget, o.notes, o.refs, ipHash || 'unknown').run();
       break;
     } catch (e) { if (i === 3 || !String(e).includes('UNIQUE')) throw e; }
   }
@@ -527,11 +522,11 @@ async function notify(env, cfg, o, code, origin) {
   const lines = [
     `🆕 <b>سفارش جدید</b>  <code>${code}</code>`,
     `👤 ${esc(o.name)} — <code>${o.phone}</code>`,
-    `📞 ${L(cfg.contactMethods, o.contactMethod)} | ${L(cfg.contactTimes, o.contactTime || 'any')}${o.telegramId ? ` | @${esc(o.telegramId)}` : ''}`,
+    `📞 ${L(cfg.contactMethods, o.contactMethod)}`,
     `🛠 ${L(cfg.services, o.services)}`,
-    `🏠 ${[lab(cfg.propertyTypes, o.propertyType), o.propertyState && lab(cfg.propertyStates, o.propertyState), o.city, o.area + ' متر'].filter(Boolean).map(esc).join('، ')}`,
+    `🏠 ${[lab(cfg.propertyTypes, o.propertyType), o.city, o.area + ' متر'].filter(Boolean).map(esc).join('، ')}`,
     `🎨 ${L(cfg.styles, o.styles)}`,
-    `💰 ${lab(cfg.budgets, o.budget)} | ⏱ ${lab(cfg.timelines, o.timeline)}`,
+    `💰 ${lab(cfg.budgets, o.budget)}`,
     o.notes && `📝 ${esc(o.notes)}`,
     o.refs && `🔗 ${esc(o.refs)}`,
     `<a href="${origin}/admin/">پنل سفارش‌ها</a>`,

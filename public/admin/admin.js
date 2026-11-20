@@ -287,19 +287,17 @@
   const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
   function card(o) {
     const [t, c] = ST[o.status] || ST.new, wa = '98' + o.phone.slice(1);
-    const prop = [lab(cfg.propertyTypes, o.property_type), o.property_state && lab(cfg.propertyStates, o.property_state), o.city, o.area && o.area + ' متر'].filter(Boolean).map(esc).join('، ');
+    const prop = [lab(cfg.propertyTypes, o.property_type), o.city, o.area && o.area + ' متر'].filter(Boolean).map(esc).join('، ');
     return `<details class="o" data-id="${o.id}">
       <summary><span class="dot" style="background:${c}"></span><b>${esc(o.name)}</b><span class="code">${esc(o.code)}</span><span class="st" style="color:${c}">${t}</span><small>${when(o.created_at)}</small></summary>
-      <div class="act"><a href="tel:${esc(o.phone)}">تماس</a><a href="https://wa.me/${wa}" target="_blank" rel="noopener">واتساپ</a>${o.telegram_id ? `<a href="https://t.me/${esc(o.telegram_id)}" target="_blank" rel="noopener">تلگرام</a>` : ''}</div>
+      <div class="act"><a href="tel:${esc(o.phone)}">تماس</a><a href="https://wa.me/${wa}" target="_blank" rel="noopener">واتساپ</a></div>
       <dl>
         ${row('موبایل', `<bdi dir="ltr">${esc(o.phone)}</bdi>`)}
-        ${row('ترجیح تماس', `${esc(lab(cfg.contactMethods, o.contact_method))} | ${esc(lab(cfg.contactTimes, o.contact_time || 'any'))}${o.telegram_id ? ` | @${esc(o.telegram_id)}` : ''}`)}
+        ${row('ترجیح تماس', esc(lab(cfg.contactMethods, o.contact_method)))}
         ${row('خدمات', esc(labs(cfg.services, o.services)))}
         ${row('ملک', prop || '—')}
-        ${row('اتاق خواب', esc(lab(cfg.rooms, o.rooms)))}
         ${row('سبک', esc(labs(cfg.styles, o.styles)))}
         ${row('بودجه', esc(lab(cfg.budgets, o.budget)))}
-        ${row('زمان شروع', esc(lab(cfg.timelines, o.timeline)))}
         ${o.notes ? row('توضیحات', esc(o.notes)) : ''}
         ${o.refs ? row('نمونه‌ها', esc(o.refs)) : ''}
       </dl>
@@ -330,9 +328,9 @@
   });
 
   $('#csv').onclick = () => {
-    const head = ['کد', 'تاریخ', 'وضعیت', 'نام', 'موبایل', 'خدمات', 'نوع ملک', 'شهر', 'متراژ', 'سبک', 'بودجه', 'زمان شروع', 'توضیحات'];
+    const head = ['کد', 'تاریخ', 'وضعیت', 'نام', 'موبایل', 'خدمات', 'نوع ملک', 'شهر', 'متراژ', 'سبک', 'بودجه', 'توضیحات'];
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const lines = orders.map(o => [o.code, when(o.created_at), ST[o.status]?.[0], o.name, o.phone, labs(cfg.services, o.services), lab(cfg.propertyTypes, o.property_type), o.city, o.area, labs(cfg.styles, o.styles), lab(cfg.budgets, o.budget), lab(cfg.timelines, o.timeline), o.notes].map(q).join(','));
+    const lines = orders.map(o => [o.code, when(o.created_at), ST[o.status]?.[0], o.name, o.phone, labs(cfg.services, o.services), lab(cfg.propertyTypes, o.property_type), o.city, o.area, labs(cfg.styles, o.styles), lab(cfg.budgets, o.budget), o.notes].map(q).join(','));
     const url = URL.createObjectURL(new Blob(['\ufeff' + [head.map(q).join(','), ...lines].join('\n')], { type: 'text/csv;charset=utf-8' }));
     Object.assign(document.createElement('a'), { href: url, download: 'orders.csv' }).click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
