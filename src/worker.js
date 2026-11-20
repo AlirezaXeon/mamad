@@ -155,6 +155,36 @@ function isWebP(bytes) {
   return riff && webp;
 }
 
+function sniffImage(b) {
+  if (!b || b.length < 12) return null;
+  const s = (i, n) => String.fromCharCode(...b.slice(i, i + n));
+  if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return { ext: 'jpg', type: 'image/jpeg' };
+  if (b[0] === 0x89 && s(1, 3) === 'PNG') return { ext: 'png', type: 'image/png' };
+  if (s(0, 3) === 'GIF') return { ext: 'gif', type: 'image/gif' };
+  if (s(0, 4) === 'RIFF' && s(8, 4) === 'WEBP') return { ext: 'webp', type: 'image/webp' };
+  if (s(0, 2) === 'BM') return { ext: 'bmp', type: 'image/bmp' };
+  if ((b[0] === 0x49 && b[1] === 0x49 && b[2] === 0x2A && b[3] === 0) || (b[0] === 0x4D && b[1] === 0x4D && b[2] === 0 && b[3] === 0x2A)) return { ext: 'tiff', type: 'image/tiff' };
+  if (s(4, 4) === 'ftyp') {
+    const brand = s(8, 4);
+    if (/^(avif|avis)$/.test(brand)) return { ext: 'avif', type: 'image/avif' };
+    if (/^(heic|heix|hevc|hevx|heim|heis|mif1|msf1)$/.test(brand)) return { ext: 'heic', type: 'image/heic' };
+  }
+  return null;
+}
+
+// توکن آپلود: امضای HMAC روی کد سفارش (بدون ذخیره در دیتابیس)
+async function upToken(code, env) {
+  const key = await getHmacKey('up:' + (env.ADMIN_PASSWORD || ''));
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(code));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+}
+const safeEq = (a, b) => {
+  if (a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+};
+
 let cfgCache = null;
 let cfgCacheExp = 0;
 const CFG_CACHE_TTL_MS = 5 * 60 * 1000; // ۵ دقیقه TTL
@@ -542,13 +572,89 @@ async function notify(env, cfg, o, code, origin) {
   } catch (e) { console.error('telegram', e); }
 }
 
+// ارسال عکس مشتری به تلگرام بهصورت فایل (بدون افت کیفیت)
+async function notifyFile(env, code, name, buf, kind) {
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
+  try {
+    const fd = new FormData();
+    fd.append('chat_id', env.TELEGRAM_CHAT_ID);
+    fd.append('caption', `📎 سفارش ${code} — ${name}`.slice(0, 1000));
+    fd.append('document', new Blob([buf], { type: kind.type }), `${code}_${Date.now().toString(36)}.${kind.ext}`);
+    const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendDocument`, { method: 'POST', body: fd });
+    if (!res.ok) console.error('telegram file error:', res.status, (await res.text().catch(() => '')).slice(0, 300));
+  } catch (e) { console.error('telegram file', e); }
+}
+
+// آپلود یک عکس مشتری: POST /api/order/file?code=XXXXXX&t=TOKEN (بدنه = خود فایل)
+async function uploadOrderFile(req, env, ctx) {
+  if (!env.MEDIA || !env.DB) return J({ error: 'ذخیرهسازی در دسترس نیست.' }, 503);
+  const u = new URL(req.url);
+  const code = clean(u.searchParams.get('code'), 10).toUpperCase();
+  const t = clean(u.searchParams.get('t'), 64);
+  if (!/^[A-Z0-9]{6}$/.test(code) || !safeEq(t, await upToken(code, env))) {
+    return J({ error: 'مجوز ارسال عکس نامعتبر است.' }, 403);
+  }
+  const len = Number(req.headers.get('content-length') || 0);
+  if (len > MAX_ORDER_FILE + 4096) return J({ error: 'حجم عکس بیشتر از ۱۰ مگابایت است.' }, 413);
+
+  // فقط تا ۱ ساعت بعد از ثبت سفارش
+  const order = await env.DB.prepare("SELECT name FROM orders WHERE code = ? AND created_at > datetime('now','-1 hour')").bind(code).first();
+  if (!order) return J({ error: 'مهلت ارسال عکس تمام شده است. عکس را در تلگرام یا واتساپ بفرستید.' }, 410);
+
+  const buf = await req.arrayBuffer();
+  if (buf.byteLength > MAX_ORDER_FILE) return J({ error: 'حجم عکس بیشتر از ۱۰ مگابایت است.' }, 413);
+  const kind = sniffImage(new Uint8Array(buf, 0, Math.min(16, buf.byteLength)));
+  if (!kind) return J({ error: 'فرمت فایل پشتیبانی نمیشود (فقط تصویر).' }, 400);
+
+  let name = '';
+  try { name = clean(decodeURIComponent(req.headers.get('x-file-name') || ''), 100); } catch {}
+  name = name || `photo.${kind.ext}`;
+
+  const key = `ofile:${code}:${crypto.randomUUID().replace(/-/g, '')}.${kind.ext}`;
+  await env.MEDIA.put(key, buf, { expirationTtl: ORDER_FILE_TTL, metadata: { name, size: buf.byteLength, type: kind.type } });
+
+  const entry = JSON.stringify({ key, name, size: buf.byteLength, type: kind.type });
+  const res = await env.DB.prepare(
+    "UPDATE orders SET files = json_insert(COALESCE(files,'[]'), '$[#]', json(?)) WHERE code = ? AND json_array_length(COALESCE(files,'[]')) < ?"
+  ).bind(entry, code, MAX_ORDER_FILES).run();
+  if (!res.meta?.changes) {
+    await env.MEDIA.delete(key);
+    return J({ error: `حداکثر ${MAX_ORDER_FILES} عکس برای هر سفارش مجاز است.` }, 400);
+  }
+
+  ctx.waitUntil(notifyFile(env, code, name, buf, kind));
+  return J({ ok: true });
+}
+
+async function serveOrderFile(rawKey, env) {
+  if (!env.MEDIA || !/^ofile:[A-Z0-9]{6}:[a-f0-9]{32}\.(jpg|png|gif|webp|bmp|tiff|avif|heic)$/.test(rawKey)) {
+    return new Response('Not found', { status: 404 });
+  }
+  const { value, metadata } = await env.MEDIA.getWithMetadata(rawKey, 'arrayBuffer');
+  if (!value) return new Response('Not found', { status: 404 });
+  const type = metadata?.type || 'application/octet-stream';
+  const inline = /^image\/(jpeg|png|webp|gif)$/.test(type);
+  return new Response(value, {
+    headers: {
+      'content-type': type,
+      'content-disposition': inline ? 'inline' : `attachment; filename="photo.${rawKey.split('.').pop()}"`,
+      'cache-control': 'private, max-age=3600',
+      'content-security-policy': "default-src 'none'; sandbox",
+      'x-content-type-options': 'nosniff'
+    }
+  });
+}
+
 async function listOrders(req, env) {
   const u = new URL(req.url), status = u.searchParams.get('status'), q = clean(u.searchParams.get('q'), 40);
   const w = [], p = [];
   if (STATUSES.includes(status)) { w.push('status = ?'); p.push(status); }
   if (q) { w.push('(name LIKE ? OR phone LIKE ? OR code LIKE ?)'); const l = `%${q}%`; p.push(l, l, l.toUpperCase()); }
   const { results } = await env.DB.prepare(`SELECT * FROM orders ${w.length ? 'WHERE ' + w.join(' AND ') : ''} ORDER BY id DESC LIMIT 300`).bind(...p).all();
-  return J({ orders: results.map(r => ({ ...r, ip_hash: undefined, services: JSON.parse(r.services || '[]'), styles: JSON.parse(r.styles || '[]') })) });
+  return J({ orders: results.map(r => {
+    let files = []; try { files = JSON.parse(r.files || '[]'); } catch {}
+    return { ...r, ip_hash: undefined, services: JSON.parse(r.services || '[]'), styles: JSON.parse(r.styles || '[]'), files };
+  }) });
 }
 
 async function updateOrder(req, env, id) {
@@ -860,6 +966,7 @@ export default {
     try {
       // ۱. مسیرهای عمومی سفارش و اطلاعات
       if (pathname === '/api/order' && req.method === 'POST') return await createOrder(req, env, ctx);
+      if (pathname === '/api/order/file' && req.method === 'POST') return await uploadOrderFile(req, env, ctx);
       if (pathname === '/api/projects' && req.method === 'GET') return await getPublicProjects(req, env);
       if (pathname === '/api/site' && req.method === 'GET') return await getPublicSite(req, env);
 
@@ -963,6 +1070,8 @@ export default {
         if (pathname === '/api/admin/orders' && req.method === 'GET') return await listOrders(req, env);
         const orderMatch = pathname.match(/^\/api\/admin\/orders\/(\d+)$/);
         if (orderMatch && req.method === 'PATCH') return await updateOrder(req, env, Number(orderMatch[1]));
+        const orderFileMatch = pathname.match(/^\/api\/admin\/order-file\/(.+)$/);
+        if (orderFileMatch && req.method === 'GET') return await serveOrderFile(decodeURIComponent(orderFileMatch[1]), env);
 
         // رسانه (لیست، آپلود و حذف)
         if (pathname === '/api/admin/media' && req.method === 'GET') return await listMedia(req, env);
