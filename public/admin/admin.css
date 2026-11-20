@@ -167,6 +167,12 @@ textarea.in{min-height:75px;resize:vertical}
 .toast{position:fixed;inset:auto 0 24px;margin:auto;width:max-content;max-width:90%;padding:10px 22px;border-radius:99px;background:var(--accent);color:var(--on-accent);font-weight:600;font-size:.88rem;opacity:0;transform:translateY(12px);transition:.3s;pointer-events:none;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:none}
 
+.o-files{display:flex;flex-wrap:wrap;gap:8px}
+.o-file{display:block;width:96px;height:96px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:rgba(255,255,255,.03);text-decoration:none}
+.o-file img{width:100%;height:100%;object-fit:cover;display:block}
+.o-file span{display:none;padding:8px;font-size:.72rem;word-break:break-all}
+.o-file.broken span{display:block}
+
 @media(max-width:640px){
   .filters{grid-template-columns:1fr}
   .f-row{grid-template-columns:1fr}

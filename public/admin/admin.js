@@ -297,7 +297,10 @@
         ${row('خدمات', esc(labs(cfg.services, o.services)))}
         ${row('ملک', prop || '—')}
         ${row('سبک', esc(labs(cfg.styles, o.styles)))}
-        ${row('بودجه', esc(lab(cfg.budgets, o.budget)))}
+        ${o.files && o.files.length ? row('عکسها', `<div class="o-files">${o.files.map(f => {
+          const u = '/api/admin/order-file/' + encodeURIComponent(f.key);
+          return `<a class="o-file" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(f.name)}"><img src="${esc(u)}" alt="${esc(f.name)}" loading="lazy"><span>${esc(f.name)}</span></a>`;
+        }).join('')}</div>`) : ''}
         ${o.notes ? row('توضیحات', esc(o.notes)) : ''}
         ${o.refs ? row('نمونه‌ها', esc(o.refs)) : ''}
       </dl>
@@ -327,10 +330,16 @@
     }
   });
 
+  // فرمتهایی که مرورگر نمایش نمیدهد (مثل HEIC): فقط نام فایل و لینک دانلود
+  $('#list').addEventListener('error', e => {
+    const img = e.target, a = img && img.closest && img.closest('.o-file');
+    if (img && img.tagName === 'IMG' && a) { img.remove(); a.classList.add('broken'); }
+  }, true);
+
   $('#csv').onclick = () => {
-    const head = ['کد', 'تاریخ', 'وضعیت', 'نام', 'موبایل', 'خدمات', 'نوع ملک', 'شهر', 'متراژ', 'سبک', 'بودجه', 'توضیحات'];
+    const head = ['کد', 'تاریخ', 'وضعیت', 'نام', 'موبایل', 'خدمات', 'نوع ملک', 'شهر', 'متراژ', 'سبک', 'توضیحات'];
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const lines = orders.map(o => [o.code, when(o.created_at), ST[o.status]?.[0], o.name, o.phone, labs(cfg.services, o.services), lab(cfg.propertyTypes, o.property_type), o.city, o.area, labs(cfg.styles, o.styles), lab(cfg.budgets, o.budget), o.notes].map(q).join(','));
+    const lines = orders.map(o => [o.code, when(o.created_at), ST[o.status]?.[0], o.name, o.phone, labs(cfg.services, o.services), lab(cfg.propertyTypes, o.property_type), o.city, o.area, labs(cfg.styles, o.styles), o.notes].map(q).join(','));
     const url = URL.createObjectURL(new Blob(['\ufeff' + [head.map(q).join(','), ...lines].join('\n')], { type: 'text/csv;charset=utf-8' }));
     Object.assign(document.createElement('a'), { href: url, download: 'orders.csv' }).click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
