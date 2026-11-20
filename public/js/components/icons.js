@@ -10,6 +10,7 @@ const P = {
   phase2: 'M3 21h18L3 3v18zM7 17h6L7 11v6zM3 7h2M3 11h2M3 15h2',
   kitchen: 'M3 4h18v16H3V4zm0 6h18M12 10v10M7 7h2M15 7h2M9 14v3M15 14v3',
   villa: 'M3 10.5L12 3l9 7.5V21H3V10.5zM9 21v-7h6v7M6 10h2v2H6zM16 10h2v2h-2z',
+  asbuilt: 'M3 21h18M5 21V7l8-4 6 3v15M9 10h2M9 14h2M9 18h2M14 10h2M14 14h2M14 18h2M2 7l11-4 9 4.5',
 };
 export const svg = markup => { const t = document.createElement('template'); t.innerHTML = markup.trim(); return t.content.firstChild; };
 export const icon = id => svg(`<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${P[id] || P.interior}"/></svg>`);

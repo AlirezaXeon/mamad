@@ -47,7 +47,7 @@ body {
   background: conic-gradient(var(--cyan), var(--pink), var(--purple), var(--yellow), var(--cyan));
 }
 .avatar, .avatar-fallback { position: absolute; inset: 4px; width: 110px; height: 110px; border-radius: 50%; object-fit: cover; background: #05080c; }
-.avatar-fallback { display: none; place-items: center; font: 700 2rem var(--serif, sans-serif); color: var(--cyan); }
+.avatar-fallback { display: grid; place-items: center; font: 700 2rem var(--serif, sans-serif); color: var(--cyan); }
 .profile-name { font-size: 1.15rem; font-weight: 700; letter-spacing: .6px; margin-bottom: 4px; direction: ltr; }
 .profile-bio { font-size: .95rem; color: rgba(255,255,255,.78); direction: ltr; }
 

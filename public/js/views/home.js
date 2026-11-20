@@ -66,6 +66,10 @@ const hero = h('section', { class: 'intro' },
     h('div', { class: 'intro-body' },
       h('h1', { class: 'intro-name' }, profileName),
       h('ul', { class: 'intro-roles' }, roles.map(r => h('li', {}, r))),
+      h('div', { class: 'intro-credentials' },
+        h('span', { class: 'cred-rule', 'aria-hidden': 'true' }),
+        h('p', { class: 'intro-cred', style: '--k:0' }, 'کارشناس ارشد مهندسی معماری'),
+        h('p', { class: 'intro-cred', style: '--k:1' }, 'عضو سازمان نظام مهندسی اردبیل')),
       h('p', { class: 'intro-lead' }, site.tagline || 'طراحی داخلی؛ از ایده تا اجرا'),
       site.about && h('p', { class: 'hero-desc intro-desc' }, site.about))));
 

@@ -60,6 +60,57 @@
 }
 .intro-roles li { padding: 0 14px; }
 .intro-roles li + li { border-inline-start: 1px solid var(--line-strong); }
+
+/* مدارک و عناوین حرفه‌ای زیر نقش‌ها با استایل طلایی متحرک */
+.intro-credentials {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin: 4px 0 2px;
+}
+.intro-credentials .cred-rule {
+  display: block;
+  width: 72px;
+  height: 1px;
+  margin-bottom: 6px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+  transform-origin: center;
+  animation: credLine 1s .5s cubic-bezier(.6, 0, .2, 1) backwards;
+}
+.intro-cred {
+  margin: 0;
+  font-size: clamp(.98rem, 2.8vw, 1.15rem);
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: center;
+  color: #D4AF37;
+  background: linear-gradient(100deg, #B8892E 0%, #F5E1A0 30%, #D4AF37 50%, #F5E1A0 70%, #B8892E 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    credIn .9s calc(.5s + var(--k, 0) * .2s) cubic-bezier(.2, .8, .2, 1) backwards,
+    goldShift 6s calc(1.5s + var(--k, 0) * .4s) linear infinite;
+  transition: transform .3s ease, filter .3s ease;
+}
+.intro-cred:hover {
+  transform: scale(1.03);
+  filter: drop-shadow(0 4px 12px rgba(212, 175, 55, .35));
+}
+
+@keyframes credIn {
+  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes credLine {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+@keyframes goldShift {
+  from { background-position: 100% 0; }
+  to   { background-position: -150% 0; }
+}
 .intro .intro-lead {
   margin: 6px 0 0;
   font-size: 1.1rem;
@@ -105,6 +156,9 @@
   .intro-body { justify-items: start; max-width: 38rem; }
   .intro-roles { justify-content: flex-start; }
   .intro-roles li:first-child { padding-inline-start: 0; }
+  .intro-credentials { justify-items: start; }
+  .intro-credentials .cred-rule { margin-inline: 0 auto; }
+  .intro-cred { text-align: start; }
   .intro-cta { width: auto; max-width: none; }
   .intro .intro-cta .btn { flex: none; min-width: 200px; }
 }
