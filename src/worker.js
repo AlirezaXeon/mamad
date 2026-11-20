@@ -3,6 +3,9 @@
 
 const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // حداکثر ۳ مگابایت برای هر تصویر WebP
 const STATUSES = ['new', 'review', 'contacted', 'contract', 'archived'];
+const MAX_ORDER_FILE = 10 * 1024 * 1024;   // سقف هر عکس مشتری
+const MAX_ORDER_FILES = 6;                  // حداکثر عکس برای هر سفارش
+const ORDER_FILE_TTL = 60 * 24 * 3600;      // حذف خودکار از KV بعد از ۶۰ روز
 
 const J = (data, status = 200) => new Response(JSON.stringify(data), {
   status,
@@ -482,14 +485,12 @@ async function createOrder(req, env, ctx) {
     city: clean(b.city, 60),
     area: parseNumber(b.area),
     styles: many(b.styles, cfg.styles, 2),
-    budget: one(b.budget, cfg.budgets),
-    notes: clean(b.notes, 1000),
-    refs: clean(b.refs, 300),
     name: clean(b.name, 60),
     phone: toEn(clean(b.phone, 20)).replace(/[\s-]/g, ''),
     contactMethod: one(b.contactMethod, cfg.contactMethods),
+    photoCount: Math.min(MAX_ORDER_FILES, Math.max(0, Number(b.photoCount) || 0)),
   };
-  if (!o.services.length || !o.propertyType || !(o.area >= 5 && o.area <= 10000) || !o.styles.length || !o.budget
+  if (!o.services.length || !o.propertyType || !(o.area >= 5 && o.area <= 10000) || !o.styles.length
       || o.name.length < 2 || !/^(\+98|0098|98|0)?9\d{9}$/.test(o.phone) || !o.contactMethod) {
     return J({ error: 'اطلاعات ناقص یا نامعتبر است. لطفاً فرم را بررسی کنید.' }, 400);
   }
@@ -506,14 +507,14 @@ async function createOrder(req, env, ctx) {
   for (let i = 0; i < 4; i++) {
     code = newCode();
     try {
-      await env.DB.prepare(`INSERT INTO orders (code,name,phone,contact_method,services,property_type,city,area,styles,budget,notes,refs,ip_hash)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .bind(code, o.name, o.phone, o.contactMethod, JSON.stringify(o.services), o.propertyType, o.city, o.area, JSON.stringify(o.styles), o.budget, o.notes, o.refs, ipHash || 'unknown').run();
+      await env.DB.prepare(`INSERT INTO orders (code,name,phone,contact_method,services,property_type,city,area,styles,ip_hash)
+        VALUES (?,?,?,?,?,?,?,?,?,?)`)
+        .bind(code, o.name, o.phone, o.contactMethod, JSON.stringify(o.services), o.propertyType, o.city, o.area, JSON.stringify(o.styles), ipHash || 'unknown').run();
       break;
     } catch (e) { if (i === 3 || !String(e).includes('UNIQUE')) throw e; }
   }
   ctx.waitUntil(notify(env, cfg, o, code, new URL(req.url).origin));
-  return J({ ok: true, code });
+  return J({ ok: true, code, token: await upToken(code, env) });
 }
 
 async function notify(env, cfg, o, code, origin) {
@@ -526,10 +527,8 @@ async function notify(env, cfg, o, code, origin) {
     `🛠 ${L(cfg.services, o.services)}`,
     `🏠 ${[lab(cfg.propertyTypes, o.propertyType), o.city, o.area + ' متر'].filter(Boolean).map(esc).join('، ')}`,
     `🎨 ${L(cfg.styles, o.styles)}`,
-    `💰 ${lab(cfg.budgets, o.budget)}`,
-    o.notes && `📝 ${esc(o.notes)}`,
-    o.refs && `🔗 ${esc(o.refs)}`,
-    `<a href="${origin}/admin/">پنل سفارش‌ها</a>`,
+    o.photoCount ? `📷 ${o.photoCount} عکس جداگانه و با همین کد میرسد` : null,
+    `<a href="${origin}/admin/">پنل سفارشها</a>`,
   ].filter(Boolean);
   try {
     const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
