@@ -474,7 +474,7 @@ async function createOrder(req, env, ctx) {
   const one = (v, list) => ok(list).has(v) ? v : '';
   const many = (arr, list, max) => (Array.isArray(arr) ? arr : []).filter(v => ok(list).has(v)).slice(0, max);
   const o = {
-    services: many(b.services, cfg.services, 6),
+    services: many(b.services, cfg.services, cfg.services.length),
     propertyType: one(b.propertyType, cfg.propertyTypes),
     propertyState: one(b.propertyState, cfg.propertyStates),
     city: clean(b.city, 60),

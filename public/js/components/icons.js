@@ -6,6 +6,10 @@ const P = {
   render: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5',
   landscape: 'M12 21v-7M7 14h10l-5-9zM9 10h6',
   supervision: 'M9 4h6v3H9zM7 5H6a1 1 0 00-1 1v14a1 1 0 001 1h12a1 1 0 001-1V6a1 1 0 00-1-1h-1M9 14l2 2 4-4',
+  phase1: 'M3 4h18v16H3zM9 4v16M3 10h6M9 15h12',
+  phase2: 'M3 21h18L3 3v18zM7 17h6L7 11v6zM3 7h2M3 11h2M3 15h2',
+  kitchen: 'M3 4h18v16H3V4zm0 6h18M12 10v10M7 7h2M15 7h2M9 14v3M15 14v3',
+  villa: 'M3 10.5L12 3l9 7.5V21H3V10.5zM9 21v-7h6v7M6 10h2v2H6zM16 10h2v2h-2z',
 };
 export const svg = markup => { const t = document.createElement('template'); t.innerHTML = markup.trim(); return t.content.firstChild; };
 export const icon = id => svg(`<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${P[id] || P.interior}"/></svg>`);
