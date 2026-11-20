@@ -68,3 +68,20 @@ textarea.in{min-height:120px;resize:vertical}
 .o-note{margin:12px 0 0;color:var(--mute);font-size:.8rem}
 .o-guide{border:0;background:none;padding:0;color:var(--accent);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 
+/* عکسهای ملک */
+.ph{display:grid;gap:10px}
+.ph .btn{justify-self:start;min-height:44px}
+.ph-msg{margin:0;color:var(--danger);font-size:.82rem}
+.ph-msg:empty{display:none}
+.ph-list,.up-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ph-list li,.up-list li{display:flex;align-items:center;gap:10px;min-width:0;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r, 14px);background:var(--paper)}
+.ph-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ph-list small{flex:none;color:var(--mute)}
+.ph-list li button{flex:none;width:30px;height:30px;border:1px solid var(--line-strong);border-radius:50%;background:none;color:var(--ink);cursor:pointer}
+.up{margin:0 0 24px;text-align:start}
+.up .sum-t{margin-top:0}
+.up-st{flex:none;font-size:.8rem;color:var(--mute)}
+.up-st.ok{color:#3DDC84}
+.up-st.bad button{border:0;background:none;padding:0;color:var(--danger);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer}
+
+
