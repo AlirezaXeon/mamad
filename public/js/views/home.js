@@ -1,6 +1,7 @@
 import { h, app, small, imgSet } from '../utils.js';
 import { load } from '../store.js';
 import { initReveals } from '../components/scroll-animator.js';
+import { typeLines } from '../components/typewriter.js';
 
 const CARD_SIZES = '(min-width:1024px) 600px, (min-width:640px) 50vw, calc(100vw - 40px)';
 
@@ -58,24 +59,15 @@ export async function home() {
     'aria-label': profileName
   }, initials);
 
-  const hero = h('section', { class: 'intro' },
-    h('div', { class: 'intro-in' },
-      h('div', { class: 'intro-photo' },
-        h('div', { class: 'intro-arch' }, avatarImg, avatarFallback)),
-      h('div', { class: 'intro-body' },
-        h('h1', { class: 'intro-name' }, profileName),
-        h('ul', { class: 'intro-roles' }, roles.map(r => h('li', {}, r))),
-        h('p', { class: 'intro-lead' }, site.tagline || 'طراحی داخلی؛ از ایده تا اجرا'),
-        site.about && h('p', { class: 'hero-desc intro-desc' }, site.about),
-        h('div', { class: 'intro-cta' },
-          h('a', {
-            class: 'btn primary',
-            href: '#projects',
-            onclick: e => {
-              e.preventDefault();
-              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 'مشاهده پروژه‌ها')))));
+const hero = h('section', { class: 'intro' },
+  h('div', { class: 'intro-in' },
+    h('div', { class: 'intro-photo' },
+      h('div', { class: 'intro-arch' }, avatarImg, avatarFallback)),
+    h('div', { class: 'intro-body' },
+      h('h1', { class: 'intro-name' }, profileName),
+      h('ul', { class: 'intro-roles' }, roles.map(r => h('li', {}, r))),
+      h('p', { class: 'intro-lead' }, site.tagline || 'طراحی داخلی؛ از ایده تا اجرا'),
+      site.about && h('p', { class: 'hero-desc intro-desc' }, site.about))));
 
   const principlesData = [
     { num: '01', title: 'از ایده تا فضا', desc: 'خلق فضاهای معمارانه با هویت مستقل و روایت اختصاصی' },
@@ -119,4 +111,9 @@ export async function home() {
   app.replaceChildren(hero, projectsSection, principles, statement);
   draw('همه');
   initReveals(app);
+
+  typeLines([
+    hero.querySelector('.intro-lead'),
+    hero.querySelector('.intro-desc')
+  ]);
 }

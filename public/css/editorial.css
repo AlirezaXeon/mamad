@@ -330,3 +330,19 @@ h1, h2, h3, .st, .modal-head h2 {
   }
   .project-hero-img { will-change: auto; }
 }
+
+/* تایپ تدریجی هیرو: ارتفاع ثابت میمونه تا چیدمان نپره */
+.typing { min-height: 1.9em; }
+.intro-desc.typing { min-height: 5.7em; }
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-inline-start: 3px;
+  vertical-align: -0.12em;
+  background: var(--accent);
+  animation: caretBlink .8s steps(1) infinite;
+}
+@keyframes caretBlink { 50% { opacity: 0; } }
+
