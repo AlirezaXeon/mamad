@@ -35,6 +35,9 @@ export async function project(slug) {
     hasImages && h('div', { class: 'gallery' }, images.map((src, n) =>
       h('button', { class: 'shot', type: 'button', 'data-reveal': 'scale', 'aria-label': 'نمایش تصویر ' + (n + 1), onclick: () => openLightbox(images, n, p.title, p.slug) },
         h('img', { src: small(src), ...imgSet(src), sizes: '(min-width:1024px) 590px, (min-width:640px) 50vw, 85vw', alt: p.title + ' - تصویر ' + (n + 1), loading: n ? 'lazy' : 'eager', decoding: 'async' })))),
+    h('section', { class: 'project-cta', 'data-reveal': '' },
+      h('p', {}, 'فضایی شبیه این می‌خواهید؟'),
+      h('a', { class: 'btn primary', href: '#/order' }, 'ثبت سفارش')),
     next.slug !== p.slug && h('a', { class: 'next-project', href: '#/p/' + next.slug },
       nextImg && h('img', { class: 'next-project-img', src: small(nextImg), alt: next.title, loading: 'lazy', decoding: 'async' }),
       h('div', { class: 'next-project-overlay' }),

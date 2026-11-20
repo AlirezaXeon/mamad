@@ -276,3 +276,15 @@
   .shot, .next-project-img { transition:none; opacity:1; transform:none }
   .project-hero-img { will-change:auto }
 }
+
+/* دعوت به ثبت سفارش آخر صفحه پروژه */
+.project-cta{
+  display:grid;gap:14px;justify-items:center;text-align:center;
+  width:calc(100% - 2 * var(--pad));max-width:var(--max);
+  margin:48px auto 0;padding:32px 20px;
+  border:1px solid var(--line);border-radius:var(--r-lg, 16px);background:var(--paper);
+}
+.project-cta p{margin:0;font-size:1.1rem;font-weight:500}
+.project-cta .btn{width:100%;max-width:300px}
+.project-cta .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+

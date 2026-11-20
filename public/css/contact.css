@@ -1,3 +1,20 @@
-.contact{position:fixed;inset:auto 0 0;display:flex;gap:10px;padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));background:color-mix(in srgb, var(--bg) 88%, transparent);border-top:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:30}
-.contact .contact-btn{flex:1;padding-inline:10px;font-size:.9rem;white-space:nowrap}
-@media(min-width:700px){.contact{justify-content:center}.contact .contact-btn{flex:0 1 220px}}
+.contact{position:fixed;inset:auto 0 0;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:color-mix(in srgb, var(--bg) 88%, transparent);border-top:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:30}
+
+/* دکمه‌های فرعی: ساده و کمرنگ */
+.contact .contact-btn{flex:1 1 0;min-width:0;padding-inline:6px;font-size:.82rem;white-space:nowrap;background:transparent;border-color:var(--line)}
+
+/* ثبت سفارش: پر، عریض‌تر و با هاله ظریف */
+.contact .contact-btn.primary{flex:1.5 1 0;background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-size:.95rem;font-weight:700;animation:orderPulse 5s ease-in-out 2s infinite}
+.contact .contact-btn.primary:hover{background:color-mix(in srgb, var(--accent) 88%, #fff);color:var(--on-accent)}
+
+@keyframes orderPulse{
+  0%,72%{box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent)}
+  100%{box-shadow:0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent)}
+}
+
+@media(min-width:700px){
+  .contact{justify-content:center}
+  .contact .contact-btn{flex:0 1 200px;font-size:.92rem}
+  .contact .contact-btn.primary{flex:0 1 260px;font-size:1rem}
+}
+@media(prefers-reduced-motion:reduce){.contact .contact-btn.primary{animation:none}}

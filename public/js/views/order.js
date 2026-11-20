@@ -19,25 +19,19 @@ const phoneOk = p => /^(\+98|0098|98|0)?9\d{9}$/.test(toEn(p).replace(/[\s-]/g, 
 export async function order() {
   const [{ site }, cfg] = await Promise.all([load(), loadOrder()]);
   document.title = 'ثبت سفارش | ' + site.name;
-  if (sessionStorage.getItem('orderGuide')) return draw(cfg, site);
-  app.replaceChildren();
-  guide(cfg, () => draw(cfg, site));
+  draw(cfg, site);
 }
 
-function guide(cfg, done) {
+// نکات قبل از ثبت: اختیاری، بدون تیک اجباری
+function showGuide(cfg) {
   const g = cfg.guide;
-  let ok = false, dlg;
-  const box = h('input', { type: 'checkbox', id: 'g-ok' });
-  const go = h('button', { class: 'btn primary', type: 'button', disabled: 'true', onclick: () => { ok = true; sessionStorage.setItem('orderGuide', '1'); dlg.close(); done(); } }, g.cta);
-  box.addEventListener('change', () => { go.disabled = !box.checked; });
+  let dlg;
   dlg = openModal({
     title: g.title,
-    onclose: () => { if (!ok) location.hash = '/'; },
     content: h('div', {},
       h('p', { class: 'lead' }, g.intro),
       h('ol', { class: 'guide' }, g.points.map((t, i) => h('li', {}, h('b', {}, en(i + 1)), h('span', {}, t)))),
-      h('label', { class: 'check', for: 'g-ok' }, box, h('span', {}, g.confirm)),
-      go),
+      h('button', { class: 'btn primary', type: 'button', onclick: () => dlg.close() }, 'متوجه شدم')),
   });
 }
 
@@ -130,7 +124,9 @@ function draw(cfg, site) {
     h('header', { class: 'o-head' },
       h('h1', { class: 'o-title' }, 'ثبت سفارش'),
       h('p', { class: 'o-meta' }, h('span', {}, `مرحله ${en(step + 1)} از ${en(STEPS)}`), h('span', {}, cfg.steps[step])),
-      h('div', { class: 'o-steps', 'aria-hidden': 'true' }, cfg.steps.map((_, i) => h('i', { class: i < step ? 'is-done' : i === step ? 'is-cur' : '' })))),
+      h('div', { class: 'o-steps', 'aria-hidden': 'true' }, cfg.steps.map((_, i) => h('i', { class: i < step ? 'is-done' : i === step ? 'is-cur' : '' }))),
+      step === 0 && h('p', { class: 'o-note' }, `${en(STEPS)} مرحله، حدود 3 دقیقه، بدون تعهد · `,
+        h('button', { class: 'o-guide', type: 'button', onclick: () => showGuide(cfg) }, 'نکات قبل از شروع'))),
     h('div', { class: 'step' }, STEP_VIEWS[step](cfg, redraw)),
     h('div', { class: 'o-bar' }, h('div', {}, err,
       h('div', { class: 'o-btns' },
