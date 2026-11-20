@@ -166,3 +166,30 @@
 @media (prefers-reduced-motion: reduce) {
   .intro-arch, .intro-body { animation: none; }
 }
+
+/* شماره تماس سبز زیر معرفی */
+.intro-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 8px 20px;
+  min-height: 44px;
+  border: 1px solid rgba(61, 220, 132, .4);
+  border-radius: 99px;
+  background: rgba(61, 220, 132, .08);
+  color: #3DDC84;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  transition: background .25s, border-color .25s, box-shadow .25s;
+}
+.intro-phone:hover,
+.intro-phone:focus-visible {
+  background: rgba(61, 220, 132, .16);
+  border-color: #3DDC84;
+  box-shadow: 0 8px 22px -8px rgba(61, 220, 132, .45);
+  outline-color: #3DDC84;
+}
+:root[data-theme="light"] .intro-phone { color: #1E9E57; border-color: rgba(30, 158, 87, .45); background: rgba(30, 158, 87, .08); }
+

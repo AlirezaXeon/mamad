@@ -374,6 +374,9 @@ async function getInUseMediaMap(env) {
             if (val.logo) add(val.logo, 'لوگوی اسپلش');
             if (val.image) add(val.image, 'تصویر اسپلش');
           }
+          if (s.key === 'tariff' && val && typeof val === 'object') {
+            if (val.image) add(val.image, 'تعرفه');
+          }
         }
       }
     } catch (e) {
@@ -839,6 +842,15 @@ async function updateAdminSite(req, env) {
       lines: Array.isArray(b.splash.lines) ? b.splash.lines.map(l => clean(l, 80)) : []
     };
     await saveSetting('splash', splash);
+  }
+
+  if (b.tariff !== undefined && typeof b.tariff === 'object' && b.tariff !== null) {
+    const image = cleanImageUrl(b.tariff.image);
+    if (image === null) return J({ error: 'آدرس تصویر تعرفه نامعتبر است.' }, 400);
+    await saveSetting('tariff', {
+      title: clean(b.tariff.title, 80) || 'تعرفه ۱۴۰۵',
+      image
+    });
   }
 
   return J({ ok: true });

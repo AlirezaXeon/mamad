@@ -141,6 +141,28 @@
       toast(`حجم فایل "${file.name}" بیشتر از ۳۰ مگابایت است.`);
       return null;
     }
+
+    // آپلود بدون هیچ پردازشی: فایل WebP دقیقاً همانطور که هست ذخیره می‌شود
+    if (preset === 'raw') {
+      if (file.type !== 'image/webp') {
+        toast('برای این بخش فقط فایل WebP مجاز است.');
+        return null;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast('حجم فایل WebP بیشتر از ۳ مگابایت است.');
+        return null;
+      }
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await api('/api/admin/upload', { method: 'POST', body: formData });
+        return res.url;
+      } catch (err) {
+        toast(err.message);
+        return null;
+      }
+    }
+
     try {
       const blob = await compressImage(file, PRESETS[preset] || PRESETS.gallery);
       if (blob.size > MAX_FILE_SIZE) {
@@ -698,6 +720,7 @@
   // ══════════════════════════════════════════════
   let splashLogoUrl = '';
   let splashImageUrl = '';
+  let tariffImageUrl = '';
 
   async function loadSiteSettings() {
     try {
@@ -711,6 +734,11 @@
 
       updateSiteImagePreview('splashLogo', splashLogoUrl);
       updateSiteImagePreview('splashImage', splashImageUrl);
+
+      const tariff = siteData.tariff || {};
+      tariffImageUrl = tariff.image || '';
+      $('#tariffTitle').value = tariff.title || 'تعرفه ۱۴۰۵';
+      updateSiteImagePreview('tariff', tariffImageUrl);
     } catch (err) {
       toast('خطا در دریافت تنظیمات سایت: ' + err.message);
     }
@@ -761,6 +789,22 @@
     updateSiteImagePreview('splashImage', '');
   };
 
+  $('#btnPickTariff').onclick = () => {
+    openImagePicker({
+      title: 'انتخاب عکس تعرفه (WebP بدون تغییر)',
+      preset: 'raw',
+      onSelect: url => {
+        tariffImageUrl = url;
+        updateSiteImagePreview('tariff', url);
+      }
+    });
+  };
+
+  $('#btnRemoveTariff').onclick = () => {
+    tariffImageUrl = '';
+    updateSiteImagePreview('tariff', '');
+  };
+
   $('#siteSettingsForm').addEventListener('submit', async e => {
     e.preventDefault();
     const name = $('#siteName').value.trim();
@@ -773,6 +817,10 @@
         logo: splashLogoUrl,
         image: splashImageUrl,
         lines: siteData.splash?.lines || ['طراحی داخلی', 'معماری و اجرا', 'از ایده تا اجرا']
+      },
+      tariff: {
+        title: $('#tariffTitle').value.trim(),
+        image: tariffImageUrl
       }
     };
 

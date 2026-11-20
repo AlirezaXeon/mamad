@@ -17,7 +17,7 @@ try {
   splash(site.splash, site.name);
   initDynamicBg();
   document.getElementById('top').replaceChildren(h('a', { href: '#/' }, site.name));
-  contactBar(site.contactUrl);
+  contactBar(site.contactUrl, site.tariff);
   route(/^\/$/, home);
   route(/^\/p\/([^/]+)$/, project);
   route(/^\/order$/, order);
