@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS orders (
   timeline TEXT,
   notes TEXT,
   refs TEXT,
+  files TEXT DEFAULT '[]',
   admin_note TEXT,
   ip_hash TEXT
 );
