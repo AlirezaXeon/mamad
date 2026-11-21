@@ -193,3 +193,62 @@
 }
 :root[data-theme="light"] .intro-phone { color: #1E9E57; border-color: rgba(30, 158, 87, .45); background: rgba(30, 158, 87, .08); }
 
+/* ═══ دکمه‌های ثبت سفارش: انیمیشن جذب توجه ═══ */
+.cta-order {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  animation: ctaPulse 3.2s ease-out 1.5s infinite;
+}
+
+/* برق عبوری */
+.cta-order::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: -60%;
+  width: 40%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .38), transparent);
+  transform: skewX(-20deg);
+  animation: ctaShine 3.2s ease-in-out 1.5s infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* فلش متحرک */
+.cta-order .cta-arrow {
+  display: inline-block;
+  margin-inline-start: 8px;
+  animation: ctaNudge 1.6s ease-in-out infinite;
+}
+
+.cta-order:hover .cta-arrow { animation-duration: .8s; }
+.cta-order:active { transform: scale(.97); }
+
+@keyframes ctaPulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 14px color-mix(in srgb, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+/* در RTL جهت حرکت به سمت چپ (جهت فلش ←) */
+@keyframes ctaShine {
+  0%, 55% { inset-inline-start: -60%; }
+  100%    { inset-inline-start: 130%; }
+}
+@keyframes ctaNudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-5px); }
+}
+
+/* جلوگیری از تداخل با انیمیشن قدیمی نوار پایین */
+.contact .contact-btn.primary.cta-order { animation: ctaPulse 3.2s ease-out 1.5s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-order,
+  .cta-order::before,
+  .cta-order .cta-arrow,
+  .contact .contact-btn.primary.cta-order { animation: none; }
+}
+
+

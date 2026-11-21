@@ -5,7 +5,8 @@ import { openLightbox } from './lightbox.js';
 export function contactBar(url, tariff) {
   const t = tariff && tariff.image ? tariff : null;
   document.getElementById('contact').replaceChildren(
-    h('a', { class: 'contact-btn primary', href: '#/order' }, 'ثبت سفارش'),
+    h('a', { class: 'contact-btn primary cta-order', href: '#/order' },
+      'ثبت سفارش', h('span', { class: 'cta-arrow', 'aria-hidden': 'true' }, '←')),
     t && h('button', {
       class: 'contact-btn', type: 'button',
       onclick: () => openLightbox([t.image], 0, t.title || 'تعرفه ۱۴۰۵')
