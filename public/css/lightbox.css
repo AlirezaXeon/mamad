@@ -1,4 +1,4 @@
-/* ═══ پاپ‌آپ تمام‌صفحه لایت‌باکس با قابلیت زوم فنری (Spring-Back Pinch Zoom) ═══ */
+/* ═══ پاپ‌آپ تمام‌صفحه لایت‌باکس با زوم فنری (گالری) و زوم ماندگار (تعرفه) ═══ */
 
 #lightbox {
   position: fixed;
@@ -151,7 +151,10 @@
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   pointer-events: auto;
-  touch-action: none;
+  /* pan-x: سوایپ افقی روی عکس به اسکرول اسلایدر می‌رسد (ورق‌زدن در موبایل).
+     پینچ و کشیدن به پایین را JS با preventDefault مدیریت می‌کند.
+     (قبلاً none بود و باعث می‌شد روی گوشی فقط عکس اول دیده شود.) */
+  touch-action: pan-x;
   will-change: transform;
 }
 

@@ -1,0 +1,41 @@
+/* ═══ سازگاری با مرورگرهای قدیمی‌تر (آخرین فایل در app.css) ═══ */
+
+/* ۱) بدون color-mix: تمام پس‌زمینه‌های شیشه‌ای و گرادیان‌های تیره حذف می‌شدند
+      (نوار پایین شفاف، متن روی کارت پروژه ناخوانا). معادل rgba اینجا جایگزین می‌شود. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  :root { --bg-rgb: 20, 16, 13; }
+  :root[data-theme="light"] { --bg-rgb: 239, 235, 228; }
+
+  .bar, .contact, .o-bar { background: rgba(var(--bg-rgb), .92); }
+  @media (max-width: 639px) { .chips { background: rgba(var(--bg-rgb), .94); } }
+  .badge, .back-fixed { background: rgba(var(--bg-rgb), .65); }
+  .pic::after {
+    background: linear-gradient(to top, rgba(var(--bg-rgb), .88) 0%, rgba(var(--bg-rgb), .45) 32%, transparent 62%);
+  }
+  .project-hero-overlay {
+    background: linear-gradient(to top, rgba(var(--bg-rgb), .92) 0%, rgba(var(--bg-rgb), .3) 50%, transparent 100%);
+  }
+  .next-project-overlay { background: rgba(var(--bg-rgb), .5); }
+  .lb-top { background: linear-gradient(to bottom, rgba(20, 16, 13, .8) 0%, transparent 100%); }
+  .intro-fb { background: var(--paper); }
+}
+
+/* ۲) fallback برای <dialog> (iOS قدیمی‌تر از 15.4): modal.js کلاس modal-fb را اضافه می‌کند */
+.modal.modal-fb { display: none; }
+.modal.modal-fb[open] {
+  display: flex; position: fixed; inset: 0; z-index: 200;
+  width: 100%; max-width: none; height: 100%; max-height: none;
+  margin: 0; padding: 0; border: 0; border-radius: 0;
+  background: rgba(0, 0, 0, .75);
+  align-items: flex-end; justify-content: center;
+  animation: none;
+}
+.modal-fb[open] .modal-body {
+  width: 100%; max-width: 560px;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: 16px 16px 0 0;
+}
+@media (min-width: 640px) {
+  .modal-fb[open] { align-items: center; }
+  .modal-fb[open] .modal-body { border-radius: 16px; }
+}

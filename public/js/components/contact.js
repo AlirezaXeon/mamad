@@ -9,7 +9,8 @@ export function contactBar(url, tariff) {
       'ثبت سفارش', h('span', { class: 'cta-arrow', 'aria-hidden': 'true' }, '←')),
     t && h('button', {
       class: 'contact-btn', type: 'button',
-      onclick: () => openLightbox([t.image], 0, t.title || 'تعرفه ۱۴۰۵')
+      // persistZoom: عکس تعرفه باید با زوم ماندگار قابل خواندن باشد (نه زوم فنری)
+      onclick: () => openLightbox([t.image], 0, t.title || 'تعرفه ۱۴۰۵', '', { persistZoom: true })
     }, 'تعرفه'),
     url && h('a', { class: 'contact-btn', href: url }, 'ارتباط با ما'));
 }

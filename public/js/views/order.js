@@ -1,4 +1,4 @@
-import { h, app, en, toEn, num, copyText } from '../utils.js';
+import { h, app, en, toEn, num, copyText, uuid } from '../utils.js';
 import { load, loadOrder } from '../store.js';
 import { openModal } from '../components/modal.js';
 import { choices } from '../components/choice.js';
@@ -8,7 +8,7 @@ import { icon, svg } from '../components/icons.js';
 import { submitOrder, uploadOrderPhoto, deleteOrderPhoto } from '../api.js';
 
 const DRAFT = 'orderDraft', STEPS = 4, MAX_PHOTOS = 6, MAX_PHOTO_MB = 10;
-const blank = () => ({ services: [], propertyType: '', city: '', area: '', styles: [], name: '', phone: '', contactMethod: 'call', website: '', sid: crypto.randomUUID() });
+const blank = () => ({ services: [], propertyType: '', city: '', area: '', styles: [], name: '', phone: '', contactMethod: 'call', website: '', sid: uuid() });
 let state = blank(), step = 0;
 // هر عکس: { id, name, size, status: 'queued'|'uploading'|'done'|'error', pct, file, xhr, msg, removed }
 let photos = [], queue = Promise.resolve(), repaint = null;
@@ -239,6 +239,8 @@ function done(code, site, photoCount = 0) {
   const oc = site.orderContact || {};
   const tg = (oc.telegram && oc.telegram !== 'your_telegram_id') ? oc.telegram.trim() : '';
   const wa = (oc.whatsapp && oc.whatsapp !== '989120000000') ? oc.whatsapp.trim() : '';
+  // اگر تلگرام/واتساپ تنظیم نشده، مشتری را به صفحه «ارتباط با ما» می‌فرستیم تا بن‌بست نشود
+  const viaPage = !tg && !wa && site.contactUrl;
   const copy = h('button', { class: 'code', type: 'button', 'aria-label': 'کپی کد پیگیری', onclick: async () => {
     const ok = await copyText(code);
     if (ok) {
@@ -246,6 +248,9 @@ function done(code, site, photoCount = 0) {
       setTimeout(() => delete copy.dataset.ok, 1400);
     }
   } }, code);
+  const sendMore = (tg || wa)
+    ? 'اگر نقشه یا عکس بیشتری دارید، با ذکر کد پیگیری در تلگرام یا واتساپ برایمان بفرستید.'
+    : 'اگر نقشه یا عکس بیشتری دارید، از صفحهٔ «ارتباط با ما» و با ذکر کد پیگیری برایمان بفرستید.';
   scrollTo(0, 0);
   app.replaceChildren(h('section', { class: 'order order-done' },
     svg('<svg class="ok" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 14-16"/></svg>'),
@@ -255,10 +260,11 @@ function done(code, site, photoCount = 0) {
     photoCount ? h('p', { class: 'hint' }, `${en(photoCount)} عکس شما همراه سفارش ارسال شد ✓`) : null,
     h('ol', { class: 'guide next-steps' },
       ['ما در اولین فرصت با شمارهای که وارد کردید تماس میگیریم.',
-       'اگر نقشه یا عکس بیشتری دارید، با ذکر کد پیگیری در تلگرام یا واتساپ برایمان بفرستید.',
+       sendMore,
        'بعد از گفتگو، قیمت و زمانبندی نهایی را هماهنگ میکنیم.'].map((t, i) => h('li', {}, h('b', {}, en(i + 1)), h('span', {}, t)))),
     h('div', { class: 'done-btns' },
       tg && h('a', { class: 'btn primary', href: `https://t.me/${tg}`, target: '_blank', rel: 'noopener' }, 'ارسال نقشه و عکس در تلگرام'),
       wa && h('a', { class: 'btn', href: `https://wa.me/${wa}`, target: '_blank', rel: 'noopener' }, 'ارسال در واتساپ'),
+      viaPage && h('a', { class: 'btn primary', href: site.contactUrl }, 'ارتباط با ما (ارسال نقشه و عکس)'),
       h('a', { class: 'btn', href: '#/' }, 'بازگشت به نمونهکارها'))));
 }

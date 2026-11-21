@@ -32,6 +32,17 @@ export const parseNumber = s => {
 
 export const num = parseNumber;
 
+// UUID نسخه ۴ با fallback: crypto.randomUUID فقط از iOS 15.4 / Chrome 92 به بعد هست
+// (فرمت خروجی با SID_RE در worker.js سازگار است: حروف کوچک و هگز)
+export const uuid = () => {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const x = [...b].map(v => v.toString(16).padStart(2, '0')).join('');
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
+};
+
 // نسخه کوچک (۱۰۸۰px) تصاویر آپلودی در KV؛ برای تصاویر استاتیک و خارجی همان آدرس برمی‌گردد
 const KV_IMG = /^\/api\/media\/img:[a-f0-9]{32}\.webp$/;
 export const small = u => KV_IMG.test(u || '') ? u.replace('/api/media/img:', '/api/media/imgs:') : u;
