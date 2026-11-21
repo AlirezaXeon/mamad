@@ -78,6 +78,11 @@ textarea.in{min-height:120px;resize:vertical}
 .ph-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ph-list small{flex:none;color:var(--mute)}
 .ph-list li button{flex:none;width:30px;height:30px;border:1px solid var(--line-strong);border-radius:50%;background:none;color:var(--ink);cursor:pointer}
+.ph-list li{position:relative;overflow:hidden}
+.ph-bar{position:absolute;inset-block-end:0;inset-inline-start:0;height:2px;background:var(--accent);transition:width .2s}
+.ph-st{flex:none;font-size:.8rem;color:var(--mute)}
+.ph-st.ok{color:#3DDC84}
+.ph-list li button.retry{width:auto;height:auto;padding:0;border:0;border-radius:0;color:var(--danger);font-size:.8rem;text-decoration:underline}
 .up{margin:0 0 24px;text-align:start}
 .up .sum-t{margin-top:0}
 .up-st{flex:none;font-size:.8rem;color:var(--mute)}

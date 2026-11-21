@@ -59,3 +59,17 @@ CREATE TABLE IF NOT EXISTS admin_attempts (
 );
 CREATE INDEX IF NOT EXISTS idx_admin_attempts_ip ON admin_attempts(ip_hash, created_at);
 
+CREATE TABLE IF NOT EXISTS order_uploads (
+  id TEXT PRIMARY KEY,
+  sid TEXT NOT NULL,
+  key TEXT NOT NULL,
+  name TEXT,
+  size INTEGER,
+  type TEXT,
+  ip_hash TEXT,
+  order_code TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_uploads_sid ON order_uploads(sid, order_code);
+CREATE INDEX IF NOT EXISTS idx_uploads_ip ON order_uploads(ip_hash, created_at);
+

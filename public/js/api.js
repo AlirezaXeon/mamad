@@ -6,14 +6,25 @@ export async function submitOrder(data) {
   return j;
 }
 
-// آپلود یک عکس همانطور که هست (بدون تغییر اندازه یا فرمت)
-export async function uploadOrderPhoto(code, token, file) {
-  const r = await fetch(`/api/order/file?code=${encodeURIComponent(code)}&t=${encodeURIComponent(token)}`, {
-    method: 'POST',
-    headers: { 'content-type': file.type || 'application/octet-stream', 'x-file-name': encodeURIComponent(file.name) },
-    body: file
+// آپلود فوری یک عکس (بدون تغییر اندازه یا فرمت) با نوار پیشرفت و امکان لغو
+export function uploadOrderPhoto(sid, file, { onProgress, onXhr } = {}) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('POST', `/api/order/file?sid=${encodeURIComponent(sid)}`);
+    x.setRequestHeader('content-type', file.type || 'application/octet-stream');
+    x.setRequestHeader('x-file-name', encodeURIComponent(file.name));
+    x.upload.onprogress = e => { if (e.lengthComputable) onProgress?.(e.loaded / e.total); };
+    x.onload = () => {
+      let j = {}; try { j = JSON.parse(x.responseText); } catch {}
+      if (x.status >= 200 && x.status < 300) resolve(j);
+      else reject(new Error(j.error || 'ارسال عکس انجام نشد.'));
+    };
+    x.onerror = () => reject(new Error('اتصال برقرار نشد.'));
+    x.onabort = () => reject(Object.assign(new Error('لغو شد.'), { aborted: true }));
+    onXhr?.(x);
+    x.send(file);
   });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || 'ارسال عکس انجام نشد.');
-  return j;
 }
+
+export const deleteOrderPhoto = (sid, id) =>
+  fetch(`/api/order/file?sid=${encodeURIComponent(sid)}&id=${encodeURIComponent(id)}`, { method: 'DELETE', keepalive: true }).catch(() => {});

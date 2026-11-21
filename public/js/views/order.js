@@ -4,14 +4,21 @@ import { openModal } from '../components/modal.js';
 import { choices } from '../components/choice.js';
 import { helpButton } from '../components/help.js';
 import { icon, svg } from '../components/icons.js';
-import { submitOrder, uploadOrderPhoto } from '../api.js';
+import { submitOrder, uploadOrderPhoto, deleteOrderPhoto } from '../api.js';
 
 const DRAFT = 'orderDraft', STEPS = 4, MAX_PHOTOS = 6, MAX_PHOTO_MB = 10;
-const blank = () => ({ services: [], propertyType: '', city: '', area: '', styles: [], name: '', phone: '', contactMethod: 'call', website: '' });
+const blank = () => ({ services: [], propertyType: '', city: '', area: '', styles: [], name: '', phone: '', contactMethod: 'call', website: '', sid: crypto.randomUUID() });
 let state = blank(), step = 0;
-let photos = []; // فایلهای انتخابشده (در پیشنویس ذخیره نمیشوند)
-try { const d = JSON.parse(sessionStorage.getItem(DRAFT)); if (d) { state = { ...blank(), ...d.state }; step = Math.min(d.step || 0, STEPS - 1); } } catch {}
-const save = () => { try { sessionStorage.setItem(DRAFT, JSON.stringify({ state, step })); } catch {} };
+// هر عکس: { id, name, size, status: 'queued'|'uploading'|'done'|'error', pct, file, xhr, msg, removed }
+let photos = [], queue = Promise.resolve(), repaint = null;
+try {
+  const d = JSON.parse(sessionStorage.getItem(DRAFT));
+  if (d) {
+    state = { ...blank(), ...d.state }; step = Math.min(d.step || 0, STEPS - 1);
+    photos = (d.photos || []).map(p => ({ ...p, status: 'done', pct: 100 }));   // عکسهای آپلودشده بعد از رفرش هم میمانند
+  }
+} catch {}
+const save = () => { try { sessionStorage.setItem(DRAFT, JSON.stringify({ state, step, photos: photos.filter(p => p.status === 'done').map(({ id, name, size }) => ({ id, name, size })) })); } catch {} };
 const set = (k, v) => { state[k] = v; save(); };
 const lab = (list, id) => (list.find(o => o.id === id) || {}).label || '';
 const phoneOk = p => /^(\+98|0098|98|0)?9\d{9}$/.test(toEn(p).replace(/[\s-]/g, ''));
@@ -54,26 +61,62 @@ const sServices = cfg => h('div', {}, title('چه خدماتی نیاز داری
   field('', choices({ options: cfg.services, multi: true, value: state.services, variant: 'cards', onchange: v => set('services', v),
     render: o => [icon(o.id), h('b', {}, o.label), h('small', {}, o.desc)] })));
 
-// انتخابگر عکس: هر فرمت تصویری، حداکثر ۱۰ مگابایت برای هر عکس
+// صف آپلود: یکییکی (برای موبایل بهتر است)
+function startUpload(it) {
+  it.status = 'queued'; it.pct = 0; it.msg = ''; repaint?.();
+  queue = queue.then(async () => {
+    if (it.removed) return;
+    it.status = 'uploading'; repaint?.();
+    try {
+      const r = await uploadOrderPhoto(state.sid, it.file, {
+        onProgress: p => { it.pct = Math.round(p * 100); repaint?.(); },
+        onXhr: x => { it.xhr = x; }
+      });
+      if (it.removed) { deleteOrderPhoto(state.sid, r.id); return; }
+      it.id = r.id; it.status = 'done'; it.pct = 100; it.file = null;
+    } catch (e) {
+      if (it.removed) return;
+      it.status = 'error'; it.msg = e.message;
+    } finally { it.xhr = null; save(); repaint?.(); }
+  });
+}
+
+function removePhoto(i) {
+  const [it] = photos.splice(i, 1);
+  if (!it) return;
+  it.removed = true;
+  it.xhr?.abort();
+  if (it.id) deleteOrderPhoto(state.sid, it.id);
+  save(); repaint?.();
+}
+
 function photoPicker() {
   const list = h('ul', { class: 'ph-list' });
   const msg = h('p', { class: 'ph-msg', role: 'alert' });
   const input = h('input', { type: 'file', accept: 'image/*,.heic,.heif', multiple: '', hidden: '' });
   const add = h('button', { class: 'btn', type: 'button', onclick: () => input.click() }, '+ افزودن عکس');
   const draw = () => {
-    list.replaceChildren(...photos.map((f, i) => h('li', {},
-      h('span', { class: 'ph-name' }, f.name),
-      h('small', {}, mb(f.size) + ' MB'),
-      h('button', { type: 'button', 'aria-label': 'حذف', onclick: () => { photos.splice(i, 1); draw(); } }, '×'))));
+    list.replaceChildren(...photos.map((p, i) => {
+      const st = p.status === 'done' ? h('span', { class: 'ph-st ok' }, '✓ ارسال شد')
+        : p.status === 'error' ? h('span', { class: 'ph-st bad' }, h('button', { class: 'retry', type: 'button', title: p.msg, onclick: () => startUpload(p) }, 'ناموفق، تلاش مجدد'))
+        : h('span', { class: 'ph-st' }, p.status === 'queued' ? 'در صف' : en(p.pct || 0) + '%');
+      return h('li', {},
+        h('span', { class: 'ph-name' }, p.name),
+        h('small', {}, mb(p.size) + ' MB'),
+        st,
+        h('button', { type: 'button', 'aria-label': 'حذف', onclick: () => removePhoto(i) }, '×'),
+        p.status === 'uploading' ? h('i', { class: 'ph-bar', style: `width:${p.pct || 0}%` }) : null);
+    }));
     add.disabled = photos.length >= MAX_PHOTOS;
   };
+  repaint = draw;
   input.addEventListener('change', () => {
     const errs = [];
     for (const f of input.files) {
       if (photos.length >= MAX_PHOTOS) { errs.push(`حداکثر ${en(MAX_PHOTOS)} عکس مجاز است.`); break; }
       if (!isImg(f)) errs.push(`«${f.name}» تصویر نیست.`);
       else if (f.size > MAX_PHOTO_MB * 1048576) errs.push(`«${f.name}» بیشتر از ${en(MAX_PHOTO_MB)} مگابایت است.`);
-      else photos.push(f);
+      else { const it = { name: f.name, size: f.size, file: f, status: 'queued', pct: 0 }; photos.push(it); startUpload(it); }
     }
     input.value = '';
     msg.textContent = errs.join(' ');
@@ -92,7 +135,7 @@ const sProperty = cfg => {
       'بلد نیستید اندازه بگیرید؟ روی «؟» بزنید.'),
     field('شهر', text('city', { ph: 'مثلاً اردبیل', ac: 'address-level2' })),
     field('عکس یا نقشه ملک (اختیاری)', photoPicker(), null,
-      `تا ${en(MAX_PHOTOS)} عکس، هر کدام حداکثر ${en(MAX_PHOTO_MB)} مگابایت، با هر فرمت تصویری.`));
+      `تا ${en(MAX_PHOTOS)} عکس، هر کدام حداکثر ${en(MAX_PHOTO_MB)} مگابایت. عکسها همان لحظه ارسال میشوند.`));
 };
 
 const sStyle = cfg => h('div', {}, title('سبک طراحی', 'سلیقه شما مسیر طراحی را مشخص میکند.'),
@@ -129,6 +172,8 @@ function validate(i) {
   if (i === 3) {
     if (state.name.trim().length < 2) return 'نام خود را وارد کنید.';
     if (!phoneOk(state.phone)) return 'شماره موبایل معتبر نیست (مثال: 09123456789).';
+    if (photos.some(p => p.status === 'uploading' || p.status === 'queued')) return 'ارسال عکسها هنوز تمام نشده؛ چند ثانیه صبر کنید.';
+    if (photos.some(p => p.status === 'error')) return 'ارسال یکی از عکسها ناموفق بوده؛ در مرحلهٔ «ملک» دوباره تلاش یا حذفش کنید.';
   }
   return '';
 }
@@ -161,44 +206,18 @@ function draw(cfg, site) {
 async function send(btn, err, site) {
   btn.disabled = true; btn.textContent = 'در حال ثبت…';
   try {
-    const d = await submitOrder({ ...state, photoCount: photos.length, phone: toEn(state.phone).replace(/[\s-]/g, ''), area: num(state.area) });
+    const d = await submitOrder({ ...state, phone: toEn(state.phone).replace(/[\s-]/g, ''), area: num(state.area) });
     try { sessionStorage.removeItem(DRAFT); } catch {}
-    const files = photos;
     state = blank(); step = 0; photos = [];
-    done(d.code, site, d.token, files);
+    done(d.code, site, d.photos || 0);
   } catch (e) {
     err.textContent = e.status ? e.message : 'اتصال برقرار نشد. اینترنت را بررسی کنید و دوباره تلاش کنید.';
     btn.disabled = false; btn.textContent = 'ثبت نهایی سفارش';
   }
 }
 
-// ---------- ارسال عکسها بعد از ثبت سفارش (یکییکی، با تلاش مجدد) ----------
-function photoStatus(code, token, files) {
-  const list = h('ul', { class: 'up-list' });
-  const items = files.map(f => {
-    const st = h('span', { class: 'up-st' }, 'در صف');
-    list.append(h('li', {}, h('span', { class: 'ph-name' }, f.name), st));
-    return { f, st };
-  });
-  const run = async it => {
-    it.st.className = 'up-st'; it.st.textContent = 'در حال ارسال…';
-    try {
-      await uploadOrderPhoto(code, token, it.f);
-      it.st.className = 'up-st ok'; it.st.textContent = '✓ ارسال شد';
-    } catch (e) {
-      it.st.className = 'up-st bad';
-      it.st.replaceChildren(h('button', { type: 'button', title: e.message, onclick: () => run(it) }, 'ناموفق، تلاش مجدد'));
-    }
-  };
-  (async () => { for (const it of items) await run(it); })();
-  return h('div', { class: 'up' },
-    h('h3', { class: 'sum-t' }, 'ارسال عکسها'),
-    h('p', { class: 'hint' }, 'تا پایان ارسال، این صفحه را نبندید.'),
-    list);
-}
-
 // ---------- صفحه موفقیت ----------
-function done(code, site, token, files = []) {
+function done(code, site, photoCount = 0) {
   const oc = site.orderContact || {};
   const tg = (oc.telegram && oc.telegram !== 'your_telegram_id') ? oc.telegram.trim() : '';
   const wa = (oc.whatsapp && oc.whatsapp !== '989120000000') ? oc.whatsapp.trim() : '';
@@ -215,7 +234,7 @@ function done(code, site, token, files = []) {
     h('h1', {}, 'سفارش شما ثبت شد'),
     h('p', { class: 'lead' }, 'کد پیگیری شما (برای کپی لمس کنید):'),
     copy,
-    files.length ? photoStatus(code, token, files) : null,
+    photoCount ? h('p', { class: 'hint' }, `${en(photoCount)} عکس شما همراه سفارش ارسال شد ✓`) : null,
     h('ol', { class: 'guide next-steps' },
       ['ما در اولین فرصت با شمارهای که وارد کردید تماس میگیریم.',
        'اگر نقشه یا عکس بیشتری دارید، با ذکر کد پیگیری در تلگرام یا واتساپ برایمان بفرستید.',
