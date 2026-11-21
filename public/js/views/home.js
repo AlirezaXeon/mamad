@@ -22,12 +22,11 @@ const card = (p, i) => {
 
 export async function home() {
   const { site, projects } = await load();
-  document.title = site.name + ' | معماری و طراحی داخلی';
-
   const profile = site.profile || {};
   const profileName = profile.name || 'محمد فهیمی';
   const roles = (Array.isArray(profile.roles) ? profile.roles : []).filter(Boolean);
   if (!roles.length) roles.push('طراح داخلی', 'نقشه‌کش');
+  document.title = `${profileName} | ${roles.join(' و ')} در اردبیل`;
 
   // حروف اول نام جهت نمایش در صورت نبودن تصویر
   const initials = profileName

@@ -4,11 +4,11 @@ import { openLightbox } from '../components/lightbox.js';
 import { initReveals, initParallax, initFadeScroll } from '../components/scroll-animator.js';
 
 export async function project(slug) {
-  const { projects } = await load();
+  const { site, projects } = await load();
   const i = projects.findIndex(p => p.slug === slug);
   if (i < 0) { location.hash = '/'; return; }
   const p = projects[i], next = projects[(i + 1) % projects.length];
-  document.title = p.title + ' | پروژه';
+  document.title = `${p.title} | پروژهای از ${site.profile?.name || 'محمد فهیمی'}`;
 
   const images = p.images?.length ? p.images : (p.cover ? [p.cover] : []);
   const hasImages = images.length > 0;
