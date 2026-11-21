@@ -25,7 +25,7 @@
   let mediaItems = [];
   let mediaCursor = null;
 
-  const lab = (list, id) => (list.find(o => o.id === id) || {}).label || id || '—';
+  const lab = (list, id) => (list.find(o => o.id === id) || {}).label || (id === 'japandi' ? 'ژاپندی (قدیمی)' : id) || '—';
   const labs = (list, ids) => (ids || []).map(i => lab(list, i)).join('، ') || '—';
   const when = s => new Date(String(s).replace(' ', 'T') + 'Z').toLocaleString('fa-IR');
 
