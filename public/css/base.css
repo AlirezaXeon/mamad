@@ -54,4 +54,5 @@ main{max-width:var(--max);margin:0 auto;padding-bottom:64px}
 .btn.primary,.contact-btn.primary{background:transparent;color:var(--ink);border:1px solid var(--accent);font-weight:500}
 .btn.primary:hover,.contact-btn.primary:hover{background:var(--accent-soft);color:var(--ink);border-color:var(--accent)}
 .chip,.btn,.contact-btn,.action,.back-fixed{min-height:44px}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{scroll-behavior:auto}}

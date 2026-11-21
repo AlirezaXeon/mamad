@@ -102,6 +102,7 @@ html:not(.no-splash) body:has(#splash){overflow:hidden}
 @keyframes spLine{to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}#splash{transition:opacity .3s}#splash.out{transform:none;opacity:0}}
 #dynamic-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;display:none}.orb{display:none}body::before,body::after,html::before{display:none}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
 <!-- app.css کامل به‌صورت async (غیربلاک‌کننده) بارگذاری می‌شود. media=print → all بعد از لود -->
 <link rel="stylesheet" href="css/app.css" media="print" id="dcss">
@@ -113,8 +114,10 @@ html:not(.no-splash) body:has(#splash){overflow:hidden}
 <div id="splash" aria-hidden="true"></div>
 <header id="top" class="bar"></header>
 <main id="app">
-  <h1>محمد فهیمی؛ طراح داخلی و نقشهکش</h1>
-  <p>کارشناس ارشد مهندسی معماری و عضو سازمان نظام مهندسی اردبیل. طراحی داخلی، نقشهکشی، طراحی نما و ویلا، از ایده تا اجرا.</p>
+  <div class="visually-hidden">
+    <h1>محمد فهیمی؛ طراح داخلی و نقشه کش</h1>
+    <p>کارشناس ارشد مهندسی معماری و عضو سازمان نظام مهندسی اردبیل. طراحی داخلی، نقشه کشی، طراحی نما و ویلا، از ایده تا اجرا.</p>
+  </div>
 </main>
 <nav id="contact" class="contact" aria-label="راه‌های ارتباطی"></nav>
 <div id="lightbox" hidden></div>
