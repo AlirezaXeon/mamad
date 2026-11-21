@@ -2,6 +2,7 @@ import { h, app, en, toEn, num, copyText } from '../utils.js';
 import { load, loadOrder } from '../store.js';
 import { openModal } from '../components/modal.js';
 import { choices } from '../components/choice.js';
+import { dropdown } from '../components/select.js';
 import { helpButton } from '../components/help.js';
 import { icon, svg } from '../components/icons.js';
 import { submitOrder, uploadOrderPhoto, deleteOrderPhoto } from '../api.js';
@@ -127,13 +128,30 @@ function photoPicker() {
 }
 
 const sProperty = cfg => {
-  const area = h('input', { class: 'in', value: state.area, inputmode: 'decimal', autocomplete: 'off', placeholder: 'مثلاً 120', 'aria-label': 'متراژ', oninput: e => set('area', e.target.value) });
-  const use = v => { area.value = en(v); set('area', String(v)); };
+  const presets = cfg.areaPresets || [];
+  const chips = presets.map(p => h('button', { type: 'button', class: 'opt', onclick: () => use(p.value) }, en(p.label)));
+  const sync = () => chips.forEach((b, i) => {
+    const on = num(state.area) === presets[i].value;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  const area = h('input', { class: 'in', value: state.area, inputmode: 'decimal', autocomplete: 'off', placeholder: 'مثلاً 120', 'aria-label': 'متراژ', oninput: e => { set('area', e.target.value); sync(); } });
+  const use = v => { area.value = en(v); set('area', String(v)); sync(); };
+  sync();
+
   return h('div', {}, title('مشخصات ملک', 'اطلاعات تقریبی هم کافی است.'),
     field('نوع ملک', choices({ options: cfg.propertyTypes, value: state.propertyType, onchange: v => set('propertyType', v) })),
-    field('متراژ', h('div', { class: 'with-unit' }, area, h('span', { class: 'unit' }, 'متر مربع')), helpButton(cfg.helps.area, { onUse: use }),
-      'بلد نیستید اندازه بگیرید؟ روی «؟» بزنید.'),
-    field('شهر', text('city', { ph: 'مثلاً اردبیل', ac: 'address-level2' })),
+    field('متراژ',
+      h('div', {},
+        h('div', { class: 'with-unit' }, area, h('span', { class: 'unit' }, 'متر مربع')),
+        chips.length ? h('div', { class: 'choices pill area-chips', role: 'group', 'aria-label': 'متراژ تقریبی' }, chips) : null),
+      helpButton(cfg.helps.area, { onUse: use }),
+      'عدد را بنویسید یا یک گزینهی تقریبی بزنید (بعداً قابل اصلاح است). برای اندازهگیری روی «؟» بزنید.'),
+    field('شهر', dropdown({
+      pinned: cfg.cityPinned || [], items: cfg.cities || [], value: state.city,
+      placeholder: 'شهر را انتخاب کنید', searchPlaceholder: 'جستجوی شهر…', label: 'شهر',
+      onchange: v => set('city', v)
+    })),
     field('عکس یا نقشه ملک (اختیاری)', photoPicker(), null,
       `تا ${en(MAX_PHOTOS)} عکس، هر کدام حداکثر ${en(MAX_PHOTO_MB)} مگابایت. عکسها همان لحظه ارسال میشوند.`));
 };

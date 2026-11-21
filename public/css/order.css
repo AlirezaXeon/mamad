@@ -89,4 +89,29 @@ textarea.in{min-height:120px;resize:vertical}
 .up-st.ok{color:#3DDC84}
 .up-st.bad button{border:0;background:none;padding:0;color:var(--danger);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer}
 
+/* انتخاب سریع متراژ */
+.area-chips{margin-top:12px}
+.area-chips .opt{padding:8px 14px;font-size:.88rem}
+
+/* منوی کشویی (شهر) */
+.dd{position:relative}
+.dd-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:start;cursor:pointer}
+.dd-text.ph{color:var(--mute)}
+.dd-ico{flex:none;color:var(--mute);transition:transform .25s var(--ease-out-quart),color .25s}
+.dd-btn[aria-expanded=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.dd-btn[aria-expanded=true] .dd-ico{transform:rotate(180deg);color:var(--accent)}
+.dd-panel{position:absolute;inset-inline:0;top:calc(100% + 8px);z-index:20;padding:8px;border:1px solid var(--line-strong);border-radius:var(--r-lg,16px);background:var(--surface);box-shadow:0 18px 40px -12px rgba(0,0,0,.6);animation:ddIn .2s var(--ease-out-quart)}
+.dd-panel[hidden]{display:none}
+.dd-search{margin-bottom:6px;padding:10px 14px;background:var(--bg)}
+.dd-list{position:relative;list-style:none;margin:0;padding:0;max-height:248px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+.dd-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:10px;color:var(--ink);cursor:pointer}
+.dd-opt.act,.dd-opt:hover{background:var(--accent-soft)}
+.dd-opt.on{color:var(--accent);font-weight:600}
+.dd-opt.on::after{content:"✓";font-size:.9rem}
+.dd-custom{color:var(--accent)}
+.dd-sep{height:1px;margin:6px 10px;background:var(--line-strong)}
+@keyframes ddIn{from{opacity:0;transform:translateY(-6px)}}
+@media(prefers-reduced-motion:reduce){.dd-panel{animation:none}.dd-ico{transition:none}}
+
+
 
