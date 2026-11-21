@@ -774,27 +774,18 @@ async function getPublicProjects(req, env) {
   return env.ASSETS.fetch(new URL('/data/projects.json', req.url));
 }
 
-const DEFAULT_BUBBLES = ['محمد فهیمی', 'طراح داخلی', 'نقشه‌کش', 'از ایده تا اجرا'];
-
 function normalizeProfile(prof) {
   if (!prof || typeof prof !== 'object') {
     return {
       name: 'محمد فهیمی',
-      roles: ['طراح داخلی', 'نقشه‌کش'],
-      bubbles: DEFAULT_BUBBLES,
+      roles: ['طراح داخلی', 'نقشهکش'],
       image: ''
     };
   }
-  let bubbles = Array.isArray(prof.bubbles) ? prof.bubbles.map(b => clean(b, 60)).filter(Boolean) : [];
-  for (let i = bubbles.length; i < 4; i++) {
-    bubbles.push(DEFAULT_BUBBLES[i]);
-  }
-  bubbles = bubbles.slice(0, 4);
   const image = cleanImageUrl(prof.image) || '';
   return {
     name: clean(prof.name, 60) || 'محمد فهیمی',
-    roles: Array.isArray(prof.roles) ? prof.roles.map(r => clean(r, 40)) : ['طراح داخلی', 'نقشه‌کش'],
-    bubbles,
+    roles: Array.isArray(prof.roles) ? prof.roles.map(r => clean(r, 40)) : ['طراح داخلی', 'نقشهکش'],
     image
   };
 }

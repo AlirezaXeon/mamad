@@ -32,7 +32,7 @@
     <nav class="tabs" role="tablist">
       <button class="tab-btn active" data-tab="orders" type="button" role="tab">سفارش‌ها <small id="count"></small></button>
       <button class="tab-btn" data-tab="projects" type="button" role="tab">پروژه‌ها <small id="pcount"></small></button>
-      <button class="tab-btn" data-tab="profile" type="button" role="tab">پروفایل و حباب‌ها</button>
+      <button class="tab-btn" data-tab="profile" type="button" role="tab">پروفایل</button>
       <button class="tab-btn" data-tab="site" type="button" role="tab">تنظیمات سایت و اسپلش</button>
       <button class="tab-btn" data-tab="media" type="button" role="tab">کتابخانه تصاویر <small id="mcount"></small></button>
     </nav>
@@ -56,9 +56,9 @@
       <div id="projectsList" class="projects-list"></div>
     </div>
 
-    <!-- تب ۳: پروفایل و حباب‌ها -->
+    <!-- تب ۳: پروفایل -->
     <div id="tab-profile" class="tab-content" hidden>
-      <h2>اطلاعات پروفایل و ۴ حباب معرفی</h2>
+      <h2>اطلاعات پروفایل</h2>
       <form id="profileForm" class="profile-form">
         <div class="profile-avatar-sec">
           <div class="profile-avatar-wrap">
@@ -83,17 +83,6 @@
           <span>نقش‌ها و عناوین شغلی (با کاما جدا کنید)</span>
           <input class="in" id="profRoles" type="text" placeholder="طراح داخلی، نقشه‌کش">
         </label>
-
-        <!-- ۴ حباب ابری -->
-        <div class="f-label">
-          <span>متن ۴ حباب ابری شناور</span>
-          <div class="bubbles-grid">
-            <input class="in" id="profBubble1" type="text" placeholder="حباب ۱: محمد فهیمی" required>
-            <input class="in" id="profBubble2" type="text" placeholder="حباب ۲: طراح داخلی" required>
-            <input class="in" id="profBubble3" type="text" placeholder="حباب ۳: نقشه‌کش" required>
-            <input class="in" id="profBubble4" type="text" placeholder="حباب ۴: از ایده تا اجرا" required>
-          </div>
-        </div>
 
         <label class="f-label">
           <span>توضیح کوتاه درباره استودیو (Hero About)</span>

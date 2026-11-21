@@ -89,9 +89,6 @@ textarea.in{min-height:75px;resize:vertical}
 .checkbox-label input{accent-color:var(--accent);width:16px;height:16px}
 .hint{margin:4px 0 0;font-size:.78rem;color:var(--mute)}
 
-/* حباب‌های پروفایل */
-.bubbles-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
 /* مشخصات داینامیک */
 .facts-section{margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.01)}
 .facts-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.88rem;color:var(--mute)}
@@ -176,7 +173,6 @@ textarea.in{min-height:75px;resize:vertical}
 @media(max-width:640px){
   .filters{grid-template-columns:1fr}
   .f-row{grid-template-columns:1fr}
-  .bubbles-grid{grid-template-columns:1fr}
   .project-item{flex-wrap:wrap}
   .project-actions{width:100%;justify-content:flex-end;border-top:1px solid var(--line);padding-top:8px;margin-top:6px}
   .media-library-grid{grid-template-columns:repeat(2,1fr)}

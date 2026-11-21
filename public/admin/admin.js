@@ -633,16 +633,7 @@
       siteData = await (await fetch('/api/site')).json().catch(() => ({}));
       const prof = siteData.profile || {};
       $('#profName').value = prof.name || 'محمد فهیمی';
-      $('#profRoles').value = Array.isArray(prof.roles) ? prof.roles.join('، ') : (prof.roles || 'طراح داخلی، نقشه‌کش');
-
-      const bubbles = Array.isArray(prof.bubbles) && prof.bubbles.length >= 4
-        ? prof.bubbles
-        : ['محمد فهیمی', 'طراح داخلی', 'نقشه‌کش', 'از ایده تا اجرا'];
-
-      $('#profBubble1').value = bubbles[0] || 'محمد فهیمی';
-      $('#profBubble2').value = bubbles[1] || 'طراح داخلی';
-      $('#profBubble3').value = bubbles[2] || 'نقشه‌کش';
-      $('#profBubble4').value = bubbles[3] || 'از ایده تا اجرا';
+      $('#profRoles').value = Array.isArray(prof.roles) ? prof.roles.join('، ') : (prof.roles || 'طراح داخلی، نقشهکش');
 
       $('#profAbout').value = siteData.about || '';
       profileAvatarUrl = prof.image || '';
@@ -695,19 +686,10 @@
     e.preventDefault();
     const name = $('#profName').value.trim() || 'محمد فهیمی';
     const roles = $('#profRoles').value.split(/[،,]/).map(s => s.trim()).filter(Boolean);
-    const bubble1 = $('#profBubble1').value.trim() || 'محمد فهیمی';
-    const bubble2 = $('#profBubble2').value.trim() || 'طراح داخلی';
-    const bubble3 = $('#profBubble3').value.trim() || 'نقشه‌کش';
-    const bubble4 = $('#profBubble4').value.trim() || 'از ایده تا اجرا';
     const about = $('#profAbout').value.trim();
 
     const payload = {
-      profile: {
-        name,
-        roles,
-        bubbles: [bubble1, bubble2, bubble3, bubble4],
-        image: profileAvatarUrl
-      },
+      profile: { name, roles, image: profileAvatarUrl },
       about
     };
 
@@ -716,7 +698,7 @@
         method: 'PATCH',
         body: JSON.stringify(payload)
       });
-      toast('اطلاعات پروفایل و ۴ حباب با موفقیت ذخیره شد.');
+      toast('اطلاعات پروفایل با موفقیت ذخیره شد.');
     } catch (err) {
       toast(err.message);
     }
